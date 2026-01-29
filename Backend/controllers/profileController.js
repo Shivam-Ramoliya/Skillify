@@ -1,21 +1,11 @@
 const User = require("../models/User");
+const jwt = require("jsonwebtoken");
 
 // @desc    Update user profile
 // @route   PUT /api/profile/update
 // @access  Private
 exports.updateProfile = async (req, res) => {
   try {
-    const {
-      bio,
-      location,
-      profilePicture,
-      resume,
-      availability,
-      skillsOffered,
-      skillsWanted,
-      profileVisibility,
-    } = req.body;
-
     const user = await User.findById(req.user.id);
 
     if (!user) {
@@ -25,15 +15,23 @@ exports.updateProfile = async (req, res) => {
       });
     }
 
-    // Update fields if provided
-    if (bio) user.bio = bio;
-    if (location) user.location = location;
-    if (profilePicture) user.profilePicture = profilePicture;
-    if (resume) user.resume = resume;
-    if (availability) user.availability = availability;
-    if (skillsOffered) user.skillsOffered = skillsOffered;
-    if (skillsWanted) user.skillsWanted = skillsWanted;
-    if (profileVisibility) user.profileVisibility = profileVisibility;
+    // Update fields if provided (allow empty strings/arrays to clear values)
+    const updatableFields = [
+      "bio",
+      "location",
+      "profilePicture",
+      "resume",
+      "availability",
+      "skillsOffered",
+      "skillsWanted",
+      "profileVisibility",
+    ];
+
+    updatableFields.forEach((field) => {
+      if (Object.prototype.hasOwnProperty.call(req.body, field)) {
+        user[field] = req.body[field];
+      }
+    });
 
     // Check if profile is complete
     const isProfileComplete =
@@ -41,6 +39,7 @@ exports.updateProfile = async (req, res) => {
       user.location &&
       user.profilePicture &&
       user.availability &&
+      user.availability !== "not available" &&
       user.skillsOffered &&
       user.skillsOffered.length > 0;
 
@@ -94,11 +93,22 @@ exports.getUserProfile = async (req, res) => {
     }
 
     // Check if profile is private and current user is not the owner
-    if (
-      user.profileVisibility === "private" &&
-      req.user &&
-      req.user.id !== userId
-    ) {
+    let requesterId = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.split(" ")[1];
+      try {
+        const decoded = jwt.verify(
+          token,
+          process.env.JWT_SECRET || "your_jwt_secret_key",
+        );
+        requesterId = decoded.id;
+      } catch (error) {
+        requesterId = null;
+      }
+    }
+
+    if (user.profileVisibility === "private" && requesterId !== userId) {
       return res.status(403).json({
         success: false,
         message: "This profile is private",
@@ -235,6 +245,13 @@ exports.updateProfileVisibility = async (req, res) => {
       { new: true },
     );
 
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
     res.status(200).json({
       success: true,
       message: `Profile visibility set to ${profileVisibility}`,
@@ -260,6 +277,23 @@ exports.discoverProfiles = async (req, res) => {
       profileComplete: true,
       isVerified: true,
     };
+
+    // Optionally exclude current user if token is provided
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.split(" ")[1];
+      try {
+        const decoded = jwt.verify(
+          token,
+          process.env.JWT_SECRET || "your_jwt_secret_key",
+        );
+        if (decoded?.id) {
+          query._id = { $ne: decoded.id };
+        }
+      } catch (error) {
+        // ignore invalid token for public discover
+      }
+    }
 
     if (role) query.role = role;
     if (skill) {

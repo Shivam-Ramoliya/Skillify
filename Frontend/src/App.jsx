@@ -1,42 +1,134 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import NavBar from './components/NavBar.jsx'
-import Home from './components/Home.jsx'
-import Dashboard from './components/Dashboard.jsx'
-import Explore from './components/Explore.jsx'
-import Messages from './components/Messages.jsx'
-import Profile from './components/Profile.jsx'
-import Sessions from './components/Sessions.jsx'
-import Login from './components/Login.jsx'
-import Signup from './components/Signup.jsx'
-import NotFound from './components/NotFound.jsx'
-import './App.css'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import NavBar from "./components/layout/NavBar";
+import Footer from "./components/layout/Footer";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import VerifyEmail from "./pages/VerifyEmail";
+import CompleteProfile from "./pages/CompleteProfile";
+import Dashboard from "./pages/Dashboard";
+import Discover from "./pages/Discover";
+import Profile from "./pages/Profile";
+import NotFound from "./components/common/NotFound";
+import LoadingSpinner from "./components/common/LoadingSpinner";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+// Protected Route Component
+function ProtectedRoute({ children }) {
+  const { user, loading } = useAuth();
 
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
+
+// Profile Complete Check Route
+function ProfileCompleteRoute({ children }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!user.profileComplete) {
+    return <Navigate to="/complete-profile" replace />;
+  }
+
+  return children;
+}
+
+function AppContent() {
   return (
-    <>
-    <Router>
+    <div className="flex flex-col min-h-screen">
       <NavBar />
-      <main>
+      <main className="grow">
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route path="/messages" element={<Messages />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/sessions" element={<Sessions />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/sign-up" element={<Signup />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+
+          {/* Protected Routes - Require Auth */}
+          <Route
+            path="/complete-profile"
+            element={
+              <ProtectedRoute>
+                <CompleteProfile />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Protected Routes - Require Auth + Profile Complete */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProfileCompleteRoute>
+                <Dashboard />
+              </ProfileCompleteRoute>
+            }
+          />
+
+          <Route
+            path="/discover"
+            element={
+              <ProfileCompleteRoute>
+                <Discover />
+              </ProfileCompleteRoute>
+            }
+          />
+
+          <Route
+            path="/profile"
+            element={
+              <ProfileCompleteRoute>
+                <Profile />
+              </ProfileCompleteRoute>
+            }
+          />
+
+          <Route
+            path="/profile/:userId"
+            element={
+              <ProfileCompleteRoute>
+                <Profile />
+              </ProfileCompleteRoute>
+            }
+          />
+
+          {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-    </Router>
-    </>
-  )
+      <Footer />
+    </div>
+  );
 }
 
-export default App
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </Router>
+  );
+}
+
+export default App;
