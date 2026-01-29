@@ -41,6 +41,32 @@ const request = async (path, options = {}) => {
   return data;
 };
 
+const fileRequest = async (path, file) => {
+  const formData = new FormData();
+  formData.append(path.includes("picture") ? "profilePicture" : "resume", file);
+
+  const headers = {};
+  const authToken = getToken();
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const message = data.message || "Upload failed";
+    throw new Error(message);
+  }
+
+  return data;
+};
+
 export const api = {
   signup: (payload) =>
     request("/api/auth/signup", { method: "POST", body: payload }),
@@ -69,4 +95,7 @@ export const api = {
     }),
   discoverProfiles: (params) =>
     request(`/api/profile/discover${buildQuery(params)}`),
+  uploadProfilePicture: (file) =>
+    fileRequest("/api/profile/upload-picture", file),
+  uploadResume: (file) => fileRequest("/api/profile/upload-resume", file),
 };

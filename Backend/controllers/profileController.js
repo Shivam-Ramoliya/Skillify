@@ -1,5 +1,104 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+} = require("../utils/cloudinaryUpload");
+
+// @desc    Upload Profile Picture
+// @route   POST /api/profile/upload-picture
+// @access  Private
+exports.uploadProfilePicture = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No file provided",
+      });
+    }
+
+    // Delete old profile picture if exists
+    if (user.profilePicturePublicId) {
+      await deleteFromCloudinary(user.profilePicturePublicId);
+    }
+
+    // Upload new picture
+    const uploadResult = await uploadToCloudinary(
+      req.file.path,
+      "profile-pictures",
+    );
+
+    user.profilePicture = uploadResult.url;
+    user.profilePicturePublicId = uploadResult.publicId;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Profile picture uploaded successfully",
+      profilePicture: user.profilePicture,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// @desc    Upload Resume
+// @route   POST /api/profile/upload-resume
+// @access  Private
+exports.uploadResume = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No file provided",
+      });
+    }
+
+    // Delete old resume if exists
+    if (user.resumePublicId) {
+      await deleteFromCloudinary(user.resumePublicId, "raw");
+    }
+
+    // Upload new resume
+    const uploadResult = await uploadToCloudinary(req.file.path, "resumes");
+
+    user.resume = uploadResult.url;
+    user.resumePublicId = uploadResult.publicId;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Resume uploaded successfully",
+      resume: user.resume,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 // @desc    Update user profile
 // @route   PUT /api/profile/update

@@ -42,6 +42,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    profilePicturePublicId: {
+      type: String,
+      default: null,
+    },
     bio: {
       type: String,
       maxlength: [500, "Bio cannot be more than 500 characters"],
@@ -53,6 +57,10 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
     resume: {
+      type: String,
+      default: null,
+    },
+    resumePublicId: {
       type: String,
       default: null,
     },
