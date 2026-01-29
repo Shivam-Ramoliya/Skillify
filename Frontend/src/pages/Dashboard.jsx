@@ -3,11 +3,17 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../utils/api";
 import LoadingSpinner from "../components/common/LoadingSpinner";
+import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [profileStatus, setProfileStatus] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setPageTitle("Dashboard");
+    return () => resetPageTitle();
+  }, []);
 
   useEffect(() => {
     fetchProfileStatus();
@@ -29,13 +35,19 @@ export default function Dashboard() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.name}!
+        {/* Header */}
+        <div className="mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
+            Welcome back,{" "}
+            <span className="text-transparent bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text">
+              {user?.name}!
+            </span>
           </h1>
-          <p className="text-lg text-gray-600">Here's your profile overview</p>
+          <p className="text-lg text-gray-600">
+            Here's your profile overview and quick actions
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">

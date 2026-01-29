@@ -12,21 +12,31 @@ export default function NavBar() {
     navigate("/login");
   };
 
+  const closeMobileMenu = () => setMobileMenuOpen(false);
+
   return (
-    <nav className="bg-linear-to-r from-teal-600 to-teal-500 shadow-lg sticky top-0 z-50">
+    <nav className="bg-gradient-to-r from-teal-600 to-teal-500 shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center">
-              <span className="text-2xl font-bold text-white">Skiilify</span>
-            </Link>
-          </div>
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center group">
+            <div className="flex items-center gap-2">
+              <img
+                src="/Skillify.png"
+                alt="Skillify"
+                className="h-8 w-8 rounded-lg"
+              />
+              <span className="text-2xl font-bold text-white group-hover:text-teal-100 transition-colors">
+                Skillify
+              </span>
+            </div>
+          </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-1">
             <Link
               to="/"
-              className="text-white hover:text-teal-100 px-3 py-2 rounded-md text-sm font-medium"
+              className="text-white hover:bg-teal-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
               Home
             </Link>
@@ -34,25 +44,25 @@ export default function NavBar() {
               <>
                 <Link
                   to="/discover"
-                  className="text-white hover:text-teal-100 px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-white hover:bg-teal-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Discover
                 </Link>
                 <Link
                   to="/dashboard"
-                  className="text-white hover:text-teal-100 px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-white hover:bg-teal-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Dashboard
                 </Link>
                 <Link
                   to="/profile"
-                  className="text-white hover:text-teal-100 px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-white hover:bg-teal-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Profile
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="bg-white text-teal-600 hover:bg-teal-50 px-4 py-2 rounded-md text-sm font-medium"
+                  className="ml-2 bg-white text-teal-600 hover:bg-teal-50 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm"
                 >
                   Logout
                 </button>
@@ -61,13 +71,13 @@ export default function NavBar() {
               <>
                 <Link
                   to="/login"
-                  className="text-white hover:text-teal-100 px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-white hover:bg-teal-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Login
                 </Link>
                 <Link
                   to="/signup"
-                  className="bg-white text-teal-600 hover:bg-teal-50 px-4 py-2 rounded-md text-sm font-medium"
+                  className="ml-2 bg-white text-teal-600 hover:bg-teal-50 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm"
                 >
                   Sign Up
                 </Link>
@@ -79,7 +89,7 @@ export default function NavBar() {
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-white hover:text-teal-100 p-2"
+              className="text-white hover:bg-teal-700 p-2 rounded-md transition-colors"
             >
               <svg
                 className="h-6 w-6"
@@ -110,11 +120,12 @@ export default function NavBar() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-teal-700">
+        <div className="md:hidden bg-teal-700 border-t border-teal-500">
           <div className="px-2 pt-2 pb-3 space-y-1">
             <Link
               to="/"
-              className="block text-white hover:bg-teal-800 px-3 py-2 rounded-md"
+              onClick={closeMobileMenu}
+              className="block text-white hover:bg-teal-800 px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
               Home
             </Link>
@@ -122,25 +133,31 @@ export default function NavBar() {
               <>
                 <Link
                   to="/discover"
-                  className="block text-white hover:bg-teal-800 px-3 py-2 rounded-md"
+                  onClick={closeMobileMenu}
+                  className="block text-white hover:bg-teal-800 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Discover
                 </Link>
                 <Link
                   to="/dashboard"
-                  className="block text-white hover:bg-teal-800 px-3 py-2 rounded-md"
+                  onClick={closeMobileMenu}
+                  className="block text-white hover:bg-teal-800 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Dashboard
                 </Link>
                 <Link
                   to="/profile"
-                  className="block text-white hover:bg-teal-800 px-3 py-2 rounded-md"
+                  onClick={closeMobileMenu}
+                  className="block text-white hover:bg-teal-800 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Profile
                 </Link>
                 <button
-                  onClick={handleLogout}
-                  className="w-full text-left text-white hover:bg-teal-800 px-3 py-2 rounded-md"
+                  onClick={() => {
+                    handleLogout();
+                    closeMobileMenu();
+                  }}
+                  className="w-full text-left text-white hover:bg-teal-800 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Logout
                 </button>
@@ -149,13 +166,15 @@ export default function NavBar() {
               <>
                 <Link
                   to="/login"
-                  className="block text-white hover:bg-teal-800 px-3 py-2 rounded-md"
+                  onClick={closeMobileMenu}
+                  className="block text-white hover:bg-teal-800 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Login
                 </Link>
                 <Link
                   to="/signup"
-                  className="block text-white hover:bg-teal-800 px-3 py-2 rounded-md"
+                  onClick={closeMobileMenu}
+                  className="block text-white hover:bg-teal-800 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Sign Up
                 </Link>

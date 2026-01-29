@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
 
 export default function VerifyEmail() {
   const { verifyEmail, resendVerification } = useAuth();
@@ -15,6 +16,11 @@ export default function VerifyEmail() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
+
+  useEffect(() => {
+    setPageTitle("Verify Email");
+    return () => resetPageTitle();
+  }, []);
 
   const canVerify = useMemo(() => token.trim().length > 0, [token]);
 
