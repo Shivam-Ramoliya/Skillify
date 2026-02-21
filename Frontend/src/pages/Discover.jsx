@@ -12,6 +12,7 @@ export default function Discover() {
   const [totalPages, setTotalPages] = useState(1);
   const [searchSkill, setSearchSkill] = useState("");
   const [totalUsers, setTotalUsers] = useState(0);
+  const [skillType, setSkillType] = useState("all"); // all | offered | wanted
 
   useEffect(() => {
     setPageTitle("Discover");
@@ -22,13 +23,21 @@ export default function Discover() {
     fetchUsers();
   }, [page]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (overrides = {}) => {
+    const { page: overridePage, skill: overrideSkill, type: overrideType } =
+      overrides;
+
+    const effectivePage = overridePage ?? page;
+    const effectiveSkill = overrideSkill ?? searchSkill;
+    const effectiveType = overrideType ?? skillType;
+
     setLoading(true);
     try {
       const response = await api.discoverProfiles({
-        page,
+        page: effectivePage,
         limit: 12,
-        skill: searchSkill,
+        skill: effectiveSkill,
+        type: effectiveType,
       });
 
       if (response.success) {
@@ -46,7 +55,13 @@ export default function Discover() {
   const handleSearch = (e) => {
     e.preventDefault();
     setPage(1);
-    fetchUsers();
+    fetchUsers({ page: 1, skill: searchSkill, type: skillType });
+  };
+
+  const handleClearFilters = () => {
+    setSearchSkill("");
+    setSkillType("all");
+    fetchUsers({ page, skill: "", type: "all" });
   };
 
   if (loading && page === 1) return <LoadingSpinner />;
@@ -70,8 +85,8 @@ export default function Discover() {
         </div>
 
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className="mb-12 max-w-2xl mx-auto">
-          <div className="flex gap-3">
+        <form onSubmit={handleSearch} className="mb-12 max-w-3xl mx-auto">
+          <div className="flex flex-col md:flex-row gap-3">
             <div className="flex-1 relative">
               <svg
                 className="absolute left-4 top-3.5 w-5 h-5 text-gray-400"
@@ -90,16 +105,36 @@ export default function Discover() {
                 type="text"
                 value={searchSkill}
                 onChange={(e) => setSearchSkill(e.target.value)}
-                placeholder="Search by skill (JavaScript, Design, etc.)"
+                placeholder="Search by skill (Data Science, React, etc.)"
                 className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
               />
             </div>
-            <button
-              type="submit"
-              className="bg-gradient-to-r from-teal-600 to-teal-500 text-white px-8 py-3 rounded-lg hover:shadow-lg font-semibold transition-all duration-200"
-            >
-              Search
-            </button>
+            <div className="flex items-center md:w-56">
+              <select
+                value={skillType}
+                onChange={(e) => setSkillType(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg py-3 px-3 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              >
+                <option value="all">Offers & Wants</option>
+                <option value="offered">Offers only</option>
+                <option value="wanted">Wants only</option>
+              </select>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                className="bg-gradient-to-r from-teal-600 to-teal-500 text-white px-6 py-3 rounded-lg hover:shadow-lg font-semibold transition-all duration-200"
+              >
+                Search
+              </button>
+              <button
+                type="button"
+                onClick={handleClearFilters}
+                className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 font-semibold transition-all duration-200"
+              >
+                Clear
+              </button>
+            </div>
           </div>
         </form>
 

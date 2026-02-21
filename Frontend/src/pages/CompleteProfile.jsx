@@ -77,6 +77,29 @@ export default function CompleteProfile() {
     }
   };
 
+  const handleResumeDownload = async () => {
+    if (!formData.resume) return;
+    try {
+      const response = await fetch(formData.resume);
+      if (!response.ok) {
+        throw new Error("Failed to download resume");
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      const parts = formData.resume.split("/");
+      link.download = parts[parts.length - 1] || "resume";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (err) {
+      setError(err.message || "Failed to download resume");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -263,13 +286,13 @@ export default function CompleteProfile() {
                     >
                       👁️ View
                     </a>
-                    <a
-                      href={formData.resume}
-                      download
+                    <button
+                      type="button"
+                      onClick={handleResumeDownload}
                       className="px-3 py-1.5 bg-gray-600 text-white text-xs font-semibold rounded-lg hover:bg-gray-700 transition-colors"
                     >
                       ⬇️ Download
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>

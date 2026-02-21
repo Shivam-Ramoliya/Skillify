@@ -113,6 +113,29 @@ export default function Profile() {
     }
   };
 
+  const handleResumeDownload = async () => {
+    if (!profile?.resume) return;
+    try {
+      const response = await fetch(profile.resume);
+      if (!response.ok) {
+        throw new Error("Failed to download resume");
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      const parts = profile.resume.split("/");
+      link.download = parts[parts.length - 1] || "resume";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (err) {
+      setError(err.message || "Failed to download resume");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -539,9 +562,9 @@ export default function Profile() {
                         </svg>
                         View Resume
                       </a>
-                      <a
-                        href={profile.resume}
-                        download
+                      <button
+                        type="button"
+                        onClick={handleResumeDownload}
                         className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
                       >
                         <svg
@@ -558,7 +581,7 @@ export default function Profile() {
                           />
                         </svg>
                         Download
-                      </a>
+                      </button>
                     </div>
                   </div>
                 )}

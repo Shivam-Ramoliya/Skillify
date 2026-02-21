@@ -57,6 +57,8 @@ exports.uploadProfilePicture = async (req, res) => {
 // @desc    Upload Resume
 // @route   POST /api/profile/upload-resume
 // @access  Private
+// NOTE: Unlike profile pictures (which use Cloudinary), resumes are stored
+// locally in the uploads folder and served by Express as static files.
 exports.uploadResume = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -75,16 +77,11 @@ exports.uploadResume = async (req, res) => {
       });
     }
 
-    // Delete old resume if exists
-    if (user.resumePublicId) {
-      await deleteFromCloudinary(user.resumePublicId, "raw");
-    }
+    // Build a public URL for the uploaded resume
+    const resumeUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
 
-    // Upload new resume
-    const uploadResult = await uploadToCloudinary(req.file.path, "resumes");
-
-    user.resume = uploadResult.url;
-    user.resumePublicId = uploadResult.publicId;
+    user.resume = resumeUrl;
+    user.resumePublicId = null;
     await user.save();
 
     res.status(200).json({
@@ -369,7 +366,7 @@ exports.updateProfileVisibility = async (req, res) => {
 // @access  Public
 exports.discoverProfiles = async (req, res) => {
   try {
-    const { role, skill, page = 1, limit = 10 } = req.query;
+    const { role, skill, type, page = 1, limit = 10 } = req.query;
 
     const query = {
       profileVisibility: "public",
@@ -396,10 +393,22 @@ exports.discoverProfiles = async (req, res) => {
 
     if (role) query.role = role;
     if (skill) {
-      query.$or = [
-        { skillsOffered: { $in: [skill] } },
-        { skillsWanted: { $in: [skill] } },
-      ];
+      const trimmedSkill = skill.trim();
+      if (trimmedSkill) {
+        const regexFilter = { $regex: trimmedSkill, $options: "i" };
+
+        if (type === "offered") {
+          query.skillsOffered = regexFilter;
+        } else if (type === "wanted") {
+          query.skillsWanted = regexFilter;
+        } else {
+          // Default: search in both offered and wanted skills
+          query.$or = [
+            { skillsOffered: regexFilter },
+            { skillsWanted: regexFilter },
+          ];
+        }
+      }
     }
 
     const startIndex = (parseInt(page) - 1) * parseInt(limit);

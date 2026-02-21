@@ -3,12 +3,11 @@ const fs = require("fs/promises");
 
 const uploadToCloudinary = async (file, folder) => {
   try {
-    // Determine resource type based on folder
-    const resourceType = folder === "resumes" ? "raw" : "auto";
-
+    // Use automatic resource type so documents (PDF, DOCX, etc.) and images
+    // are all delivered as standard public assets.
     const result = await cloudinary.uploader.upload(file, {
       folder: `skiilify/${folder}`,
-      resource_type: resourceType,
+      resource_type: "auto",
       use_filename: true,
       unique_filename: true,
       overwrite: false,
