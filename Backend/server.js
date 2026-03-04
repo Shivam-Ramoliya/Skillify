@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const path = require("path");
 
 // Load environment variables FIRST - before any other imports
 dotenv.config();
@@ -20,8 +19,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve uploaded files (e.g., resumes) statically
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// All files are uploaded directly to Cloudinary — no local static serving needed
 
 // Routes
 app.use("/api/auth", authRoutes);

@@ -60,22 +60,22 @@ export default function Home() {
               <div className="bg-gradient-to-br from-teal-100 to-cyan-100 rounded-2xl p-8 shadow-lg">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white rounded-lg p-4 shadow-sm text-center">
-                    <div className="text-3xl font-bold text-teal-600">500+</div>
-                    <p className="text-gray-600 text-sm mt-1">Active Users</p>
+                    <div className="text-3xl font-bold text-teal-600">4</div>
+                    <p className="text-gray-600 text-sm mt-1">Core Modules</p>
                   </div>
                   <div className="bg-white rounded-lg p-4 shadow-sm text-center">
-                    <div className="text-3xl font-bold text-teal-600">
-                      1000+
-                    </div>
-                    <p className="text-gray-600 text-sm mt-1">Skills Shared</p>
+                    <div className="text-3xl font-bold text-teal-600">10+</div>
+                    <p className="text-gray-600 text-sm mt-1">Screens Built</p>
                   </div>
                   <div className="bg-white rounded-lg p-4 shadow-sm text-center">
-                    <div className="text-3xl font-bold text-teal-600">50+</div>
-                    <p className="text-gray-600 text-sm mt-1">Categories</p>
+                    <div className="text-3xl font-bold text-teal-600">Auth</div>
+                    <p className="text-gray-600 text-sm mt-1">
+                      JWT + Email Flow
+                    </p>
                   </div>
                   <div className="bg-white rounded-lg p-4 shadow-sm text-center">
-                    <div className="text-3xl font-bold text-teal-600">24/7</div>
-                    <p className="text-gray-600 text-sm mt-1">Availability</p>
+                    <div className="text-3xl font-bold text-teal-600">MERN</div>
+                    <p className="text-gray-600 text-sm mt-1">Tech Stack</p>
                   </div>
                 </div>
               </div>

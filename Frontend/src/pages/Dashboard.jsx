@@ -166,7 +166,7 @@ export default function Dashboard() {
             </Link>
 
             <Link
-              to="/complete-profile"
+              to="/profile"
               className="flex items-center justify-center p-4 border-2 border-gray-200 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-colors"
             >
               <div className="text-center">

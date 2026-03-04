@@ -13,6 +13,7 @@ export default function Discover() {
   const [searchSkill, setSearchSkill] = useState("");
   const [totalUsers, setTotalUsers] = useState(0);
   const [skillType, setSkillType] = useState("all"); // all | offered | wanted
+  const [requestingUserId, setRequestingUserId] = useState("");
 
   useEffect(() => {
     setPageTitle("Discover");
@@ -24,8 +25,11 @@ export default function Discover() {
   }, [page]);
 
   const fetchUsers = async (overrides = {}) => {
-    const { page: overridePage, skill: overrideSkill, type: overrideType } =
-      overrides;
+    const {
+      page: overridePage,
+      skill: overrideSkill,
+      type: overrideType,
+    } = overrides;
 
     const effectivePage = overridePage ?? page;
     const effectiveSkill = overrideSkill ?? searchSkill;
@@ -62,6 +66,27 @@ export default function Discover() {
     setSearchSkill("");
     setSkillType("all");
     fetchUsers({ page, skill: "", type: "all" });
+  };
+
+  const handleSendRequest = async (targetUserId) => {
+    setError("");
+    setRequestingUserId(targetUserId);
+    try {
+      const response = await api.sendConnectionRequest(targetUserId);
+      if (response.success) {
+        setUsers((prev) =>
+          prev.map((user) =>
+            user._id === targetUserId
+              ? { ...user, connectionStatus: "request_sent" }
+              : user,
+          ),
+        );
+      }
+    } catch (err) {
+      setError(err.message || "Failed to send request");
+    } finally {
+      setRequestingUserId("");
+    }
   };
 
   if (loading && page === 1) return <LoadingSpinner />;
@@ -160,7 +185,12 @@ export default function Discover() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
               {users.map((user) => (
-                <ProfileCard key={user._id} user={user} />
+                <ProfileCard
+                  key={user._id}
+                  user={user}
+                  onSendRequest={handleSendRequest}
+                  isRequesting={requestingUserId === user._id}
+                />
               ))}
             </div>
 

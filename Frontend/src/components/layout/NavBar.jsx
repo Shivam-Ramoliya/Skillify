@@ -60,6 +60,12 @@ export default function NavBar() {
                 >
                   Profile
                 </Link>
+                <Link
+                  to="/connections"
+                  className="text-white hover:bg-teal-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  Connections
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="ml-2 bg-white text-teal-600 hover:bg-teal-50 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm"
@@ -151,6 +157,13 @@ export default function NavBar() {
                   className="block text-white hover:bg-teal-800 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Profile
+                </Link>
+                <Link
+                  to="/connections"
+                  onClick={closeMobileMenu}
+                  className="block text-white hover:bg-teal-800 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  Connections
                 </Link>
                 <button
                   onClick={() => {

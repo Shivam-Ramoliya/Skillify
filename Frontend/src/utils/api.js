@@ -98,4 +98,31 @@ export const api = {
   uploadProfilePicture: (file) =>
     fileRequest("/api/profile/upload-picture", file),
   uploadResume: (file) => fileRequest("/api/profile/upload-resume", file),
+  getConnectionsData: () => request("/api/profile/connections"),
+  sendConnectionRequest: (targetUserId) =>
+    request(`/api/profile/connections/send/${targetUserId}`, {
+      method: "POST",
+    }),
+  withdrawConnectionRequest: (targetUserId) =>
+    request(`/api/profile/connections/withdraw/${targetUserId}`, {
+      method: "POST",
+    }),
+  acceptConnectionRequest: (senderUserId) =>
+    request(`/api/profile/connections/accept/${senderUserId}`, {
+      method: "POST",
+    }),
+  declineConnectionRequest: (senderUserId) =>
+    request(`/api/profile/connections/decline/${senderUserId}`, {
+      method: "POST",
+    }),
+  requestDisconnectConnection: (targetUserId, rating) =>
+    request(`/api/profile/connections/disconnect-request/${targetUserId}`, {
+      method: "POST",
+      body: { rating },
+    }),
+  confirmDisconnectConnection: (requesterUserId, rating) =>
+    request(`/api/profile/connections/disconnect-confirm/${requesterUserId}`, {
+      method: "POST",
+      body: { rating },
+    }),
 };

@@ -5,6 +5,56 @@ const {
   deleteFromCloudinary,
 } = require("../utils/cloudinaryUpload");
 
+const getConnectionStatus = (currentUser, targetUserId) => {
+  const targetId = String(targetUserId);
+
+  if (
+    (currentUser.connections || []).some(
+      (connectionId) => String(connectionId) === targetId,
+    )
+  ) {
+    return "connected";
+  }
+
+  if (
+    (currentUser.sentConnectionRequests || []).some(
+      (request) => String(request.user) === targetId,
+    )
+  ) {
+    return "request_sent";
+  }
+
+  if (
+    (currentUser.receivedConnectionRequests || []).some(
+      (request) => String(request.user) === targetId,
+    )
+  ) {
+    return "request_received";
+  }
+
+  return "none";
+};
+
+const getRatingMeta = (user) => {
+  const activeConnectionCount = (user.connections || []).length;
+  const totalConnectionCount = Math.max(
+    Number(user.totalConnectionsCount || 0),
+    activeConnectionCount,
+  );
+  const ratingEntries = user.ratingsReceived || [];
+  const averageRating = ratingEntries.length
+    ? Number(
+        (
+          ratingEntries.reduce(
+            (sum, entry) => sum + Number(entry.rating || 0),
+            0,
+          ) / ratingEntries.length
+        ).toFixed(1),
+      )
+    : 0;
+  return { activeConnectionCount, totalConnectionCount, averageRating };
+};
+
 // @desc    Upload Profile Picture
 // @route   POST /api/profile/upload-picture
 // @access  Private
@@ -31,10 +81,11 @@ exports.uploadProfilePicture = async (req, res) => {
       await deleteFromCloudinary(user.profilePicturePublicId);
     }
 
-    // Upload new picture
+    // Upload new picture directly to Cloudinary from memory
     const uploadResult = await uploadToCloudinary(
-      req.file.path,
+      req.file.buffer,
       "profile-pictures",
+      req.file.originalname,
     );
 
     user.profilePicture = uploadResult.url;
@@ -57,8 +108,6 @@ exports.uploadProfilePicture = async (req, res) => {
 // @desc    Upload Resume
 // @route   POST /api/profile/upload-resume
 // @access  Private
-// NOTE: Unlike profile pictures (which use Cloudinary), resumes are stored
-// locally in the uploads folder and served by Express as static files.
 exports.uploadResume = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -77,11 +126,20 @@ exports.uploadResume = async (req, res) => {
       });
     }
 
-    // Build a public URL for the uploaded resume
-    const resumeUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    // Delete old resume from Cloudinary if exists
+    if (user.resumePublicId) {
+      await deleteFromCloudinary(user.resumePublicId, "raw");
+    }
 
-    user.resume = resumeUrl;
-    user.resumePublicId = null;
+    // Upload resume directly to Cloudinary from memory
+    const uploadResult = await uploadToCloudinary(
+      req.file.buffer,
+      "resumes",
+      req.file.originalname,
+    );
+
+    user.resume = uploadResult.url;
+    user.resumePublicId = uploadResult.publicId;
     await user.save();
 
     res.status(200).json({
@@ -143,6 +201,9 @@ exports.updateProfile = async (req, res) => {
 
     await user.save();
 
+    const { activeConnectionCount, totalConnectionCount, averageRating } =
+      getRatingMeta(user);
+
     res.status(200).json({
       success: true,
       message: "Profile updated successfully",
@@ -160,6 +221,10 @@ exports.updateProfile = async (req, res) => {
         skillsWanted: user.skillsWanted,
         profileVisibility: user.profileVisibility,
         profileComplete: user.profileComplete,
+        connections: user.connections,
+        connectionCount: activeConnectionCount,
+        totalConnectionsCount: totalConnectionCount,
+        averageRating,
       },
     });
   } catch (error) {
@@ -211,9 +276,28 @@ exports.getUserProfile = async (req, res) => {
       });
     }
 
+    let connectionStatus = "none";
+    if (requesterId && requesterId !== userId) {
+      const requester = await User.findById(requesterId).select(
+        "connections sentConnectionRequests receivedConnectionRequests",
+      );
+      if (requester) {
+        connectionStatus = getConnectionStatus(requester, userId);
+      }
+    }
+
+    const { activeConnectionCount, totalConnectionCount, averageRating } =
+      getRatingMeta(user);
+
     res.status(200).json({
       success: true,
-      data: user,
+      data: {
+        ...user.toObject(),
+        connectionCount: activeConnectionCount,
+        totalConnectionsCount: totalConnectionCount,
+        averageRating,
+      },
+      connectionStatus,
     });
   } catch (error) {
     res.status(500).json({
@@ -239,9 +323,17 @@ exports.getMyProfile = async (req, res) => {
       });
     }
 
+    const { activeConnectionCount, totalConnectionCount, averageRating } =
+      getRatingMeta(user);
+
     res.status(200).json({
       success: true,
-      data: user,
+      data: {
+        ...user.toObject(),
+        connectionCount: activeConnectionCount,
+        totalConnectionsCount: totalConnectionCount,
+        averageRating,
+      },
     });
   } catch (error) {
     res.status(500).json({
@@ -361,12 +453,476 @@ exports.updateProfileVisibility = async (req, res) => {
   }
 };
 
+// @desc    Send a connection request
+// @route   POST /api/profile/connections/send/:targetUserId
+// @access  Private
+exports.sendConnectionRequest = async (req, res) => {
+  try {
+    const { targetUserId } = req.params;
+    const currentUserId = req.user.id;
+
+    if (currentUserId === targetUserId) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot send a connection request to yourself",
+      });
+    }
+
+    const [currentUser, targetUser] = await Promise.all([
+      User.findById(currentUserId),
+      User.findById(targetUserId),
+    ]);
+
+    if (!currentUser || !targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const alreadyConnected = (currentUser.connections || []).some(
+      (connectionId) => String(connectionId) === targetUserId,
+    );
+    if (alreadyConnected) {
+      return res.status(400).json({
+        success: false,
+        message: "You are already connected",
+      });
+    }
+
+    const alreadySent = (currentUser.sentConnectionRequests || []).some(
+      (request) => String(request.user) === targetUserId,
+    );
+    if (alreadySent) {
+      return res.status(400).json({
+        success: false,
+        message: "Connection request already sent",
+      });
+    }
+
+    const hasIncomingFromTarget = (
+      currentUser.receivedConnectionRequests || []
+    ).some((request) => String(request.user) === targetUserId);
+    if (hasIncomingFromTarget) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "This user has already sent you a request. Accept it from Connections page.",
+      });
+    }
+
+    currentUser.sentConnectionRequests.push({ user: targetUser._id });
+    targetUser.receivedConnectionRequests.push({ user: currentUser._id });
+
+    await Promise.all([currentUser.save(), targetUser.save()]);
+
+    res.status(200).json({
+      success: true,
+      message: "Connection request sent",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Server error",
+    });
+  }
+};
+
+// @desc    Withdraw a sent connection request
+// @route   POST /api/profile/connections/withdraw/:targetUserId
+// @access  Private
+exports.withdrawConnectionRequest = async (req, res) => {
+  try {
+    const { targetUserId } = req.params;
+    const currentUserId = req.user.id;
+
+    const [currentUser, targetUser] = await Promise.all([
+      User.findById(currentUserId),
+      User.findById(targetUserId),
+    ]);
+
+    if (!currentUser || !targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    currentUser.sentConnectionRequests = (
+      currentUser.sentConnectionRequests || []
+    ).filter((request) => String(request.user) !== targetUserId);
+    targetUser.receivedConnectionRequests = (
+      targetUser.receivedConnectionRequests || []
+    ).filter((request) => String(request.user) !== currentUserId);
+
+    await Promise.all([currentUser.save(), targetUser.save()]);
+
+    res.status(200).json({
+      success: true,
+      message: "Connection request withdrawn",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Server error",
+    });
+  }
+};
+
+// @desc    Accept a received connection request
+// @route   POST /api/profile/connections/accept/:senderUserId
+// @access  Private
+exports.acceptConnectionRequest = async (req, res) => {
+  try {
+    const { senderUserId } = req.params;
+    const currentUserId = req.user.id;
+
+    const [currentUser, senderUser] = await Promise.all([
+      User.findById(currentUserId),
+      User.findById(senderUserId),
+    ]);
+
+    if (!currentUser || !senderUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const hasReceivedRequest = (
+      currentUser.receivedConnectionRequests || []
+    ).some((request) => String(request.user) === senderUserId);
+
+    if (!hasReceivedRequest) {
+      return res.status(400).json({
+        success: false,
+        message: "No pending request from this user",
+      });
+    }
+
+    currentUser.receivedConnectionRequests = (
+      currentUser.receivedConnectionRequests || []
+    ).filter((request) => String(request.user) !== senderUserId);
+    senderUser.sentConnectionRequests = (
+      senderUser.sentConnectionRequests || []
+    ).filter((request) => String(request.user) !== currentUserId);
+
+    const addedToCurrent = !(currentUser.connections || []).some(
+      (id) => String(id) === senderUserId,
+    );
+    if (addedToCurrent) {
+      currentUser.connections.push(senderUser._id);
+      currentUser.totalConnectionsCount =
+        Number(currentUser.totalConnectionsCount || 0) + 1;
+    }
+
+    const addedToSender = !(senderUser.connections || []).some(
+      (id) => String(id) === currentUserId,
+    );
+    if (addedToSender) {
+      senderUser.connections.push(currentUser._id);
+      senderUser.totalConnectionsCount =
+        Number(senderUser.totalConnectionsCount || 0) + 1;
+    }
+
+    await Promise.all([currentUser.save(), senderUser.save()]);
+
+    res.status(200).json({
+      success: true,
+      message: "Connection request accepted",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Server error",
+    });
+  }
+};
+
+// @desc    Decline a received connection request
+// @route   POST /api/profile/connections/decline/:senderUserId
+// @access  Private
+exports.declineConnectionRequest = async (req, res) => {
+  try {
+    const { senderUserId } = req.params;
+    const currentUserId = req.user.id;
+
+    const [currentUser, senderUser] = await Promise.all([
+      User.findById(currentUserId),
+      User.findById(senderUserId),
+    ]);
+
+    if (!currentUser || !senderUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    currentUser.receivedConnectionRequests = (
+      currentUser.receivedConnectionRequests || []
+    ).filter((request) => String(request.user) !== senderUserId);
+    senderUser.sentConnectionRequests = (
+      senderUser.sentConnectionRequests || []
+    ).filter((request) => String(request.user) !== currentUserId);
+
+    await Promise.all([currentUser.save(), senderUser.save()]);
+
+    res.status(200).json({
+      success: true,
+      message: "Connection request declined",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Server error",
+    });
+  }
+};
+
+// @desc    Request disconnection from an active connection (with rating)
+// @route   POST /api/profile/connections/disconnect-request/:targetUserId
+// @access  Private
+exports.requestDisconnectConnection = async (req, res) => {
+  try {
+    const { targetUserId } = req.params;
+    const currentUserId = req.user.id;
+    const rating = Number(req.body?.rating);
+
+    if (!Number.isFinite(rating) || rating < 0 || rating > 10) {
+      return res.status(400).json({
+        success: false,
+        message: "Rating must be a number between 0 and 10",
+      });
+    }
+
+    const [currentUser, targetUser] = await Promise.all([
+      User.findById(currentUserId),
+      User.findById(targetUserId),
+    ]);
+
+    if (!currentUser || !targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const isConnected = (currentUser.connections || []).some(
+      (id) => String(id) === targetUserId,
+    );
+    if (!isConnected) {
+      return res.status(400).json({
+        success: false,
+        message: "You are not connected with this user",
+      });
+    }
+
+    const hasAlreadyRequested = (currentUser.sentDisconnectRequests || []).some(
+      (request) => String(request.user) === targetUserId,
+    );
+    const hasRequestFromTarget = (
+      currentUser.receivedDisconnectRequests || []
+    ).some((request) => String(request.user) === targetUserId);
+
+    if (hasAlreadyRequested || hasRequestFromTarget) {
+      return res.status(400).json({
+        success: false,
+        message: "A disconnect confirmation is already pending",
+      });
+    }
+
+    currentUser.sentDisconnectRequests.push({ user: targetUser._id, rating });
+    targetUser.receivedDisconnectRequests.push({
+      user: currentUser._id,
+      rating,
+    });
+
+    await Promise.all([currentUser.save(), targetUser.save()]);
+
+    res.status(200).json({
+      success: true,
+      message: "Disconnect request sent. Waiting for other user confirmation.",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Server error",
+    });
+  }
+};
+
+// @desc    Confirm disconnection request (with rating) and finalize disconnect
+// @route   POST /api/profile/connections/disconnect-confirm/:requesterUserId
+// @access  Private
+exports.confirmDisconnectConnection = async (req, res) => {
+  try {
+    const { requesterUserId } = req.params;
+    const currentUserId = req.user.id;
+    const rating = Number(req.body?.rating);
+
+    if (!Number.isFinite(rating) || rating < 0 || rating > 10) {
+      return res.status(400).json({
+        success: false,
+        message: "Rating must be a number between 0 and 10",
+      });
+    }
+
+    const [currentUser, requesterUser] = await Promise.all([
+      User.findById(currentUserId),
+      User.findById(requesterUserId),
+    ]);
+
+    if (!currentUser || !requesterUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const incomingRequest = (currentUser.receivedDisconnectRequests || []).find(
+      (request) => String(request.user) === requesterUserId,
+    );
+
+    if (!incomingRequest) {
+      return res.status(400).json({
+        success: false,
+        message: "No pending disconnect request from this user",
+      });
+    }
+
+    currentUser.receivedDisconnectRequests = (
+      currentUser.receivedDisconnectRequests || []
+    ).filter((request) => String(request.user) !== requesterUserId);
+
+    requesterUser.sentDisconnectRequests = (
+      requesterUser.sentDisconnectRequests || []
+    ).filter((request) => String(request.user) !== currentUserId);
+
+    currentUser.connections = (currentUser.connections || []).filter(
+      (id) => String(id) !== requesterUserId,
+    );
+    requesterUser.connections = (requesterUser.connections || []).filter(
+      (id) => String(id) !== currentUserId,
+    );
+
+    currentUser.ratingsReceived = currentUser.ratingsReceived || [];
+    requesterUser.ratingsReceived = requesterUser.ratingsReceived || [];
+
+    currentUser.ratingsReceived.push({
+      from: requesterUser._id,
+      rating: Number(incomingRequest.rating),
+    });
+    requesterUser.ratingsReceived.push({
+      from: currentUser._id,
+      rating,
+    });
+
+    await Promise.all([currentUser.save(), requesterUser.save()]);
+
+    res.status(200).json({
+      success: true,
+      message: "Disconnected successfully after mutual confirmation",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Server error",
+    });
+  }
+};
+
+// @desc    Get connection dashboard data
+// @route   GET /api/profile/connections
+// @access  Private
+exports.getConnectionsData = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id)
+      .populate(
+        "connections",
+        "name profilePicture location skillsOffered skillsWanted",
+      )
+      .populate("sentConnectionRequests.user", "name profilePicture location")
+      .populate(
+        "receivedConnectionRequests.user",
+        "name profilePicture location",
+      )
+      .populate("sentDisconnectRequests.user", "name profilePicture location")
+      .populate(
+        "receivedDisconnectRequests.user",
+        "name profilePicture location",
+      );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const sentRequests = (user.sentConnectionRequests || [])
+      .filter((request) => request.user)
+      .map((request) => ({
+        user: request.user,
+        createdAt: request.createdAt,
+      }));
+
+    const receivedRequests = (user.receivedConnectionRequests || [])
+      .filter((request) => request.user)
+      .map((request) => ({
+        user: request.user,
+        createdAt: request.createdAt,
+      }));
+
+    const sentDisconnectRequests = (user.sentDisconnectRequests || [])
+      .filter((request) => request.user)
+      .map((request) => ({
+        user: request.user,
+        rating: request.rating,
+        createdAt: request.createdAt,
+      }));
+
+    const receivedDisconnectRequests = (user.receivedDisconnectRequests || [])
+      .filter((request) => request.user)
+      .map((request) => ({
+        user: request.user,
+        rating: request.rating,
+        createdAt: request.createdAt,
+      }));
+
+    const { averageRating } = getRatingMeta(user);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        stats: {
+          activeConnections: (user.connections || []).length,
+          sentRequests: sentRequests.length,
+          receivedRequests: receivedRequests.length,
+          averageRating,
+        },
+        activeConnections: user.connections || [],
+        sentRequests,
+        receivedRequests,
+        sentDisconnectRequests,
+        receivedDisconnectRequests,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Server error",
+    });
+  }
+};
+
 // @desc    Get all public profiles (for discovery)
 // @route   GET /api/profile/discover
 // @access  Public
 exports.discoverProfiles = async (req, res) => {
   try {
     const { role, skill, type, page = 1, limit = 10 } = req.query;
+    let requesterId = null;
 
     const query = {
       profileVisibility: "public",
@@ -384,6 +940,7 @@ exports.discoverProfiles = async (req, res) => {
           process.env.JWT_SECRET || "your_jwt_secret_key",
         );
         if (decoded?.id) {
+          requesterId = decoded.id;
           query._id = { $ne: decoded.id };
         }
       } catch (error) {
@@ -419,6 +976,19 @@ exports.discoverProfiles = async (req, res) => {
       .skip(startIndex)
       .sort({ createdAt: -1 });
 
+    let usersWithStatus = users;
+    if (requesterId) {
+      const requester = await User.findById(requesterId).select(
+        "connections sentConnectionRequests receivedConnectionRequests",
+      );
+      if (requester) {
+        usersWithStatus = users.map((foundUser) => ({
+          ...foundUser.toObject(),
+          connectionStatus: getConnectionStatus(requester, foundUser._id),
+        }));
+      }
+    }
+
     const total = await User.countDocuments(query);
 
     res.status(200).json({
@@ -426,7 +996,7 @@ exports.discoverProfiles = async (req, res) => {
       total,
       page: parseInt(page),
       pages: Math.ceil(total / parseInt(limit)),
-      data: users,
+      data: usersWithStatus,
     });
   } catch (error) {
     res.status(500).json({

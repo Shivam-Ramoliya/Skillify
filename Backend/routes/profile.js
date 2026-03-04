@@ -1,6 +1,4 @@
 const express = require("express");
-const fs = require("fs");
-const path = require("path");
 const {
   updateProfile,
   getUserProfile,
@@ -10,28 +8,20 @@ const {
   discoverProfiles,
   uploadProfilePicture,
   uploadResume,
+  sendConnectionRequest,
+  withdrawConnectionRequest,
+  acceptConnectionRequest,
+  declineConnectionRequest,
+  requestDisconnectConnection,
+  confirmDisconnectConnection,
+  getConnectionsData,
 } = require("../controllers/profileController");
 const protect = require("../middleware/auth");
 const multer = require("multer");
 
-// Ensure uploads directory exists (for temporary files before Cloudinary upload)
-const uploadsDir = path.join(__dirname, "..", "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Multer configuration for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-
+// Use memory storage — files go straight to Cloudinary, never saved locally
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
 });
 
@@ -52,6 +42,33 @@ router.post(
   uploadProfilePicture,
 );
 router.post("/upload-resume", protect, upload.single("resume"), uploadResume);
+router.get("/connections", protect, getConnectionsData);
+router.post("/connections/send/:targetUserId", protect, sendConnectionRequest);
+router.post(
+  "/connections/withdraw/:targetUserId",
+  protect,
+  withdrawConnectionRequest,
+);
+router.post(
+  "/connections/accept/:senderUserId",
+  protect,
+  acceptConnectionRequest,
+);
+router.post(
+  "/connections/decline/:senderUserId",
+  protect,
+  declineConnectionRequest,
+);
+router.post(
+  "/connections/disconnect-request/:targetUserId",
+  protect,
+  requestDisconnectConnection,
+);
+router.post(
+  "/connections/disconnect-confirm/:requesterUserId",
+  protect,
+  confirmDisconnectConnection,
+);
 
 // Public route (keep last to avoid catching static paths)
 router.get("/:userId", getUserProfile);

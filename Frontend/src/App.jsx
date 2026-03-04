@@ -15,6 +15,7 @@ import CompleteProfile from "./pages/CompleteProfile";
 import Dashboard from "./pages/Dashboard";
 import Discover from "./pages/Discover";
 import Profile from "./pages/Profile";
+import Connections from "./pages/Connections";
 import NotFound from "./components/common/NotFound";
 import LoadingSpinner from "./components/common/LoadingSpinner";
 import "./App.css";
@@ -108,6 +109,15 @@ function AppContent() {
             element={
               <ProfileCompleteRoute>
                 <Profile />
+              </ProfileCompleteRoute>
+            }
+          />
+
+          <Route
+            path="/connections"
+            element={
+              <ProfileCompleteRoute>
+                <Connections />
               </ProfileCompleteRoute>
             }
           />
