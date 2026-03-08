@@ -8,13 +8,7 @@ const {
   discoverProfiles,
   uploadProfilePicture,
   uploadResume,
-  sendConnectionRequest,
-  withdrawConnectionRequest,
-  acceptConnectionRequest,
-  declineConnectionRequest,
-  requestDisconnectConnection,
-  confirmDisconnectConnection,
-  getConnectionsData,
+  deleteAccount,
 } = require("../controllers/profileController");
 const protect = require("../middleware/auth");
 const multer = require("multer");
@@ -42,35 +36,11 @@ router.post(
   uploadProfilePicture,
 );
 router.post("/upload-resume", protect, upload.single("resume"), uploadResume);
-router.get("/connections", protect, getConnectionsData);
-router.post("/connections/send/:targetUserId", protect, sendConnectionRequest);
-router.post(
-  "/connections/withdraw/:targetUserId",
-  protect,
-  withdrawConnectionRequest,
-);
-router.post(
-  "/connections/accept/:senderUserId",
-  protect,
-  acceptConnectionRequest,
-);
-router.post(
-  "/connections/decline/:senderUserId",
-  protect,
-  declineConnectionRequest,
-);
-router.post(
-  "/connections/disconnect-request/:targetUserId",
-  protect,
-  requestDisconnectConnection,
-);
-router.post(
-  "/connections/disconnect-confirm/:requesterUserId",
-  protect,
-  confirmDisconnectConnection,
-);
 
 // Public route (keep last to avoid catching static paths)
 router.get("/:userId", getUserProfile);
+
+// Delete account route
+router.delete("/delete", protect, deleteAccount);
 
 module.exports = router;

@@ -69,18 +69,53 @@ const userSchema = new mongoose.Schema(
       enum: ["not available", "part-time", "full-time"],
       default: "not available",
     },
-    skillsOffered: [
+    education: {
+      type: String,
+      maxlength: [300, "Education cannot be more than 300 characters"],
+      default: "",
+    },
+    experience: {
+      type: String,
+      maxlength: [1000, "Experience cannot be more than 1000 characters"],
+      default: "",
+    },
+    yearsOfExperience: {
+      type: Number,
+      min: [0, "Years of experience cannot be negative"],
+      max: [60, "Years of experience cannot be more than 60"],
+      default: 0,
+    },
+    currentRole: {
+      type: String,
+      maxlength: [100, "Current role cannot be more than 100 characters"],
+      default: "",
+    },
+    company: {
+      type: String,
+      maxlength: [100, "Company cannot be more than 100 characters"],
+      default: "",
+    },
+    skills: [
       {
         type: String,
         maxlength: [50, "Skill cannot be more than 50 characters"],
       },
     ],
-    skillsWanted: [
-      {
-        type: String,
-        maxlength: [50, "Skill cannot be more than 50 characters"],
-      },
-    ],
+    githubUrl: {
+      type: String,
+      maxlength: [300, "GitHub URL cannot be more than 300 characters"],
+      default: "",
+    },
+    linkedinUrl: {
+      type: String,
+      maxlength: [300, "LinkedIn URL cannot be more than 300 characters"],
+      default: "",
+    },
+    portfolioUrl: {
+      type: String,
+      maxlength: [300, "Portfolio URL cannot be more than 300 characters"],
+      default: "",
+    },
     profileComplete: {
       type: Boolean,
       default: false,
@@ -90,100 +125,6 @@ const userSchema = new mongoose.Schema(
       enum: ["public", "private"],
       default: "private",
     },
-    connections: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
-    totalConnectionsCount: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-    sentConnectionRequests: [
-      {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-          required: true,
-        },
-        createdAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
-    receivedConnectionRequests: [
-      {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-          required: true,
-        },
-        createdAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
-    sentDisconnectRequests: [
-      {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-          required: true,
-        },
-        rating: {
-          type: Number,
-          min: 0,
-          max: 10,
-          required: true,
-        },
-        createdAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
-    receivedDisconnectRequests: [
-      {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-          required: true,
-        },
-        rating: {
-          type: Number,
-          min: 0,
-          max: 10,
-          required: true,
-        },
-        createdAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
-    ratingsReceived: [
-      {
-        from: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-          required: true,
-        },
-        rating: {
-          type: Number,
-          min: 0,
-          max: 10,
-          required: true,
-        },
-        createdAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
   },
   {
     timestamps: true,

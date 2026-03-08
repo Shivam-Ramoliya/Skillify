@@ -67,6 +67,51 @@ const fileRequest = async (path, file) => {
   return data;
 };
 
+const multipartRequest = async (
+  path,
+  payload = {},
+  file = null,
+  fileFieldName = "file",
+) => {
+  const formData = new FormData();
+
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+
+    if (Array.isArray(value)) {
+      formData.append(key, JSON.stringify(value));
+      return;
+    }
+
+    formData.append(key, String(value));
+  });
+
+  if (file) {
+    formData.append(fileFieldName, file);
+  }
+
+  const headers = {};
+  const authToken = getToken();
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const message = data.message || "Request failed";
+    throw new Error(message);
+  }
+
+  return data;
+};
+
 export const api = {
   signup: (payload) =>
     request("/api/auth/signup", { method: "POST", body: payload }),
@@ -98,31 +143,25 @@ export const api = {
   uploadProfilePicture: (file) =>
     fileRequest("/api/profile/upload-picture", file),
   uploadResume: (file) => fileRequest("/api/profile/upload-resume", file),
-  getConnectionsData: () => request("/api/profile/connections"),
-  sendConnectionRequest: (targetUserId) =>
-    request(`/api/profile/connections/send/${targetUserId}`, {
+  deleteAccount: () =>
+    request("/api/profile/delete", { method: "DELETE" }),
+  publishJob: (payload, file) =>
+    multipartRequest(
+      "/api/jobs/publish",
+      payload,
+      file,
+      "jobDescriptionDocument",
+    ),
+  discoverJobs: (params) => request(`/api/jobs/discover${buildQuery(params)}`),
+  applyToJob: (jobId) =>
+    request(`/api/jobs/${jobId}/apply`, {
       method: "POST",
     }),
-  withdrawConnectionRequest: (targetUserId) =>
-    request(`/api/profile/connections/withdraw/${targetUserId}`, {
-      method: "POST",
-    }),
-  acceptConnectionRequest: (senderUserId) =>
-    request(`/api/profile/connections/accept/${senderUserId}`, {
-      method: "POST",
-    }),
-  declineConnectionRequest: (senderUserId) =>
-    request(`/api/profile/connections/decline/${senderUserId}`, {
-      method: "POST",
-    }),
-  requestDisconnectConnection: (targetUserId, rating) =>
-    request(`/api/profile/connections/disconnect-request/${targetUserId}`, {
-      method: "POST",
-      body: { rating },
-    }),
-  confirmDisconnectConnection: (requesterUserId, rating) =>
-    request(`/api/profile/connections/disconnect-confirm/${requesterUserId}`, {
-      method: "POST",
-      body: { rating },
+  getSentApplications: () => request("/api/jobs/applications/sent"),
+  getReceivedApplications: () => request("/api/jobs/applications/received"),
+  updateApplicationStatus: (applicationId, status) =>
+    request(`/api/jobs/applications/${applicationId}/status`, {
+      method: "PUT",
+      body: { status },
     }),
 };

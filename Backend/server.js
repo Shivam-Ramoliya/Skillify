@@ -8,6 +8,7 @@ dotenv.config();
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
 const profileRoutes = require("./routes/profile");
+const jobsRoutes = require("./routes/jobs");
 
 // Connect to database
 connectDB();
@@ -24,6 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/jobs", jobsRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {

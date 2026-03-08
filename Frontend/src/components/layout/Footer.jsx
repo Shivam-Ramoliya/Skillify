@@ -1,79 +1,32 @@
+import { Link } from "react-router-dom";
+
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gradient-to-r from-gray-900 to-gray-800 text-white mt-auto border-t border-gray-700">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {/* Brand */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <img
-                src="/Skillify.png"
-                alt="Skillify"
-                className="h-6 w-6 rounded"
-              />
-              <h3 className="text-xl font-bold">Skillify</h3>
-            </div>
-            <p className="text-gray-400 leading-relaxed">
-              Connect with experts, share your skills, and grow together in a
-              supportive community.
-            </p>
+    <footer className="mt-auto border-t border-white/60 bg-white/40 backdrop-blur-lg py-8">
+      <div className="page-container px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+        <Link to="/" className="mb-4 flex items-center gap-3">
+          <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
+            <img
+               src="/Skillify.png"
+               alt="Skillify"
+               className="absolute inset-0 h-full w-full object-cover mix-blend-overlay opacity-80"
+             />
+             <span className="relative z-10 text-xl font-bold text-white tracking-tighter">S</span>
           </div>
+          <h3 className="text-xl font-extrabold tracking-tight text-slate-900">Skillify</h3>
+        </Link>
+        <p className="text-sm text-center leading-relaxed text-slate-500 max-w-md mb-8">
+          Built for freelancers and open project contributors to discover
+          work, collaborate faster, and ship meaningful outcomes with modern tools.
+        </p>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="text-sm font-semibold mb-4 text-white uppercase tracking-wider">
-              Quick Links
-            </h4>
-            <ul className="space-y-3">
-              <li>
-                <a
-                  href="/"
-                  className="text-gray-400 hover:text-teal-400 transition-colors text-sm"
-                >
-                  Home
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/discover"
-                  className="text-gray-400 hover:text-teal-400 transition-colors text-sm"
-                >
-                  Discover
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/dashboard"
-                  className="text-gray-400 hover:text-teal-400 transition-colors text-sm"
-                >
-                  Dashboard
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/profile"
-                  className="text-gray-400 hover:text-teal-400 transition-colors text-sm"
-                >
-                  Profile
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Bottom Bar */}
-        <div className="border-t border-gray-700 mt-10 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-400 text-sm">
-              &copy; {currentYear} Skillify. All rights reserved.
-            </p>
-            <p className="text-gray-400 text-sm">
-              Made with <span className="text-red-500">♥</span> for learners
-              everywhere
-            </p>
-          </div>
+        <div className="w-full max-w-md border-t border-slate-200/60 pt-6 flex flex-col items-center justify-center gap-2 text-sm text-slate-400 md:flex-row md:justify-between">
+          <p>© {currentYear} Skillify. All rights reserved.</p>
+          <p className="flex items-center gap-1">
+            Designed with <span className="text-pink-500 text-lg leading-none">♥</span> for freelancers
+          </p>
         </div>
       </div>
     </footer>

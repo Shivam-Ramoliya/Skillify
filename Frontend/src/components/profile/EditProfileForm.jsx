@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { City, Country, State } from "country-state-city";
 import { api } from "../../utils/api";
 
 export default function EditProfileForm({
@@ -13,12 +14,17 @@ export default function EditProfileForm({
     profilePicture: initialData?.profilePicture || "",
     resume: initialData?.resume || "",
     availability: initialData?.availability || "part-time",
-    skillsOffered: Array.isArray(initialData?.skillsOffered)
-      ? initialData.skillsOffered.join(", ")
-      : initialData?.skillsOffered || "",
-    skillsWanted: Array.isArray(initialData?.skillsWanted)
-      ? initialData.skillsWanted.join(", ")
-      : initialData?.skillsWanted || "",
+    education: initialData?.education || "",
+    experience: initialData?.experience || "",
+    yearsOfExperience: initialData?.yearsOfExperience ?? 0,
+    currentRole: initialData?.currentRole || "",
+    company: initialData?.company || "",
+    skills: Array.isArray(initialData?.skills)
+      ? initialData.skills.join(", ")
+      : initialData?.skills || "",
+    githubUrl: initialData?.githubUrl || "",
+    linkedinUrl: initialData?.linkedinUrl || "",
+    portfolioUrl: initialData?.portfolioUrl || "",
     profileVisibility: initialData?.profileVisibility || "private",
   });
   const [loading, setLoading] = useState(false);
@@ -28,6 +34,138 @@ export default function EditProfileForm({
   const [picturePreview, setPicturePreview] = useState(
     initialData?.profilePicture || null,
   );
+  const [selectedCountryCode, setSelectedCountryCode] = useState("");
+  const [selectedStateCode, setSelectedStateCode] = useState("");
+  const [selectedCityName, setSelectedCityName] = useState("");
+
+  const countries = useMemo(() => Country.getAllCountries(), []);
+  const states = useMemo(
+    () =>
+      selectedCountryCode ? State.getStatesOfCountry(selectedCountryCode) : [],
+    [selectedCountryCode],
+  );
+  const cities = useMemo(() => {
+    if (!selectedCountryCode) return [];
+
+    if (selectedStateCode) {
+      return (
+        City.getCitiesOfState(selectedCountryCode, selectedStateCode) || []
+      );
+    }
+
+    if (typeof City.getCitiesOfCountry === "function") {
+      return City.getCitiesOfCountry(selectedCountryCode) || [];
+    }
+
+    return [];
+  }, [selectedCountryCode, selectedStateCode]);
+
+  useEffect(() => {
+    if (!initialData?.location || !countries.length) return;
+
+    const parts = initialData.location
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean);
+
+    let cityName = "";
+    let stateName = "";
+    let countryName = "";
+
+    if (parts.length >= 3) {
+      cityName = parts[0];
+      stateName = parts[1];
+      countryName = parts.slice(2).join(", ");
+    } else if (parts.length === 2) {
+      cityName = parts[0];
+      countryName = parts[1];
+    } else {
+      countryName = parts[0] || "";
+    }
+
+    const matchedCountry = countries.find(
+      (country) => country.name.toLowerCase() === countryName.toLowerCase(),
+    );
+
+    if (!matchedCountry) return;
+
+    setSelectedCountryCode(matchedCountry.isoCode);
+
+    const statesOfCountry =
+      State.getStatesOfCountry(matchedCountry.isoCode) || [];
+    const matchedState = stateName
+      ? statesOfCountry.find(
+          (state) => state.name.toLowerCase() === stateName.toLowerCase(),
+        )
+      : null;
+
+    if (matchedState) {
+      setSelectedStateCode(matchedState.isoCode);
+    }
+
+    const availableCities = matchedState
+      ? City.getCitiesOfState(matchedCountry.isoCode, matchedState.isoCode) ||
+        []
+      : typeof City.getCitiesOfCountry === "function"
+        ? City.getCitiesOfCountry(matchedCountry.isoCode) || []
+        : [];
+
+    const matchedCity = cityName
+      ? availableCities.find(
+          (city) => city.name.toLowerCase() === cityName.toLowerCase(),
+        )
+      : null;
+
+    if (matchedCity) {
+      setSelectedCityName(matchedCity.name);
+    }
+  }, [initialData?.location, countries]);
+
+  useEffect(() => {
+    if (!selectedCountryCode) return;
+
+    const countryName =
+      countries.find((country) => country.isoCode === selectedCountryCode)
+        ?.name || "";
+    const stateName =
+      states.find((state) => state.isoCode === selectedStateCode)?.name || "";
+
+    const parts = [];
+    if (selectedCityName) parts.push(selectedCityName);
+    if (stateName) parts.push(stateName);
+    if (countryName) parts.push(countryName);
+
+    const nextLocation = parts.join(", ");
+
+    setFormData((prevData) =>
+      prevData.location === nextLocation
+        ? prevData
+        : { ...prevData, location: nextLocation },
+    );
+  }, [
+    selectedCityName,
+    selectedStateCode,
+    selectedCountryCode,
+    states,
+    countries,
+  ]);
+
+  const handleCountryChange = (e) => {
+    const nextCountryCode = e.target.value;
+    setSelectedCountryCode(nextCountryCode);
+    setSelectedStateCode("");
+    setSelectedCityName("");
+  };
+
+  const handleStateChange = (e) => {
+    const nextStateCode = e.target.value;
+    setSelectedStateCode(nextStateCode);
+    setSelectedCityName("");
+  };
+
+  const handleCityChange = (e) => {
+    setSelectedCityName(e.target.value);
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -98,11 +236,8 @@ export default function EditProfileForm({
     try {
       const payload = {
         ...formData,
-        skillsOffered: formData.skillsOffered
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-        skillsWanted: formData.skillsWanted
+        yearsOfExperience: Number(formData.yearsOfExperience) || 0,
+        skills: formData.skills
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean),
@@ -128,10 +263,15 @@ export default function EditProfileForm({
         </div>
       )}
       <form onSubmit={handleSubmit} className="space-y-6">
+        <p className="text-sm text-gray-600">
+          Fields marked with <span className="text-red-500">*</span> are
+          required.
+        </p>
+
         {/* Bio */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Bio
+            Bio <span className="text-red-500">*</span>
           </label>
           <textarea
             name="bio"
@@ -146,22 +286,77 @@ export default function EditProfileForm({
         {/* Location */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Location
+            Location <span className="text-red-500">*</span>
           </label>
-          <input
-            type="text"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            placeholder="City, Country"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <select
+              value={selectedCountryCode}
+              onChange={handleCountryChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              required
+            >
+              <option value="">Select Country</option>
+              {countries.map((country) => (
+                <option key={country.isoCode} value={country.isoCode}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={selectedStateCode}
+              onChange={handleStateChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              disabled={!selectedCountryCode || states.length === 0}
+              required
+            >
+              <option value="">
+                {selectedCountryCode
+                  ? states.length > 0
+                    ? "Select State"
+                    : "No States Available"
+                  : "Select Country First"}
+              </option>
+              {states.map((state) => (
+                <option key={state.isoCode} value={state.isoCode}>
+                  {state.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={selectedCityName}
+              onChange={handleCityChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              disabled={!selectedCountryCode || cities.length === 0}
+              required
+            >
+              <option value="">
+                {selectedCountryCode
+                  ? cities.length > 0
+                    ? "Select City"
+                    : "No Cities Available"
+                  : "Select Country First"}
+              </option>
+              {cities.map((city, index) => (
+                <option
+                  key={`${city.name}-${city.stateCode || ""}-${index}`}
+                  value={city.name}
+                >
+                  {city.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            Selected: {formData.location || "-"}
+          </p>
         </div>
 
         {/* Profile Picture */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Profile Picture
+            Profile Picture <span className="text-red-500">*</span>
           </label>
           <div className="flex gap-4 items-start">
             {picturePreview && (
@@ -341,7 +536,7 @@ export default function EditProfileForm({
         {/* Availability */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Availability
+            Availability <span className="text-red-500">*</span>
           </label>
           <select
             name="availability"
@@ -355,32 +550,138 @@ export default function EditProfileForm({
           </select>
         </div>
 
-        {/* Skills Offered */}
+        {/* Education */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Skills Offered (comma separated)
+            Education <span className="text-red-500">*</span>
+          </label>
+          <textarea
+            name="education"
+            value={formData.education}
+            onChange={handleChange}
+            rows="3"
+            placeholder="e.g. B.Tech in Computer Science, XYZ University (2022)"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+          />
+        </div>
+
+        {/* Experience */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-3">
+            Experience <span className="text-red-500">*</span>
+          </label>
+          <textarea
+            name="experience"
+            value={formData.experience}
+            onChange={handleChange}
+            rows="4"
+            placeholder="Describe your work experience, internships, and major projects"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+          />
+        </div>
+
+        {/* Role and Company */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Current Role
+            </label>
+            <input
+              type="text"
+              name="currentRole"
+              value={formData.currentRole}
+              onChange={handleChange}
+              placeholder="e.g. Software Engineer"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Company
+            </label>
+            <input
+              type="text"
+              name="company"
+              value={formData.company}
+              onChange={handleChange}
+              placeholder="e.g. Skillify Inc."
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+
+        {/* Years of Experience */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-3">
+            Years of Experience
           </label>
           <input
-            type="text"
-            name="skillsOffered"
-            value={formData.skillsOffered}
+            type="number"
+            min="0"
+            max="60"
+            name="yearsOfExperience"
+            value={formData.yearsOfExperience}
             onChange={handleChange}
-            placeholder="e.g. Web Design, React, Photography"
+            placeholder="e.g. 2"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
           />
         </div>
 
-        {/* Skills Wanted */}
+        {/* Skills */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Skills Wanted (comma separated)
+            Skills (comma separated) <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
-            name="skillsWanted"
-            value={formData.skillsWanted}
+            name="skills"
+            value={formData.skills}
             onChange={handleChange}
-            placeholder="e.g. Video Editing, SEO, Graphic Design"
+            placeholder="e.g. React, Node.js, MongoDB, UI/UX"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+          />
+        </div>
+
+        {/* Social Links */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              GitHub URL <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="url"
+              name="githubUrl"
+              value={formData.githubUrl}
+              onChange={handleChange}
+              placeholder="https://github.com/username"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              LinkedIn URL <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="url"
+              name="linkedinUrl"
+              value={formData.linkedinUrl}
+              onChange={handleChange}
+              placeholder="https://linkedin.com/in/username"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-3">
+            Portfolio URL
+          </label>
+          <input
+            type="url"
+            name="portfolioUrl"
+            value={formData.portfolioUrl}
+            onChange={handleChange}
+            placeholder="https://yourportfolio.com"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
           />
         </div>
