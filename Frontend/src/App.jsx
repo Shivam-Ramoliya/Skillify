@@ -15,6 +15,8 @@ import CompleteProfile from "./pages/CompleteProfile";
 import Dashboard from "./pages/Dashboard";
 import Discover from "./pages/Discover";
 import Profile from "./pages/Profile";
+import PublishJob from "./pages/PublishJob";
+import Applications from "./pages/Applications";
 import NotFound from "./components/common/NotFound";
 import LoadingSpinner from "./components/common/LoadingSpinner";
 import "./App.css";
@@ -55,7 +57,7 @@ function ProfileCompleteRoute({ children }) {
 
 function AppContent() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="app-shell flex flex-col">
       <NavBar />
       <main className="grow">
         <Routes>
@@ -108,6 +110,24 @@ function AppContent() {
             element={
               <ProfileCompleteRoute>
                 <Profile />
+              </ProfileCompleteRoute>
+            }
+          />
+
+          <Route
+            path="/publish-job"
+            element={
+              <ProfileCompleteRoute>
+                <PublishJob />
+              </ProfileCompleteRoute>
+            }
+          />
+
+          <Route
+            path="/applications"
+            element={
+              <ProfileCompleteRoute>
+                <Applications />
               </ProfileCompleteRoute>
             }
           />

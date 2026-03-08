@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { City, Country, State } from "country-state-city";
 import { useAuth } from "../context/AuthContext";
 import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
 
@@ -9,6 +10,7 @@ export default function Signup() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    location: "",
     password: "",
     confirmPassword: "",
   });
@@ -16,6 +18,31 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [toasts, setToasts] = useState([]);
+  const [selectedCountryCode, setSelectedCountryCode] = useState("");
+  const [selectedStateCode, setSelectedStateCode] = useState("");
+  const [selectedCityName, setSelectedCityName] = useState("");
+
+  const countries = useMemo(() => Country.getAllCountries(), []);
+  const states = useMemo(
+    () =>
+      selectedCountryCode ? State.getStatesOfCountry(selectedCountryCode) : [],
+    [selectedCountryCode],
+  );
+  const cities = useMemo(() => {
+    if (!selectedCountryCode) return [];
+
+    if (selectedStateCode) {
+      return (
+        City.getCitiesOfState(selectedCountryCode, selectedStateCode) || []
+      );
+    }
+
+    if (typeof City.getCitiesOfCountry === "function") {
+      return City.getCitiesOfCountry(selectedCountryCode) || [];
+    }
+
+    return [];
+  }, [selectedCountryCode, selectedStateCode]);
 
   const addToast = (type, message) => {
     const id = Date.now() + Math.random();
@@ -48,12 +75,52 @@ export default function Signup() {
   };
 
   useEffect(() => {
-    setPageTitle("Sign Up");
+    setPageTitle("Sign Up | Skillify");
     return () => resetPageTitle();
   }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  useEffect(() => {
+    if (!selectedCountryCode) return;
+
+    const countryName =
+      countries.find((country) => country.isoCode === selectedCountryCode)
+        ?.name || "";
+    const stateName =
+      states.find((state) => state.isoCode === selectedStateCode)?.name || "";
+
+    const parts = [];
+    if (selectedCityName) parts.push(selectedCityName);
+    if (stateName) parts.push(stateName);
+    if (countryName) parts.push(countryName);
+
+    setFormData((prev) => ({ ...prev, location: parts.join(", ") }));
+  }, [
+    selectedCountryCode,
+    selectedStateCode,
+    selectedCityName,
+    countries,
+    states,
+  ]);
+
+  const handleCountryChange = (e) => {
+    const nextCountryCode = e.target.value;
+    setSelectedCountryCode(nextCountryCode);
+    setSelectedStateCode("");
+    setSelectedCityName("");
+  };
+
+  const handleStateChange = (e) => {
+    const nextStateCode = e.target.value;
+    setSelectedStateCode(nextStateCode);
+    setSelectedCityName("");
+  };
+
+  const handleCityChange = (e) => {
+    setSelectedCityName(e.target.value);
   };
 
   const handleSubmit = async (e) => {
@@ -62,6 +129,12 @@ export default function Signup() {
 
     if (formData.name.length > 100) {
       addToast("error", "Name must be 100 characters or less");
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.location) {
+      addToast("error", "Please select your country, state, and city");
       setLoading(false);
       return;
     }
@@ -105,238 +178,262 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-4 py-8">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-10">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Join Skillify
-            </h2>
-            <p className="text-gray-600">Create your account today</p>
+    <div className="page-wrap flex items-center justify-center min-h-[calc(100vh-160px)] py-12">
+      <div className="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="overflow-hidden rounded-3xl bg-white/60 shadow-2xl shadow-indigo-500/10 backdrop-blur-xl border border-white/80 grid lg:grid-cols-5">
+          {/* Form Section (col-span-3) */}
+          <div className="flex w-full flex-col justify-center p-8 sm:p-10 lg:p-12 animate-fade-in z-10 bg-white/40 lg:col-span-3 lg:order-2">
+            <div className="mx-auto w-full max-w-lg">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">Create an account</h2>
+                <p className="mt-2 text-sm font-medium text-slate-500">
+                  Join Skillify and start your freelance journey.
+                </p>
+              </div>
+
+              {toasts.length > 0 && (
+                <div className="space-y-3 mb-6 animate-fade-in-up">
+                  {toasts.map((toast) => (
+                    <div
+                      key={toast.id}
+                      className={`px-4 py-3 rounded-xl border flex items-center gap-3 shadow-sm ${
+                        toast.type === "success"
+                          ? "bg-emerald-50/80 border-emerald-200 text-emerald-700"
+                          : toast.type === "warning"
+                            ? "bg-amber-50/80 border-amber-200 text-amber-700"
+                            : "bg-red-50/80 border-red-200 text-red-700"
+                      } backdrop-blur-sm`}
+                    >
+                      <span className="text-sm font-medium">{toast.message}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label className="mb-2 block text-sm font-bold text-slate-700">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    maxLength={100}
+                    placeholder="John Doe"
+                    className="input-base"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-bold text-slate-700">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    placeholder="you@example.com"
+                    className="input-base"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-bold text-slate-700">
+                    Location
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <select
+                      value={selectedCountryCode}
+                      onChange={handleCountryChange}
+                      required
+                      className="input-base px-3 py-3"
+                    >
+                      <option value="">Country</option>
+                      {countries.map((country) => (
+                        <option key={country.isoCode} value={country.isoCode}>
+                          {country.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={selectedStateCode}
+                      onChange={handleStateChange}
+                      required={states.length > 0}
+                      disabled={!selectedCountryCode || states.length === 0}
+                      className="input-base px-3 py-3 disabled:opacity-50 disabled:bg-slate-100 disabled:cursor-not-allowed"
+                    >
+                      <option value="">
+                        {selectedCountryCode ? (states.length > 0 ? "State" : "No States") : "State"}
+                      </option>
+                      {states.map((state) => (
+                        <option key={state.isoCode} value={state.isoCode}>
+                          {state.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={selectedCityName}
+                      onChange={handleCityChange}
+                      required={cities.length > 0}
+                      disabled={!selectedCountryCode || cities.length === 0}
+                      className="input-base px-3 py-3 disabled:opacity-50 disabled:bg-slate-100 disabled:cursor-not-allowed"
+                    >
+                      <option value="">
+                        {selectedCountryCode ? (cities.length > 0 ? "City" : "No Cities") : "City"}
+                      </option>
+                      {cities.map((city, index) => (
+                        <option key={`${city.name}-${city.stateCode || ""}-${index}`} value={city.name}>
+                          {city.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <p className="text-xs font-medium text-slate-500 mt-2">
+                    Selected: {formData.location || "-"}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className="mb-2 block text-sm font-bold text-slate-700">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                        minLength={8}
+                        maxLength={50}
+                        placeholder="••••••••"
+                        className="input-base pr-16"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute inset-y-0 right-3 flex items-center text-xs font-bold text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-wider"
+                      >
+                        {showPassword ? "Hide" : "Show"}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-bold text-slate-700">
+                      Confirm Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        required
+                        minLength={8}
+                        maxLength={50}
+                        placeholder="••••••••"
+                        className="input-base pr-16"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        className="absolute inset-y-0 right-3 flex items-center text-xs font-bold text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-wider"
+                      >
+                        {showConfirmPassword ? "Hide" : "Show"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-1.5 bg-white/60 p-4 rounded-xl border border-slate-200/60 shadow-sm mb-2 backdrop-blur-sm">
+                  <p className="text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Password requirements:</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {getPasswordChecks(formData.password).map((check) => (
+                      <div
+                        key={check.label}
+                        className={`text-xs flex items-center gap-1.5 font-medium ${
+                          check.ok ? "text-emerald-600" : "text-slate-500"
+                        }`}
+                      >
+                       {check.ok ? (
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                        ) : (
+                          <span className="w-4 h-4 flex items-center justify-center font-bold text-[10px]">•</span>
+                        )}
+                        <span>{check.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-4">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="btn-primary w-full py-4 text-base relative overflow-hidden group shadow-xl shadow-indigo-500/20"
+                  >
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      {loading ? (
+                        <>
+                          <svg className="animate-spin h-5 w-5 text-white/90" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                          Creating account...
+                        </>
+                      ) : (
+                         "Create Account"
+                      )}
+                    </span>
+                  </button>
+                </div>
+              </form>
+
+              <div className="mt-8 text-center bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                <p className="text-sm font-medium text-slate-600">
+                  Already have an account?{" "}
+                  <Link
+                    to="/login"
+                    className="font-bold text-indigo-600 hover:text-indigo-500 transition-colors ml-1"
+                  >
+                    Sign in here
+                  </Link>
+                </p>
+              </div>
+            </div>
           </div>
 
-          {toasts.length > 0 && (
-            <div className="space-y-3 mb-6">
-              {toasts.map((toast) => (
-                <div
-                  key={toast.id}
-                  className={`px-4 py-3 rounded-lg flex items-start gap-3 border ${
-                    toast.type === "success"
-                      ? "bg-green-50 border-green-200 text-green-700"
-                      : toast.type === "warning"
-                        ? "bg-amber-50 border-amber-200 text-amber-700"
-                        : "bg-red-50 border-red-200 text-red-700"
-                  }`}
-                >
-                  <span className="text-sm">{toast.message}</span>
-                </div>
-              ))}
-            </div>
-          )}
+          {/* Decorative Section (col-span-2) */}
+          <div className="relative hidden w-full flex-col items-center justify-center p-12 lg:flex bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-800 text-white overflow-hidden lg:col-span-2 lg:order-1">
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
+            
+            {/* Animated blob background */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
+            <div className="absolute bottom-20 left-10 w-64 h-64 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob" style={{ animationDelay: '2s' }}></div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Full Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                maxLength={100}
-                placeholder="John Doe"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Email Address
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                placeholder="you@example.com"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  minLength={8}
-                  maxLength={50}
-                  placeholder="••••••••"
-                  className="w-full pr-12 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
-                >
-                  {showPassword ? (
-                    <svg
-                      className="h-5 w-5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-10-8-10-8a21.83 21.83 0 0 1 5.1-6.39" />
-                      <path d="M1 1l22 22" />
-                      <path d="M9.88 9.88a3 3 0 0 0 4.24 4.24" />
-                      <path d="M14.12 14.12L9.88 9.88" />
-                      <path d="M9 4.24A10.94 10.94 0 0 1 12 4c7 0 10 8 10 8a21.89 21.89 0 0 1-3.09 4.36" />
-                      <path d="M12 9a3 3 0 0 1 3 3" />
-                    </svg>
-                  ) : (
-                    <svg
-                      className="h-5 w-5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
-                </button>
+            <div className="relative z-10 w-full text-center animate-fade-in-up">
+              <div className="mx-auto w-20 h-20 bg-white/10 backdrop-blur-md rounded-3xl flex items-center justify-center border border-white/20 mb-8 shadow-xl">
+                 <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
               </div>
-              <div className="mt-2 space-y-1">
-                {getPasswordChecks(formData.password).map((check) => (
-                  <div
-                    key={check.label}
-                    className={`text-xs flex items-center gap-2 ${
-                      check.ok ? "text-green-600" : "text-gray-500"
-                    }`}
-                  >
-                    <span>{check.ok ? "✓" : "•"}</span>
-                    <span>{check.label}</span>
-                  </div>
-                ))}
-              </div>
+              <h1 className="text-4xl font-extrabold tracking-tight mb-4">
+                Join our network
+              </h1>
+              <p className="text-base text-indigo-100 max-w-sm mx-auto leading-relaxed mb-8">
+                Connect with top talent and high-quality projects. Elevate your freelance career today.
+              </p>
+              
+               <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-5 py-2.5 rounded-full border border-white/30 text-sm font-semibold shadow-sm">
+                 <span className="flex h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
+                 Thousands of active jobs
+               </div>
             </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Confirm Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                  minLength={8}
-                  maxLength={50}
-                  placeholder="••••••••"
-                  className="w-full pr-12 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword((prev) => !prev)}
-                  aria-label={
-                    showConfirmPassword
-                      ? "Hide confirm password"
-                      : "Show confirm password"
-                  }
-                  className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
-                >
-                  {showConfirmPassword ? (
-                    <svg
-                      className="h-5 w-5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-10-8-10-8a21.83 21.83 0 0 1 5.1-6.39" />
-                      <path d="M1 1l22 22" />
-                      <path d="M9.88 9.88a3 3 0 0 0 4.24 4.24" />
-                      <path d="M14.12 14.12L9.88 9.88" />
-                      <path d="M9 4.24A10.94 10.94 0 0 1 12 4c7 0 10 8 10 8a21.89 21.89 0 0 1-3.09 4.36" />
-                      <path d="M12 9a3 3 0 0 1 3 3" />
-                    </svg>
-                  ) : (
-                    <svg
-                      className="h-5 w-5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-teal-600 to-teal-500 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      fill="none"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  Creating account...
-                </span>
-              ) : (
-                "Create Account"
-              )}
-            </button>
-          </form>
-
-          <p className="text-sm text-center text-gray-600 mt-6">
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="text-teal-600 font-semibold hover:text-teal-700"
-            >
-              Sign in
-            </Link>
-          </p>
+          </div>
         </div>
       </div>
     </div>

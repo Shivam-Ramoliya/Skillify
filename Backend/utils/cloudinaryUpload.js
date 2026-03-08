@@ -1,34 +1,43 @@
 const cloudinary = require("../config/cloudinary");
-const fs = require("fs/promises");
 
-const uploadToCloudinary = async (file, folder) => {
-  try {
-    // Determine resource type based on folder
-    const resourceType = folder === "resumes" ? "raw" : "auto";
-
-    const result = await cloudinary.uploader.upload(file, {
+/**
+ * Upload a file buffer directly to Cloudinary (no local file needed).
+ * @param {Buffer} buffer  - The file buffer from multer memoryStorage
+ * @param {string} folder  - Sub-folder inside skiilify/
+ * @param {string} [originalName] - Original filename for use_filename
+ * @returns {Promise<{url: string, publicId: string}>}
+ */
+const uploadToCloudinary = (buffer, folder, originalName) => {
+  return new Promise((resolve, reject) => {
+    const options = {
       folder: `skiilify/${folder}`,
-      resource_type: resourceType,
+      resource_type: "auto",
       use_filename: true,
       unique_filename: true,
       overwrite: false,
-    });
-
-    return {
-      url: result.secure_url,
-      publicId: result.public_id,
     };
-  } catch (error) {
-    throw new Error(`Cloudinary upload failed: ${error.message}`);
-  } finally {
-    if (file) {
-      try {
-        await fs.unlink(file);
-      } catch (cleanupError) {
-        console.error(`Failed to delete local file: ${cleanupError.message}`);
-      }
+
+    // Strip extension so Cloudinary uses only the base name
+    if (originalName) {
+      options.public_id = originalName.replace(/\.[^/.]+$/, "");
     }
-  }
+
+    const stream = cloudinary.uploader.upload_stream(
+      options,
+      (error, result) => {
+        if (error)
+          return reject(
+            new Error(`Cloudinary upload failed: ${error.message}`),
+          );
+        resolve({
+          url: result.secure_url,
+          publicId: result.public_id,
+        });
+      },
+    );
+
+    stream.end(buffer);
+  });
 };
 
 const deleteFromCloudinary = async (publicId, resourceType = "image") => {

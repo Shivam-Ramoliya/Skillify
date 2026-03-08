@@ -8,22 +8,14 @@ const {
   discoverProfiles,
   uploadProfilePicture,
   uploadResume,
+  deleteAccount,
 } = require("../controllers/profileController");
 const protect = require("../middleware/auth");
 const multer = require("multer");
 
-// Multer configuration for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-
+// Use memory storage — files go straight to Cloudinary, never saved locally
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
 });
 
@@ -47,5 +39,8 @@ router.post("/upload-resume", protect, upload.single("resume"), uploadResume);
 
 // Public route (keep last to avoid catching static paths)
 router.get("/:userId", getUserProfile);
+
+// Delete account route
+router.delete("/delete", protect, deleteAccount);
 
 module.exports = router;

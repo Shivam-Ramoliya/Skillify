@@ -1,4 +1,6 @@
 const User = require("../models/User");
+const Job = require("../models/Job");
+const JobApplication = require("../models/JobApplication");
 const jwt = require("jsonwebtoken");
 const {
   uploadToCloudinary,
@@ -31,10 +33,11 @@ exports.uploadProfilePicture = async (req, res) => {
       await deleteFromCloudinary(user.profilePicturePublicId);
     }
 
-    // Upload new picture
+    // Upload new picture directly to Cloudinary from memory
     const uploadResult = await uploadToCloudinary(
-      req.file.path,
+      req.file.buffer,
       "profile-pictures",
+      req.file.originalname,
     );
 
     user.profilePicture = uploadResult.url;
@@ -75,13 +78,17 @@ exports.uploadResume = async (req, res) => {
       });
     }
 
-    // Delete old resume if exists
+    // Delete old resume from Cloudinary if exists
     if (user.resumePublicId) {
       await deleteFromCloudinary(user.resumePublicId, "raw");
     }
 
-    // Upload new resume
-    const uploadResult = await uploadToCloudinary(req.file.path, "resumes");
+    // Upload resume directly to Cloudinary from memory
+    const uploadResult = await uploadToCloudinary(
+      req.file.buffer,
+      "resumes",
+      req.file.originalname,
+    );
 
     user.resume = uploadResult.url;
     user.resumePublicId = uploadResult.publicId;
@@ -121,8 +128,15 @@ exports.updateProfile = async (req, res) => {
       "profilePicture",
       "resume",
       "availability",
-      "skillsOffered",
-      "skillsWanted",
+      "education",
+      "experience",
+      "yearsOfExperience",
+      "currentRole",
+      "company",
+      "skills",
+      "githubUrl",
+      "linkedinUrl",
+      "portfolioUrl",
       "profileVisibility",
     ];
 
@@ -133,14 +147,19 @@ exports.updateProfile = async (req, res) => {
     });
 
     // Check if profile is complete
-    const isProfileComplete =
+    const isProfileComplete = Boolean(
       user.bio &&
       user.location &&
       user.profilePicture &&
       user.availability &&
       user.availability !== "not available" &&
-      user.skillsOffered &&
-      user.skillsOffered.length > 0;
+      user.education &&
+      user.experience &&
+      user.skills &&
+      user.skills.length > 0 &&
+      user.githubUrl &&
+      user.linkedinUrl,
+    );
 
     user.profileComplete = isProfileComplete;
 
@@ -159,8 +178,15 @@ exports.updateProfile = async (req, res) => {
         profilePicture: user.profilePicture,
         resume: user.resume,
         availability: user.availability,
-        skillsOffered: user.skillsOffered,
-        skillsWanted: user.skillsWanted,
+        education: user.education,
+        experience: user.experience,
+        yearsOfExperience: user.yearsOfExperience,
+        currentRole: user.currentRole,
+        company: user.company,
+        skills: user.skills,
+        githubUrl: user.githubUrl,
+        linkedinUrl: user.linkedinUrl,
+        portfolioUrl: user.portfolioUrl,
         profileVisibility: user.profileVisibility,
         profileComplete: user.profileComplete,
       },
@@ -216,7 +242,7 @@ exports.getUserProfile = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: user,
+      data: user.toObject(),
     });
   } catch (error) {
     res.status(500).json({
@@ -244,7 +270,7 @@ exports.getMyProfile = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: user,
+      data: user.toObject(),
     });
   } catch (error) {
     res.status(500).json({
@@ -293,16 +319,24 @@ function calculateCompletionPercentage(user) {
     "location",
     "profilePicture",
     "availability",
-    "skillsOffered",
+    "education",
+    "experience",
+    "skills",
+    "githubUrl",
+    "linkedinUrl",
   ];
 
   let completedFields = 0;
 
   requiredFields.forEach((field) => {
-    if (field === "skillsOffered") {
+    if (field === "skills") {
       if (user[field] && user[field].length > 0) completedFields++;
     } else {
-      if (user[field]) completedFields++;
+      if (field === "availability") {
+        if (user[field] && user[field] !== "not available") completedFields++;
+      } else if (user[field]) {
+        completedFields++;
+      }
     }
   });
 
@@ -318,8 +352,11 @@ function getMissingFields(user) {
   if (!user.profilePicture) missing.push("profilePicture");
   if (!user.availability || user.availability === "not available")
     missing.push("availability");
-  if (!user.skillsOffered || user.skillsOffered.length === 0)
-    missing.push("skillsOffered");
+  if (!user.education) missing.push("education");
+  if (!user.experience) missing.push("experience");
+  if (!user.skills || user.skills.length === 0) missing.push("skills");
+  if (!user.githubUrl) missing.push("githubUrl");
+  if (!user.linkedinUrl) missing.push("linkedinUrl");
 
   return missing;
 }
@@ -396,10 +433,12 @@ exports.discoverProfiles = async (req, res) => {
 
     if (role) query.role = role;
     if (skill) {
-      query.$or = [
-        { skillsOffered: { $in: [skill] } },
-        { skillsWanted: { $in: [skill] } },
-      ];
+      const trimmedSkill = skill.trim();
+      if (trimmedSkill) {
+        const regexFilter = { $regex: trimmedSkill, $options: "i" };
+
+        query.skills = regexFilter;
+      }
     }
 
     const startIndex = (parseInt(page) - 1) * parseInt(limit);
@@ -423,6 +462,58 @@ exports.discoverProfiles = async (req, res) => {
     res.status(500).json({
       success: false,
       message: error.message || "Server error",
+    });
+  }
+};
+
+// @desc    Delete user account and all associated data
+// @route   DELETE /api/profile/delete
+// @access  Private
+exports.deleteAccount = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // 1. Delete user files from Cloudinary
+    if (user.profilePicturePublicId) {
+      await deleteFromCloudinary(user.profilePicturePublicId);
+    }
+    if (user.resumePublicId) {
+      await deleteFromCloudinary(user.resumePublicId, "raw");
+    }
+
+    // 2. Find jobs posted by the user
+    const userJobs = await Job.find({ postedBy: user._id });
+    
+    // For each job posted by user, delete the document attachment from cloudinary first
+    for (const job of userJobs) {
+      if (job.jobDescriptionDocumentPublicId) {
+        await deleteFromCloudinary(job.jobDescriptionDocumentPublicId, "raw");
+      }
+    }
+
+    // 3. Delete all jobs posted by the user
+    await Job.deleteMany({ postedBy: user._id });
+
+    // 4. Delete all applications related to the user (either applicant or employer)
+    await JobApplication.deleteMany({
+      $or: [{ applicant: user._id }, { employer: user._id }]
+    });
+
+    // 5. Delete the user document
+    await User.findByIdAndDelete(user._id);
+
+    res.status(200).json({
+      success: true,
+      message: "Account and all associated data deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete account error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message || "Server error while deleting account",
     });
   }
 };

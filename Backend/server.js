@@ -8,6 +8,7 @@ dotenv.config();
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
 const profileRoutes = require("./routes/profile");
+const jobsRoutes = require("./routes/jobs");
 
 // Connect to database
 connectDB();
@@ -19,9 +20,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// All files are uploaded directly to Cloudinary — no local static serving needed
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/jobs", jobsRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
