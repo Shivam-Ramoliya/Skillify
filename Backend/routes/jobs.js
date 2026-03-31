@@ -8,6 +8,7 @@ const {
   getSentApplications,
   getReceivedApplications,
   updateApplicationStatus,
+  getMyPostedJobs,
 } = require("../controllers/jobController");
 
 const router = express.Router();
@@ -24,6 +25,7 @@ router.post(
   publishJob,
 );
 router.get("/discover", protect, discoverJobs);
+router.get("/my-posts", protect, getMyPostedJobs);
 router.get("/applications/sent", protect, getSentApplications);
 router.get("/applications/received", protect, getReceivedApplications);
 router.put(

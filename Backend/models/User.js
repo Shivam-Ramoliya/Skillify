@@ -37,6 +37,14 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    deleteAccountOtp: {
+      type: String,
+      default: null,
+    },
+    deleteAccountOtpExpire: {
+      type: Date,
+      default: null,
+    },
     // Profile fields
     profilePicture: {
       type: String,

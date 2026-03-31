@@ -143,8 +143,10 @@ export const api = {
   uploadProfilePicture: (file) =>
     fileRequest("/api/profile/upload-picture", file),
   uploadResume: (file) => fileRequest("/api/profile/upload-resume", file),
-  deleteAccount: () =>
-    request("/api/profile/delete", { method: "DELETE" }),
+  requestAccountDeletion: () =>
+    request("/api/profile/request-delete", { method: "POST" }),
+  deleteAccount: (otp) =>
+    request("/api/profile/delete", { method: "DELETE", body: { otp } }),
   publishJob: (payload, file) =>
     multipartRequest(
       "/api/jobs/publish",
@@ -159,6 +161,9 @@ export const api = {
     }),
   getSentApplications: () => request("/api/jobs/applications/sent"),
   getReceivedApplications: () => request("/api/jobs/applications/received"),
+  getReceivedApplicationsForJob: (jobId) =>
+    request(`/api/jobs/applications/received?jobId=${jobId}`),
+  getMyPostedJobs: () => request("/api/jobs/my-posts"),
   updateApplicationStatus: (applicationId, status) =>
     request(`/api/jobs/applications/${applicationId}/status`, {
       method: "PUT",

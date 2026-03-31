@@ -8,7 +8,8 @@ const {
   discoverProfiles,
   uploadProfilePicture,
   uploadResume,
-  deleteAccount,
+  requestAccountDeletion,
+  confirmAccountDeletion,
 } = require("../controllers/profileController");
 const protect = require("../middleware/auth");
 const multer = require("multer");
@@ -37,10 +38,11 @@ router.post(
 );
 router.post("/upload-resume", protect, upload.single("resume"), uploadResume);
 
+// Account deletion routes
+router.post("/request-delete", protect, requestAccountDeletion);
+router.delete("/delete", protect, confirmAccountDeletion);
+
 // Public route (keep last to avoid catching static paths)
 router.get("/:userId", getUserProfile);
-
-// Delete account route
-router.delete("/delete", protect, deleteAccount);
 
 module.exports = router;

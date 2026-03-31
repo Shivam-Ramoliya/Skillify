@@ -179,7 +179,48 @@ const sendWelcomeEmail = async (email, name) => {
   }
 };
 
+// Send account deletion OTP email
+const sendDeleteAccountOtpEmail = async (email, otp, name) => {
+  try {
+    const formattedOtp =
+      otp.slice(0, 3) + " " + otp.slice(3);
+
+    const content = `
+              <h2 style="margin: 0 0 8px; color: #991b1b; font-size: 22px; font-weight: 700;">Account Deletion Request</h2>
+              <p style="margin: 0 0 24px; color: #5f6d6a; font-size: 15px; line-height: 1.6;">Hi ${name || "there"}, we received a request to permanently delete your Skiilify account. Use the code below to confirm this action.</p>
+              
+              <div style="background: linear-gradient(135deg, #fef2f2, #fff7ed); border: 2px solid #fecaca; border-radius: 12px; padding: 28px; text-align: center; margin: 24px 0;">
+                <p style="margin: 0 0 12px; color: #92400e; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">Deletion Confirmation Code</p>
+                <p style="margin: 0; font-size: 40px; font-weight: 800; color: #dc2626; letter-spacing: 8px; font-family: 'Courier New', Courier, monospace;">${formattedOtp}</p>
+              </div>
+
+              <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px; margin: 24px 0;">
+                <p style="margin: 0; color: #991b1b; font-size: 14px; font-weight: 600;">⚠️ Warning: This action is irreversible</p>
+                <p style="margin: 8px 0 0; color: #7f1d1d; font-size: 13px; line-height: 1.5;">Deleting your account will permanently remove all your data including your profile, job posts, applications, and uploaded files. This cannot be undone.</p>
+              </div>
+
+              <p style="margin: 0; color: #94a3b8; font-size: 13px; text-align: center;">This code expires in <strong style="color: #dc2626;">10 minutes</strong>.</p>
+              <p style="margin: 8px 0 0; color: #94a3b8; font-size: 12px; text-align: center;">If you did not request this, please ignore this email and your account will remain safe.</p>
+        `;
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      to: email,
+      subject: "⚠️ Account Deletion Confirmation - Skiilify",
+      html: emailWrapper(content),
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Delete account OTP email sent:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Delete account OTP email error:", error.message);
+    throw new Error("Failed to send account deletion OTP email");
+  }
+};
+
 module.exports = {
   sendVerificationEmail,
   sendWelcomeEmail,
+  sendDeleteAccountOtpEmail,
 };

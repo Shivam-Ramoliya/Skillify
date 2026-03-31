@@ -322,7 +322,15 @@ exports.getSentApplications = async (req, res) => {
 // @access  Private
 exports.getReceivedApplications = async (req, res) => {
   try {
-    const applications = await JobApplication.find({ employer: req.user.id })
+    const query = { employer: req.user.id };
+
+    // Optional: filter by specific job
+    const { jobId } = req.query;
+    if (jobId) {
+      query.job = jobId;
+    }
+
+    const applications = await JobApplication.find(query)
       .sort({ createdAt: -1 })
       .populate({
         path: "job",
@@ -331,7 +339,7 @@ exports.getReceivedApplications = async (req, res) => {
       })
       .populate(
         "applicant",
-        "name profilePicture location skills experience yearsOfExperience githubUrl linkedinUrl",
+        "name profilePicture location skills experience yearsOfExperience githubUrl linkedinUrl currentRole company",
       )
       .lean();
 
@@ -408,6 +416,48 @@ exports.updateApplicationStatus = async (req, res) => {
       success: false,
       message:
         error.message || "Server error while updating application status",
+    });
+  }
+};
+
+// @desc    Get jobs posted by current user (with applicant counts)
+// @route   GET /api/jobs/my-posts
+// @access  Private
+exports.getMyPostedJobs = async (req, res) => {
+  try {
+    const jobs = await Job.find({ postedBy: req.user.id })
+      .sort({ createdAt: -1 })
+      .populate(
+        "postedBy",
+        "name profilePicture location company currentRole",
+      )
+      .lean();
+
+    // Get applicant counts for all jobs in one query
+    const jobIds = jobs.map((job) => job._id);
+    const counts = await JobApplication.aggregate([
+      { $match: { job: { $in: jobIds } } },
+      { $group: { _id: "$job", count: { $sum: 1 } } },
+    ]);
+
+    const countMap = new Map(
+      counts.map((c) => [String(c._id), c.count]),
+    );
+
+    const data = jobs.map((job) => ({
+      ...job,
+      applicantCount: countMap.get(String(job._id)) || 0,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message:
+        error.message || "Server error while loading your posted jobs",
     });
   }
 };

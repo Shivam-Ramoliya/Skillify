@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const User = require("../models/User");
 const Job = require("../models/Job");
 const JobApplication = require("../models/JobApplication");
@@ -6,6 +7,9 @@ const {
   uploadToCloudinary,
   deleteFromCloudinary,
 } = require("../utils/cloudinaryUpload");
+const {
+  sendDeleteAccountOtpEmail,
+} = require("../utils/emailService");
 
 // @desc    Upload Profile Picture
 // @route   POST /api/profile/upload-picture
@@ -466,15 +470,94 @@ exports.discoverProfiles = async (req, res) => {
   }
 };
 
-// @desc    Delete user account and all associated data
-// @route   DELETE /api/profile/delete
+// @desc    Request account deletion (sends OTP email)
+// @route   POST /api/profile/request-delete
 // @access  Private
-exports.deleteAccount = async (req, res) => {
+exports.requestAccountDeletion = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
+
+    // Generate 6-digit OTP
+    const otp = crypto.randomInt(100000, 1000000).toString();
+    const otpExpire = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    user.deleteAccountOtp = otp;
+    user.deleteAccountOtpExpire = otpExpire;
+    await user.save();
+
+    // Send OTP email
+    try {
+      await sendDeleteAccountOtpEmail(user.email, otp, user.name);
+    } catch (emailError) {
+      console.error("Failed to send deletion OTP email:", emailError);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send verification email. Please try again.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "A verification code has been sent to your email address.",
+    });
+  } catch (error) {
+    console.error("Request account deletion error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message || "Server error while requesting account deletion",
+    });
+  }
+};
+
+// @desc    Confirm account deletion with OTP
+// @route   DELETE /api/profile/delete
+// @access  Private
+exports.confirmAccountDeletion = async (req, res) => {
+  try {
+    const { otp } = req.body;
+
+    if (!otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Verification code is required",
+      });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Validate OTP
+    if (!user.deleteAccountOtp || !user.deleteAccountOtpExpire) {
+      return res.status(400).json({
+        success: false,
+        message: "No deletion request found. Please request a new verification code.",
+      });
+    }
+
+    if (new Date() > new Date(user.deleteAccountOtpExpire)) {
+      // Clear expired OTP
+      user.deleteAccountOtp = null;
+      user.deleteAccountOtpExpire = null;
+      await user.save();
+      return res.status(400).json({
+        success: false,
+        message: "Verification code has expired. Please request a new one.",
+      });
+    }
+
+    if (String(user.deleteAccountOtp) !== String(otp).trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid verification code. Please check and try again.",
+      });
+    }
+
+    // OTP is valid — proceed with full deletion
 
     // 1. Delete user files from Cloudinary
     if (user.profilePicturePublicId) {
@@ -510,7 +593,7 @@ exports.deleteAccount = async (req, res) => {
       message: "Account and all associated data deleted successfully",
     });
   } catch (error) {
-    console.error("Delete account error:", error);
+    console.error("Confirm account deletion error:", error);
     res.status(500).json({
       success: false,
       message: error.message || "Server error while deleting account",

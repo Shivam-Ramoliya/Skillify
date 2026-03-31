@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { api } from "../utils/api";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import EditProfileForm from "../components/profile/EditProfileForm";
+import DeleteAccountModal from "../components/profile/DeleteAccountModal";
 import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
 
 export default function Profile() {
@@ -13,6 +14,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const currentUserId = currentUser?._id || currentUser?.id;
   const isOwnProfile = !userId || userId === currentUserId;
@@ -322,7 +324,34 @@ export default function Profile() {
             </div>
           </section>
         )}
+
+        {/* Danger Zone — own profile only, not editing */}
+        {isOwnProfile && !editing && (
+          <section className="glass-card p-6 md:p-8 border border-red-200/60 bg-white/70 animate-fade-in">
+            <h2 className="text-xl font-bold text-red-700 flex items-center gap-3 border-b border-red-100 pb-4 mb-4">
+              <div className="bg-red-100 p-2 rounded-xl text-red-600">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+              </div>
+              Danger Zone
+            </h2>
+            <p className="text-sm text-slate-600 font-medium mb-5 leading-relaxed">
+              Permanently delete your account and all associated data. This action cannot be undone.
+            </p>
+            <button
+              type="button"
+              id="btn-delete-account"
+              onClick={() => setShowDeleteModal(true)}
+              className="btn-danger py-2.5 px-6 flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              Delete Account
+            </button>
+          </section>
+        )}
       </div>
+
+      {/* Delete Account Modal */}
+      <DeleteAccountModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} />
     </div>
   );
 }
