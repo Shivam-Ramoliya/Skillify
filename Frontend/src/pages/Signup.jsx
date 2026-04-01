@@ -180,13 +180,24 @@ export default function Signup() {
   return (
     <div className="page-wrap flex items-center justify-center min-h-[calc(100vh-160px)] py-12">
       <div className="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="overflow-hidden rounded-3xl bg-white/60 shadow-2xl shadow-indigo-500/10 backdrop-blur-xl border border-white/80 grid lg:grid-cols-5">
+        <div
+          className="overflow-hidden rounded-2xl bg-white shadow-lg grid lg:grid-cols-5"
+          style={{ border: "1px solid var(--color-neutral-200)" }}
+        >
           {/* Form Section (col-span-3) */}
-          <div className="flex w-full flex-col justify-center p-8 sm:p-10 lg:p-12 animate-fade-in z-10 bg-white/40 lg:col-span-3 lg:order-2">
+          <div className="flex w-full flex-col justify-center p-8 sm:p-10 lg:p-12 animate-fade-in z-10 bg-white lg:col-span-3 lg:order-2">
             <div className="mx-auto w-full max-w-lg">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">Create an account</h2>
-                <p className="mt-2 text-sm font-medium text-slate-500">
+                <h2
+                  className="text-3xl font-bold tracking-tight"
+                  style={{ color: "var(--color-neutral-900)" }}
+                >
+                  Create an account
+                </h2>
+                <p
+                  className="mt-2 text-sm font-medium"
+                  style={{ color: "var(--color-neutral-500)" }}
+                >
                   Join Skillify and start your freelance journey.
                 </p>
               </div>
@@ -196,15 +207,17 @@ export default function Signup() {
                   {toasts.map((toast) => (
                     <div
                       key={toast.id}
-                      className={`px-4 py-3 rounded-xl border flex items-center gap-3 shadow-sm ${
+                      className={`px-4 py-3 rounded-xl flex items-center gap-3 ${
                         toast.type === "success"
-                          ? "bg-emerald-50/80 border-emerald-200 text-emerald-700"
+                          ? "alert-success"
                           : toast.type === "warning"
-                            ? "bg-amber-50/80 border-amber-200 text-amber-700"
-                            : "bg-red-50/80 border-red-200 text-red-700"
-                      } backdrop-blur-sm`}
+                            ? "alert-warning"
+                            : "alert-error"
+                      }`}
                     >
-                      <span className="text-sm font-medium">{toast.message}</span>
+                      <span className="text-sm font-medium">
+                        {toast.message}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -212,7 +225,10 @@ export default function Signup() {
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-slate-700">
+                  <label
+                    className="mb-2 block text-sm font-semibold"
+                    style={{ color: "var(--color-neutral-700)" }}
+                  >
                     Full Name
                   </label>
                   <input
@@ -228,7 +244,10 @@ export default function Signup() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-slate-700">
+                  <label
+                    className="mb-2 block text-sm font-semibold"
+                    style={{ color: "var(--color-neutral-700)" }}
+                  >
                     Email Address
                   </label>
                   <input
@@ -243,7 +262,10 @@ export default function Signup() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-slate-700">
+                  <label
+                    className="mb-2 block text-sm font-semibold"
+                    style={{ color: "var(--color-neutral-700)" }}
+                  >
                     Location
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -266,10 +288,20 @@ export default function Signup() {
                       onChange={handleStateChange}
                       required={states.length > 0}
                       disabled={!selectedCountryCode || states.length === 0}
-                      className="input-base px-3 py-3 disabled:opacity-50 disabled:bg-slate-100 disabled:cursor-not-allowed"
+                      className="input-base px-3 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{
+                        backgroundColor:
+                          !selectedCountryCode || states.length === 0
+                            ? "var(--color-neutral-100)"
+                            : "white",
+                      }}
                     >
                       <option value="">
-                        {selectedCountryCode ? (states.length > 0 ? "State" : "No States") : "State"}
+                        {selectedCountryCode
+                          ? states.length > 0
+                            ? "State"
+                            : "No States"
+                          : "State"}
                       </option>
                       {states.map((state) => (
                         <option key={state.isoCode} value={state.isoCode}>
@@ -283,26 +315,45 @@ export default function Signup() {
                       onChange={handleCityChange}
                       required={cities.length > 0}
                       disabled={!selectedCountryCode || cities.length === 0}
-                      className="input-base px-3 py-3 disabled:opacity-50 disabled:bg-slate-100 disabled:cursor-not-allowed"
+                      className="input-base px-3 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{
+                        backgroundColor:
+                          !selectedCountryCode || cities.length === 0
+                            ? "var(--color-neutral-100)"
+                            : "white",
+                      }}
                     >
                       <option value="">
-                        {selectedCountryCode ? (cities.length > 0 ? "City" : "No Cities") : "City"}
+                        {selectedCountryCode
+                          ? cities.length > 0
+                            ? "City"
+                            : "No Cities"
+                          : "City"}
                       </option>
                       {cities.map((city, index) => (
-                        <option key={`${city.name}-${city.stateCode || ""}-${index}`} value={city.name}>
+                        <option
+                          key={`${city.name}-${city.stateCode || ""}-${index}`}
+                          value={city.name}
+                        >
                           {city.name}
                         </option>
                       ))}
                     </select>
                   </div>
-                  <p className="text-xs font-medium text-slate-500 mt-2">
+                  <p
+                    className="text-xs font-medium mt-2"
+                    style={{ color: "var(--color-neutral-500)" }}
+                  >
                     Selected: {formData.location || "-"}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="mb-2 block text-sm font-bold text-slate-700">
+                    <label
+                      className="mb-2 block text-sm font-semibold"
+                      style={{ color: "var(--color-neutral-700)" }}
+                    >
                       Password
                     </label>
                     <div className="relative">
@@ -320,7 +371,8 @@ export default function Signup() {
                       <button
                         type="button"
                         onClick={() => setShowPassword((prev) => !prev)}
-                        className="absolute inset-y-0 right-3 flex items-center text-xs font-bold text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-wider"
+                        className="absolute inset-y-0 right-3 flex items-center text-xs font-semibold transition-colors uppercase tracking-wider"
+                        style={{ color: "var(--color-neutral-400)" }}
                       >
                         {showPassword ? "Hide" : "Show"}
                       </button>
@@ -328,7 +380,10 @@ export default function Signup() {
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-bold text-slate-700">
+                    <label
+                      className="mb-2 block text-sm font-semibold"
+                      style={{ color: "var(--color-neutral-700)" }}
+                    >
                       Confirm Password
                     </label>
                     <div className="relative">
@@ -346,28 +401,57 @@ export default function Signup() {
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword((prev) => !prev)}
-                        className="absolute inset-y-0 right-3 flex items-center text-xs font-bold text-slate-400 hover:text-indigo-600 transition-colors uppercase tracking-wider"
+                        className="absolute inset-y-0 right-3 flex items-center text-xs font-semibold transition-colors uppercase tracking-wider"
+                        style={{ color: "var(--color-neutral-400)" }}
                       >
                         {showConfirmPassword ? "Hide" : "Show"}
                       </button>
                     </div>
                   </div>
                 </div>
-                
-                <div className="space-y-1.5 bg-white/60 p-4 rounded-xl border border-slate-200/60 shadow-sm mb-2 backdrop-blur-sm">
-                  <p className="text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Password requirements:</p>
+
+                <div
+                  className="space-y-1.5 p-4 rounded-xl mb-2"
+                  style={{
+                    backgroundColor: "var(--color-neutral-50)",
+                    border: "1px solid var(--color-neutral-200)",
+                  }}
+                >
+                  <p
+                    className="text-xs font-semibold mb-2 uppercase tracking-wide"
+                    style={{ color: "var(--color-neutral-700)" }}
+                  >
+                    Password requirements:
+                  </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {getPasswordChecks(formData.password).map((check) => (
                       <div
                         key={check.label}
-                        className={`text-xs flex items-center gap-1.5 font-medium ${
-                          check.ok ? "text-emerald-600" : "text-slate-500"
-                        }`}
+                        className="text-xs flex items-center gap-1.5 font-medium"
+                        style={{
+                          color: check.ok
+                            ? "var(--color-accent-600)"
+                            : "var(--color-neutral-500)",
+                        }}
                       >
-                       {check.ok ? (
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                        {check.ok ? (
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={3}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
                         ) : (
-                          <span className="w-4 h-4 flex items-center justify-center font-bold text-[10px]">•</span>
+                          <span className="w-4 h-4 flex items-center justify-center font-bold text-[10px]">
+                            •
+                          </span>
                         )}
                         <span>{check.label}</span>
                       </div>
@@ -379,28 +463,56 @@ export default function Signup() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="btn-primary w-full py-4 text-base relative overflow-hidden group shadow-xl shadow-indigo-500/20"
+                    className="btn-primary w-full py-4 text-base relative overflow-hidden group"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       {loading ? (
                         <>
-                          <svg className="animate-spin h-5 w-5 text-white/90" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                          <svg
+                            className="animate-spin h-5 w-5 text-white/90"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
                           Creating account...
                         </>
                       ) : (
-                         "Create Account"
+                        "Create Account"
                       )}
                     </span>
                   </button>
                 </div>
               </form>
 
-              <div className="mt-8 text-center bg-slate-50/50 p-4 rounded-xl border border-slate-100">
-                <p className="text-sm font-medium text-slate-600">
+              <div
+                className="mt-8 text-center p-4 rounded-xl"
+                style={{
+                  backgroundColor: "var(--color-neutral-50)",
+                  border: "1px solid var(--color-neutral-100)",
+                }}
+              >
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: "var(--color-neutral-600)" }}
+                >
                   Already have an account?{" "}
                   <Link
                     to="/login"
-                    className="font-bold text-indigo-600 hover:text-indigo-500 transition-colors ml-1"
+                    className="font-semibold transition-colors ml-1"
+                    style={{ color: "var(--color-primary-600)" }}
                   >
                     Sign in here
                   </Link>
@@ -410,28 +522,59 @@ export default function Signup() {
           </div>
 
           {/* Decorative Section (col-span-2) */}
-          <div className="relative hidden w-full flex-col items-center justify-center p-12 lg:flex bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-800 text-white overflow-hidden lg:col-span-2 lg:order-1">
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
-            
-            {/* Animated blob background */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
-            <div className="absolute bottom-20 left-10 w-64 h-64 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob" style={{ animationDelay: '2s' }}></div>
-
+          <div
+            className="relative hidden w-full flex-col items-center justify-center p-12 lg:flex text-white overflow-hidden lg:col-span-2 lg:order-1"
+            style={{ backgroundColor: "var(--color-primary-600)" }}
+          >
             <div className="relative z-10 w-full text-center animate-fade-in-up">
-              <div className="mx-auto w-20 h-20 bg-white/10 backdrop-blur-md rounded-3xl flex items-center justify-center border border-white/20 mb-8 shadow-xl">
-                 <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+              <div
+                className="mx-auto w-20 h-20 rounded-2xl flex items-center justify-center mb-8"
+                style={{
+                  backgroundColor: "rgba(255,255,255,0.2)",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                }}
+              >
+                <svg
+                  className="w-10 h-10 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                  />
+                </svg>
               </div>
-              <h1 className="text-4xl font-extrabold tracking-tight mb-4">
+              <h1 className="text-4xl font-bold tracking-tight mb-4">
                 Join our network
               </h1>
-              <p className="text-base text-indigo-100 max-w-sm mx-auto leading-relaxed mb-8">
-                Connect with top talent and high-quality projects. Elevate your freelance career today.
+              <p
+                className="text-base max-w-sm mx-auto leading-relaxed mb-8"
+                style={{ color: "var(--color-primary-100)" }}
+              >
+                Connect with top talent and high-quality projects. Elevate your
+                freelance career today.
               </p>
-              
-               <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-5 py-2.5 rounded-full border border-white/30 text-sm font-semibold shadow-sm">
-                 <span className="flex h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
-                 Thousands of active jobs
-               </div>
+
+              <div
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold"
+                style={{
+                  backgroundColor: "rgba(255,255,255,0.2)",
+                  border: "1px solid rgba(255,255,255,0.3)",
+                }}
+              >
+                <span
+                  className="flex h-2 w-2 rounded-full"
+                  style={{
+                    backgroundColor: "var(--color-accent-400)",
+                    boxShadow: "0 0 8px rgba(74, 222, 128, 0.8)",
+                  }}
+                ></span>
+                Thousands of active jobs
+              </div>
             </div>
           </div>
         </div>

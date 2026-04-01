@@ -16,10 +16,10 @@ const authLinks = [
 ];
 
 const linkClass = ({ isActive }) =>
-  `rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 ${
+  `rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
     isActive
-      ? "bg-indigo-50 text-indigo-700 shadow-sm"
-      : "text-slate-600 hover:bg-indigo-50 hover:text-indigo-600"
+      ? "bg-[var(--color-primary-50)] text-[var(--color-primary-700)]"
+      : "text-[var(--color-neutral-600)] hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-600)]"
   }`;
 
 export default function NavBar() {
@@ -38,59 +38,75 @@ export default function NavBar() {
   const links = user ? authLinks : guestLinks;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/60 bg-white/70 backdrop-blur-xl shadow-[0_2px_20px_rgba(0,0,0,0.02)] transition-all duration-300">
+    <header
+      className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b transition-all duration-200"
+      style={{ borderColor: "var(--color-neutral-200)" }}
+    >
       <nav className="page-container">
-        <div className="flex h-20 items-center justify-between">
+        <div className="flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/20 transition-transform duration-300 group-hover:scale-105 group-hover:shadow-indigo-500/40">
-               <img
-                  src="/Skillify.png"
-                  alt="Skillify"
-                  className="absolute inset-0 h-full w-full object-cover mix-blend-overlay opacity-80"
-                />
-                <span className="relative z-10 text-xl font-bold tracking-tighter">S</span>
+            <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl shadow-sm transition-transform duration-200 group-hover:scale-105">
+              <img
+                src="/Skillify.png"
+                alt="Skillify Logo"
+                className="h-full w-full object-contain"
+              />
             </div>
             <div>
-              <p className="text-xl font-extrabold tracking-tight text-slate-900 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-indigo-600 group-hover:to-purple-600 transition-colors duration-300">
+              <p
+                className="text-lg font-bold tracking-tight transition-colors duration-200"
+                style={{ color: "var(--color-neutral-900)" }}
+              >
                 Skillify
               </p>
-              <p className="text-[11px] font-medium leading-none text-slate-500">
+              <p
+                className="text-[10px] font-medium leading-none"
+                style={{ color: "var(--color-neutral-500)" }}
+              >
                 Freelancer Network
               </p>
             </div>
           </Link>
 
-          <div className="hidden items-center gap-1 md:flex bg-white/50 backdrop-blur-md p-1.5 rounded-2xl border border-white/80 shadow-sm">
+          <div
+            className="hidden items-center gap-1 md:flex p-1 rounded-xl border"
+            style={{
+              backgroundColor: "var(--color-neutral-50)",
+              borderColor: "var(--color-neutral-200)",
+            }}
+          >
             {links.map((link) => (
               <NavLink key={link.to} to={link.to} className={linkClass} end>
                 {link.label}
               </NavLink>
             ))}
           </div>
-          
+
           <div className="hidden md:flex items-center gap-3">
             {user ? (
-               <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 border border-slate-200 shadow-sm hover:shadow transition-all duration-200"
-                >
-                  Logout
-                </button>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="rounded-xl bg-white px-5 py-2.5 text-sm font-semibold transition-all duration-200 hover:bg-[var(--color-neutral-50)]"
+                style={{
+                  color: "var(--color-neutral-700)",
+                  border: "1px solid var(--color-neutral-200)",
+                }}
+              >
+                Logout
+              </button>
             ) : (
-                <Link
-                  to="/signup"
-                  className="btn-primary"
-                >
-                  Sign Up
-                </Link>
+              <Link to="/signup" className="btn-primary">
+                Sign Up
+              </Link>
             )}
           </div>
 
           <button
             type="button"
             onClick={() => setMobileOpen((prev) => !prev)}
-            className="rounded-xl p-2.5 text-slate-600 hover:bg-slate-100 md:hidden transition-colors"
+            className="rounded-xl p-2.5 md:hidden transition-colors"
+            style={{ color: "var(--color-neutral-600)" }}
             aria-label="Toggle menu"
           >
             <svg
@@ -119,16 +135,19 @@ export default function NavBar() {
         </div>
 
         {mobileOpen && (
-          <div className="space-y-1 pb-6 pt-4 md:hidden animate-fade-in-up border-t border-slate-100">
+          <div
+            className="space-y-1 pb-6 pt-4 md:hidden animate-fade-in-up border-t"
+            style={{ borderColor: "var(--color-neutral-100)" }}
+          >
             {links.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
                 className={({ isActive }) =>
-                  `block rounded-xl px-4 py-3 text-base font-semibold transition-all duration-300 ${
+                  `block rounded-xl px-4 py-3 text-base font-semibold transition-all duration-200 ${
                     isActive
-                      ? "bg-indigo-50 text-indigo-700 shadow-sm"
-                      : "text-slate-600 hover:bg-indigo-50 hover:text-indigo-600"
+                      ? "bg-[var(--color-primary-50)] text-[var(--color-primary-700)]"
+                      : "text-[var(--color-neutral-600)] hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-600)]"
                   }`
                 }
                 onClick={closeMobile}
@@ -137,12 +156,19 @@ export default function NavBar() {
                 {link.label}
               </NavLink>
             ))}
-            <div className="pt-4 border-t border-slate-100 mt-4">
+            <div
+              className="pt-4 mt-4"
+              style={{ borderTop: "1px solid var(--color-neutral-100)" }}
+            >
               {user ? (
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-full rounded-xl bg-slate-100 px-4 py-3 text-left text-base font-semibold text-slate-700 hover:bg-slate-200 transition-colors"
+                  className="w-full rounded-xl px-4 py-3 text-left text-base font-semibold transition-colors"
+                  style={{
+                    backgroundColor: "var(--color-neutral-100)",
+                    color: "var(--color-neutral-700)",
+                  }}
                 >
                   Logout
                 </button>
@@ -150,7 +176,7 @@ export default function NavBar() {
                 <Link
                   to="/signup"
                   onClick={closeMobile}
-                  className="flex w-full justify-center rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 text-base font-semibold text-white shadow-lg hover:shadow-indigo-500/50 transition-all"
+                  className="flex w-full justify-center btn-primary py-3 text-base"
                 >
                   Sign Up
                 </Link>

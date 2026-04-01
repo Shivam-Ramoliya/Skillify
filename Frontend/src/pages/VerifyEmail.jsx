@@ -110,14 +110,14 @@ export default function VerifyEmail() {
   return (
     <div className="page-wrap flex items-center justify-center min-h-[calc(100vh-160px)] py-12">
       <div className="w-full max-w-xl px-4">
-        <div className="overflow-hidden rounded-[2.5rem] bg-white/70 shadow-2xl shadow-indigo-500/10 backdrop-blur-xl border border-white/80 animate-fade-in-up relative">
+        <div className="overflow-hidden rounded-[2.5rem] bg-white shadow-2xl shadow-blue-500/10 backdrop-blur-xl border border-slate-200/60 animate-fade-in-up relative">
           
-          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-200/50 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-200/50 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-100/40 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
 
           <div className="p-8 sm:p-12 relative z-10">
             <div className="text-center mb-10">
-              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-8 border border-white/20">
+              <div className="mx-auto w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center shadow-lg shadow-blue-500/30 mb-8">
                 <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
               </div>
               <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Verify Email</h2>
@@ -161,7 +161,7 @@ export default function VerifyEmail() {
                         const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 8);
                         if (pasted) handleDigitChange(0, pasted);
                       }}
-                      className="w-10 h-14 sm:w-12 sm:h-16 text-center text-2xl font-black bg-white/90 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 outline-none transition-all duration-200 text-indigo-900 shadow-sm"
+                      className="w-10 h-14 sm:w-12 sm:h-16 text-center text-2xl font-black bg-white/90 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all duration-200 text-slate-900 shadow-sm"
                     />
                     {index === 3 && (
                       <span className="flex items-center text-slate-300 font-bold text-2xl mx-1 sm:mx-2">-</span>
@@ -173,7 +173,7 @@ export default function VerifyEmail() {
               <button
                 type="submit"
                 disabled={loading || !canVerify}
-                className="btn-primary w-full py-4 text-lg tracking-wide shadow-xl shadow-indigo-500/20"
+                className="btn-primary w-full py-4 text-lg tracking-wide shadow-xl shadow-blue-500/20"
               >
                 {loading ? (
                    <span className="flex items-center justify-center gap-2">
@@ -208,7 +208,7 @@ export default function VerifyEmail() {
               </form>
               
               <div className="mt-8">
-                 <Link to="/login" className="inline-flex items-center gap-1.5 text-sm font-bold text-indigo-600 hover:text-indigo-500 transition-colors">
+                 <Link to="/login" className="inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-500 transition-colors">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                     Back to Login
                  </Link>

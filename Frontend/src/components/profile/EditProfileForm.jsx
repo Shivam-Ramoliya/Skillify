@@ -279,7 +279,7 @@ export default function EditProfileForm({
             onChange={handleChange}
             rows="4"
             placeholder="Tell us about yourself..."
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
           />
         </div>
 
@@ -292,7 +292,7 @@ export default function EditProfileForm({
             <select
               value={selectedCountryCode}
               onChange={handleCountryChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             >
               <option value="">Select Country</option>
@@ -306,7 +306,7 @@ export default function EditProfileForm({
             <select
               value={selectedStateCode}
               onChange={handleStateChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
               disabled={!selectedCountryCode || states.length === 0}
               required
             >
@@ -327,7 +327,7 @@ export default function EditProfileForm({
             <select
               value={selectedCityName}
               onChange={handleCityChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
               disabled={!selectedCountryCode || cities.length === 0}
               required
             >
@@ -364,7 +364,7 @@ export default function EditProfileForm({
                 <img
                   src={picturePreview}
                   alt="Preview"
-                  className="h-32 w-32 rounded-xl object-cover border-2 border-teal-200 shadow-md"
+                   className="h-32 w-32 rounded-xl object-cover border-2 border-blue-200 shadow-md"
                 />
                 <span className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
                   ✓ Current
@@ -382,10 +382,10 @@ export default function EditProfileForm({
               />
               <label
                 htmlFor="editFormProfilePicture"
-                className="block w-full px-6 py-4 border-2 border-dashed border-teal-300 rounded-xl text-center cursor-pointer hover:border-teal-500 hover:bg-teal-50 transition-all duration-200"
+                className="block w-full px-6 py-4 border-2 border-dashed border-blue-300 rounded-xl text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-200"
               >
                 <svg
-                  className="w-8 h-8 text-teal-600 mx-auto mb-2"
+                  className="w-8 h-8 text-blue-600 mx-auto mb-2"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -405,7 +405,7 @@ export default function EditProfileForm({
                 </p>
               </label>
               {uploadingPicture && (
-                <div className="mt-3 flex items-center gap-2 text-teal-600">
+                <div className="mt-3 flex items-center gap-2 text-blue-600">
                   <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
                     <circle
                       className="opacity-25"
@@ -488,10 +488,10 @@ export default function EditProfileForm({
           />
           <label
             htmlFor="editFormResumeFile"
-            className="block w-full px-6 py-4 border-2 border-dashed border-purple-300 rounded-xl text-center cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-all duration-200"
+            className="block w-full px-6 py-4 border-2 border-dashed border-blue-300 rounded-xl text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-200"
           >
             <svg
-              className="w-8 h-8 text-purple-600 mx-auto mb-2"
+              className="w-8 h-8 text-blue-600 mx-auto mb-2"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -511,7 +511,7 @@ export default function EditProfileForm({
             </p>
           </label>
           {uploadingResume && (
-            <div className="mt-3 flex items-center gap-2 text-purple-600">
+            <div className="mt-3 flex items-center gap-2 text-blue-600">
               <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
                 <circle
                   className="opacity-25"
@@ -542,7 +542,7 @@ export default function EditProfileForm({
             name="availability"
             value={formData.availability}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="not available">Not Available</option>
             <option value="part-time">Part-time</option>
@@ -561,7 +561,7 @@ export default function EditProfileForm({
             onChange={handleChange}
             rows="3"
             placeholder="e.g. B.Tech in Computer Science, XYZ University (2022)"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
           />
         </div>
 
@@ -576,7 +576,7 @@ export default function EditProfileForm({
             onChange={handleChange}
             rows="4"
             placeholder="Describe your work experience, internships, and major projects"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
           />
         </div>
 
@@ -592,7 +592,7 @@ export default function EditProfileForm({
               value={formData.currentRole}
               onChange={handleChange}
               placeholder="e.g. Software Engineer"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           <div>
@@ -605,7 +605,7 @@ export default function EditProfileForm({
               value={formData.company}
               onChange={handleChange}
               placeholder="e.g. Skillify Inc."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -623,7 +623,7 @@ export default function EditProfileForm({
             value={formData.yearsOfExperience}
             onChange={handleChange}
             placeholder="e.g. 2"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
 
@@ -638,7 +638,7 @@ export default function EditProfileForm({
             value={formData.skills}
             onChange={handleChange}
             placeholder="e.g. React, Node.js, MongoDB, UI/UX"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
 
@@ -654,7 +654,7 @@ export default function EditProfileForm({
               value={formData.githubUrl}
               onChange={handleChange}
               placeholder="https://github.com/username"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           <div>
@@ -667,7 +667,7 @@ export default function EditProfileForm({
               value={formData.linkedinUrl}
               onChange={handleChange}
               placeholder="https://linkedin.com/in/username"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -682,7 +682,7 @@ export default function EditProfileForm({
             value={formData.portfolioUrl}
             onChange={handleChange}
             placeholder="https://yourportfolio.com"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
 
@@ -695,7 +695,7 @@ export default function EditProfileForm({
             name="profileVisibility"
             value={formData.profileVisibility}
             onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="public">Public (visible to all users)</option>
             <option value="private">Private (only visible to you)</option>
@@ -707,7 +707,7 @@ export default function EditProfileForm({
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-semibold py-3 rounded-lg hover:from-teal-700 hover:to-cyan-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="flex-1 bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

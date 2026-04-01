@@ -37,54 +37,134 @@ export default function Login() {
   return (
     <div className="page-wrap flex items-center justify-center min-h-[calc(100vh-160px)]">
       <div className="w-full max-w-5xl px-4 sm:px-6 lg:px-8">
-        <div className="overflow-hidden rounded-3xl bg-white/60 shadow-2xl shadow-indigo-500/10 backdrop-blur-xl border border-white/80 grid lg:grid-cols-2">
+        <div
+          className="overflow-hidden rounded-2xl bg-white shadow-lg grid lg:grid-cols-2"
+          style={{ border: "1px solid var(--color-neutral-200)" }}
+        >
           {/* Decorative Section */}
-          <div className="relative hidden w-full flex-col items-start justify-center p-12 lg:flex bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-800 text-white overflow-hidden">
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
-            
-            {/* Animated blob background */}
-            <div className="absolute -top-20 -left-20 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
-            <div className="absolute top-40 -right-20 w-72 h-72 bg-indigo-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob" style={{ animationDelay: '2s' }}></div>
-            <div className="absolute -bottom-20 left-20 w-72 h-72 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob" style={{ animationDelay: '4s' }}></div>
-
+          <div
+            className="relative hidden w-full flex-col items-start justify-center p-12 lg:flex text-white overflow-hidden"
+            style={{ backgroundColor: "var(--color-primary-600)" }}
+          >
             <div className="relative z-10 w-full animate-fade-in-up">
-              <span className="inline-block rounded-full bg-white/20 px-4 py-1.5 text-sm font-semibold tracking-wide backdrop-blur-md border border-white/30 mb-6 shadow-sm">
+              <span
+                className="inline-block rounded-full px-4 py-1.5 text-sm font-semibold tracking-wide mb-6"
+                style={{
+                  backgroundColor: "rgba(255,255,255,0.2)",
+                  border: "1px solid rgba(255,255,255,0.3)",
+                }}
+              >
                 Welcome Back
               </span>
-              <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl mb-6">
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-6">
                 Continue your workflow
               </h1>
-              <p className="text-lg text-indigo-100 max-w-md mb-8 leading-relaxed">
-                Log in and pick up where you left off. Manage your projects, connect with clients, and grow your freelance career.
+              <p
+                className="text-lg max-w-md mb-8 leading-relaxed"
+                style={{ color: "var(--color-primary-100)" }}
+              >
+                Log in and pick up where you left off. Manage your projects,
+                connect with clients, and grow your freelance career.
               </p>
-              
-              <div className="space-y-4 text-sm font-medium text-indigo-50/90">
-                <div className="flex items-center gap-4 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10 shadow-lg">
-                  <div className="bg-indigo-500/50 p-3 rounded-xl"><svg className="w-5 h-5 text-indigo-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg></div>
-                  <p>Discover active opportunities</p>
+
+              <div className="space-y-4 text-sm font-medium">
+                <div
+                  className="flex items-center gap-4 p-4 rounded-xl"
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.1)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                  }}
+                >
+                  <div
+                    className="p-3 rounded-xl"
+                    style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                  <p style={{ color: "var(--color-primary-50)" }}>
+                    Discover active opportunities
+                  </p>
                 </div>
-                <div className="flex items-center gap-4 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10 shadow-lg">
-                  <div className="bg-purple-500/50 p-3 rounded-xl"><svg className="w-5 h-5 text-indigo-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg></div>
-                  <p>Apply with your profile instantly</p>
+                <div
+                  className="flex items-center gap-4 p-4 rounded-xl"
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.1)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                  }}
+                >
+                  <div
+                    className="p-3 rounded-xl"
+                    style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                      />
+                    </svg>
+                  </div>
+                  <p style={{ color: "var(--color-primary-50)" }}>
+                    Apply with your profile instantly
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Form Section */}
-          <div className="flex w-full flex-col justify-center p-8 sm:p-12 lg:p-16 animate-fade-in z-10 bg-white/40">
+          <div className="flex w-full flex-col justify-center p-8 sm:p-12 lg:p-16 animate-fade-in z-10 bg-white">
             <div className="mx-auto w-full max-w-md">
               <div className="text-center mb-10">
-                <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">Sign in</h2>
-                <p className="mt-2 text-sm font-medium text-slate-500">
+                <h2
+                  className="text-3xl font-bold tracking-tight"
+                  style={{ color: "var(--color-neutral-900)" }}
+                >
+                  Sign in
+                </h2>
+                <p
+                  className="mt-2 text-sm font-medium"
+                  style={{ color: "var(--color-neutral-500)" }}
+                >
                   Access your Skillify account
                 </p>
               </div>
 
               {error && (
-                <div className="mb-6 rounded-xl border border-red-200 bg-red-50/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-red-700 animate-slide-in-right shadow-sm">
+                <div className="mb-6 rounded-xl px-4 py-3 text-sm font-medium animate-slide-in-right alert-error">
                   <div className="flex items-center gap-2">
-                    <svg className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                    <svg
+                      className="h-5 w-5"
+                      style={{ color: "var(--color-error-500)" }}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                      />
+                    </svg>
                     {error}
                   </div>
                 </div>
@@ -92,7 +172,10 @@ export default function Login() {
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-slate-700">
+                  <label
+                    className="mb-2 block text-sm font-semibold"
+                    style={{ color: "var(--color-neutral-700)" }}
+                  >
                     Email address
                   </label>
                   <input
@@ -108,10 +191,17 @@ export default function Login() {
 
                 <div>
                   <div className="mb-2 flex items-center justify-between">
-                    <label className="block text-sm font-bold text-slate-700">
+                    <label
+                      className="block text-sm font-semibold"
+                      style={{ color: "var(--color-neutral-700)" }}
+                    >
                       Password
                     </label>
-                    <a href="#" className="text-sm font-bold text-indigo-600 hover:text-indigo-500 transition-colors">
+                    <a
+                      href="#"
+                      className="text-sm font-semibold transition-colors"
+                      style={{ color: "var(--color-primary-600)" }}
+                    >
                       Forgot password?
                     </a>
                   </div>
@@ -135,7 +225,25 @@ export default function Login() {
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       {loading ? (
                         <>
-                          <svg className="animate-spin h-5 w-5 text-white/90" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                          <svg
+                            className="animate-spin h-5 w-5 text-white/90"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
                           Signing in...
                         </>
                       ) : (
@@ -147,22 +255,30 @@ export default function Login() {
               </form>
 
               <div className="mt-8 text-center space-y-3">
-                <p className="text-sm font-medium text-slate-600">
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: "var(--color-neutral-600)" }}
+                >
                   New to Skillify?{" "}
                   <Link
                     to="/signup"
-                    className="font-bold text-indigo-600 hover:text-indigo-500 transition-colors"
+                    className="font-semibold transition-colors"
+                    style={{ color: "var(--color-primary-600)" }}
                   >
                     Create an account
                   </Link>
                 </p>
-                <p className="text-sm font-medium text-slate-500">
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: "var(--color-neutral-500)" }}
+                >
                   Need to verify your email?{" "}
                   <Link
                     to="/verify-email"
-                    className="font-bold text-indigo-600 hover:text-indigo-500 transition-colors"
+                    className="font-semibold transition-colors"
+                    style={{ color: "var(--color-primary-600)" }}
                   >
-                    Verify now 
+                    Verify now
                   </Link>
                 </p>
               </div>

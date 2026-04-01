@@ -101,9 +101,9 @@ export default function Applications() {
   if (loading) return <LoadingSpinner />;
 
   const activeButton =
-    "rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-500/20 transition-all";
+    "rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-500/20 transition-all";
   const inactiveButton =
-    "rounded-xl bg-white/60 backdrop-blur-sm border border-slate-200/80 px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-white hover:text-indigo-600 transition-all shadow-sm";
+    "rounded-xl bg-white/60 backdrop-blur-sm border border-slate-200/80 px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-white hover:text-blue-600 transition-all shadow-sm";
 
   const totalReceivedCount = myPostedJobs.reduce(
     (sum, job) => sum + (job.applicantCount || 0),
@@ -113,16 +113,16 @@ export default function Applications() {
   return (
     <div className="page-wrap relative" id="applications-page">
       {/* Decorative Background */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-300/40 rounded-full mix-blend-multiply filter blur-[120px] animate-blob pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-200/30 rounded-full mix-blend-multiply filter blur-[120px] animate-blob pointer-events-none"></div>
       <div
-        className="absolute top-60 left-0 w-[400px] h-[400px] bg-indigo-300/40 rounded-full mix-blend-multiply filter blur-[120px] animate-blob pointer-events-none"
+        className="absolute top-60 left-0 w-[400px] h-[400px] bg-blue-300/20 rounded-full mix-blend-multiply filter blur-[120px] animate-blob pointer-events-none"
         style={{ animationDelay: "2s" }}
       ></div>
 
       <div className="page-container space-y-8 relative z-10 max-w-5xl">
         {/* Header */}
-        <section className="glass-card p-8 md:p-10 border border-white/60 bg-white/60 shadow-xl shadow-indigo-900/5 relative overflow-hidden flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-purple-500 to-pink-500"></div>
+        <section className="glass-card p-8 md:p-10 border border-slate-200/60 bg-white shadow-xl relative overflow-hidden flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="absolute top-0 left-0 w-2 h-full bg-blue-600"></div>
           <div className="relative z-10">
             <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 mb-3">
               Applications
@@ -235,7 +235,7 @@ function MyPostedJobsGrid({ jobs, onSelectJob }) {
         </p>
         <Link
           to="/publish-job"
-          className="inline-block mt-6 px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors shadow-sm"
+          className="inline-block mt-6 px-6 py-2.5 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors shadow-sm"
         >
           Publish a Job
         </Link>
@@ -247,10 +247,10 @@ function MyPostedJobsGrid({ jobs, onSelectJob }) {
     <section className="space-y-6">
       <div className="mb-6 flex items-center justify-between px-2">
         <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
-          <span className="flex h-3 w-3 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.8)]"></span>
+          <span className="flex h-3 w-3 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(37,99,235,0.8)]"></span>
           Your Job Posts
         </h2>
-        <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-100/50 text-sm font-bold text-indigo-700 shadow-sm">
+        <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100/50 text-sm font-bold text-blue-700 shadow-sm">
           {jobs.length} {jobs.length === 1 ? "post" : "posts"}
         </div>
       </div>
@@ -261,25 +261,25 @@ function MyPostedJobsGrid({ jobs, onSelectJob }) {
             key={job._id}
             id={`job-card-${job._id}`}
             onClick={() => onSelectJob(job)}
-            className="group glass-card p-6 md:p-8 border border-white/60 hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden flex flex-col h-full cursor-pointer"
+            className="group glass-card p-6 md:p-8 border border-slate-200/60 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden flex flex-col h-full cursor-pointer"
             style={{ animationDelay: `${index * 50}ms` }}
           >
             {/* Top accent bar */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+            <div className="absolute top-0 left-0 w-full h-1 bg-blue-600 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
 
             {/* Header: Job name + applicant count */}
             <div className="flex items-start justify-between gap-4 mb-4">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-2xl border border-indigo-100/50 shadow-sm flex-shrink-0 group-hover:bg-gradient-to-br group-hover:from-indigo-600 group-hover:to-purple-600 group-hover:text-white transition-all duration-300">
+                <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 font-black text-2xl border border-blue-100/50 shadow-sm flex-shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
                   {job.jobName.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 group-hover:text-indigo-700 transition-colors line-clamp-1">
+                  <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-700 transition-colors line-clamp-1">
                     {job.jobName}
                   </h3>
                   <p className="mt-1 text-sm font-semibold text-slate-500 flex items-center gap-1.5">
                     <svg
-                      className="w-4 h-4 text-indigo-400"
+                      className="w-4 h-4 text-blue-400"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -306,7 +306,7 @@ function MyPostedJobsGrid({ jobs, onSelectJob }) {
                 <span
                   className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold uppercase tracking-wider ${
                     job.applicantCount > 0
-                      ? "bg-indigo-100/80 text-indigo-800 border-indigo-200 shadow-sm"
+                      ? "bg-blue-100/80 text-blue-800 border-blue-200 shadow-sm"
                       : "bg-slate-100/80 text-slate-500 border-slate-200 shadow-sm"
                   }`}
                 >
@@ -341,7 +341,7 @@ function MyPostedJobsGrid({ jobs, onSelectJob }) {
               {(job.skillsRequired || []).slice(0, 5).map((skill) => (
                 <span
                   key={`${job._id}-${skill}`}
-                  className="rounded-lg bg-indigo-50/80 px-3 py-1.5 text-xs font-bold text-indigo-700 border border-indigo-100/60"
+                  className="rounded-lg bg-blue-50/80 px-3 py-1.5 text-xs font-bold text-blue-700 border border-blue-100/60"
                 >
                   {skill}
                 </span>
@@ -356,9 +356,9 @@ function MyPostedJobsGrid({ jobs, onSelectJob }) {
             {/* Info grid */}
             <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-2 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 mb-5">
               <div className="flex items-center gap-2.5">
-                <div className="bg-indigo-100 p-1.5 rounded-lg">
+                <div className="bg-blue-100 p-1.5 rounded-lg">
                   <svg
-                    className="w-4 h-4 text-indigo-600"
+                    className="w-4 h-4 text-blue-600"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -396,9 +396,9 @@ function MyPostedJobsGrid({ jobs, onSelectJob }) {
                 </span>
               </div>
               <div className="flex items-center gap-2.5">
-                <div className="bg-purple-100 p-1.5 rounded-lg">
+                <div className="bg-blue-100 p-1.5 rounded-lg">
                   <svg
-                    className="w-4 h-4 text-purple-600"
+                    className="w-4 h-4 text-blue-600"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -416,9 +416,9 @@ function MyPostedJobsGrid({ jobs, onSelectJob }) {
                 </span>
               </div>
               <div className="flex items-center gap-2.5">
-                <div className="bg-pink-100 p-1.5 rounded-lg">
+                <div className="bg-slate-100 p-1.5 rounded-lg">
                   <svg
-                    className="w-4 h-4 text-pink-600"
+                    className="w-4 h-4 text-slate-600"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -440,7 +440,7 @@ function MyPostedJobsGrid({ jobs, onSelectJob }) {
 
             {/* CTA footer */}
             <div className="mt-auto border-t border-slate-100 pt-5 flex items-center justify-between gap-3">
-              <span className="text-sm font-bold text-indigo-600 group-hover:text-indigo-700 flex items-center gap-2 transition-colors">
+              <span className="text-sm font-bold text-blue-600 group-hover:text-blue-700 flex items-center gap-2 transition-colors">
                 View Applicants
                 <svg
                   className="w-4 h-4 transform group-hover:translate-x-1 transition-transform"
@@ -463,7 +463,7 @@ function MyPostedJobsGrid({ jobs, onSelectJob }) {
                     target="_blank"
                     rel="noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm"
+                    className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm"
                     title="View Repository"
                   >
                     <svg
@@ -485,7 +485,7 @@ function MyPostedJobsGrid({ jobs, onSelectJob }) {
                     target="_blank"
                     rel="noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm"
+                    className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm"
                     title="View Document"
                   >
                     <svg
@@ -536,14 +536,14 @@ function ReceivedJobApplications({
   return (
     <section className="space-y-6">
       {/* Back button + job header */}
-      <div className="glass-card p-6 md:p-8 border border-white/60 bg-white/60 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-indigo-500 to-purple-500"></div>
+      <div className="glass-card p-6 md:p-8 border border-slate-200/60 bg-white relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-2 h-full bg-blue-600"></div>
         <div className="relative z-10">
           <button
             type="button"
             onClick={onBack}
             id="btn-back-to-jobs"
-            className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors group/back"
+            className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors group/back"
           >
             <svg
               className="w-4 h-4 transform group-hover/back:-translate-x-1 transition-transform"
@@ -563,7 +563,7 @@ function ReceivedJobApplications({
 
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-indigo-500/30 flex-shrink-0">
+              <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-blue-500/30 flex-shrink-0">
                 {job.jobName.charAt(0).toUpperCase()}
               </div>
               <div>
@@ -630,10 +630,10 @@ function ReceivedJobApplications({
               <article
                 key={application._id}
                 id={`applicant-card-${application._id}`}
-                className="group glass-card p-6 md:p-8 border border-white/60 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 relative overflow-hidden"
+                className="group glass-card p-6 md:p-8 border border-slate-200/60 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 relative overflow-hidden"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500 transform origin-top scale-y-0 group-hover:scale-y-100 transition-transform duration-500"></div>
+                <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 transform origin-top scale-y-0 group-hover:scale-y-100 transition-transform duration-500"></div>
 
                 <div className="flex flex-col gap-5">
                   {/* Applicant header row */}
@@ -643,24 +643,24 @@ function ReceivedJobApplications({
                         <img
                           src={applicant.profilePicture}
                           alt={applicant.name}
-                          className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-md flex-shrink-0 group-hover:border-indigo-200 transition-colors"
+                          className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-md flex-shrink-0 group-hover:border-blue-200 transition-colors"
                         />
                       ) : (
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center text-indigo-700 font-black text-xl border border-indigo-200/50 shadow-sm flex-shrink-0 group-hover:from-indigo-600 group-hover:to-purple-600 group-hover:text-white transition-all duration-300">
+                        <div className="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center text-blue-700 font-black text-xl border border-blue-200/50 shadow-sm flex-shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
                           {applicant.name
                             ? applicant.name.charAt(0).toUpperCase()
                             : "?"}
                         </div>
                       )}
                       <div>
-                        <h3 className="text-xl font-bold text-slate-900 group-hover:text-indigo-700 transition-colors">
+                        <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-700 transition-colors">
                           {applicant.name || "Unknown user"}
                         </h3>
                         <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-medium text-slate-500">
                           {applicant.currentRole && (
                             <span className="flex items-center gap-1.5">
                               <svg
-                                className="w-3.5 h-3.5 text-indigo-400"
+                                className="w-3.5 h-3.5 text-blue-400"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -703,7 +703,7 @@ function ReceivedJobApplications({
                           {applicant.yearsOfExperience > 0 && (
                             <span className="flex items-center gap-1.5">
                               <svg
-                                className="w-3.5 h-3.5 text-purple-400"
+                                className="w-3.5 h-3.5 text-blue-400"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -735,7 +735,7 @@ function ReceivedJobApplications({
                       {applicant.skills.slice(0, 8).map((skill, i) => (
                         <span
                           key={`${application._id}-skill-${i}`}
-                          className="rounded-lg bg-indigo-50/80 px-2.5 py-1 text-xs font-bold text-indigo-700 border border-indigo-100/60"
+                          className="rounded-lg bg-blue-50/80 px-2.5 py-1 text-xs font-bold text-blue-700 border border-blue-100/60"
                         >
                           {skill}
                         </span>
@@ -773,7 +773,7 @@ function ReceivedJobApplications({
                     {applicant._id && (
                       <Link
                         to={`/profile/${applicant._id}`}
-                        className="px-5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm text-sm"
+                        className="px-5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm text-sm"
                       >
                         View Profile
                       </Link>
@@ -784,7 +784,7 @@ function ReceivedJobApplications({
                         href={applicant.githubUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm"
+                        className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm"
                         title="GitHub"
                       >
                         <svg
@@ -958,7 +958,7 @@ function SentApplicationsList({ applications, actionLoadingId, onWithdraw }) {
         </p>
         <Link
           to="/discover"
-          className="inline-block mt-6 px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors shadow-sm"
+          className="inline-block mt-6 px-6 py-2.5 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors shadow-sm"
         >
           Discover Jobs
         </Link>
@@ -978,23 +978,23 @@ function SentApplicationsList({ applications, actionLoadingId, onWithdraw }) {
           return (
             <article
               key={application._id}
-              className="group glass-card p-6 md:p-8 border border-white/60 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 relative overflow-hidden"
+              className="group glass-card p-6 md:p-8 border border-slate-200/60 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 relative overflow-hidden"
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              <div className="absolute top-0 left-0 w-1 h-full bg-purple-500 transform origin-top scale-y-0 group-hover:scale-y-100 transition-transform duration-500"></div>
+              <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 transform origin-top scale-y-0 group-hover:scale-y-100 transition-transform duration-500"></div>
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-purple-700 font-black text-xl border border-purple-200/50 shadow-sm flex-shrink-0 group-hover:from-purple-600 group-hover:to-pink-600 group-hover:text-white transition-all duration-300">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center text-blue-700 font-black text-xl border border-blue-200/50 shadow-sm flex-shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
                     {job.jobName ? job.jobName.charAt(0).toUpperCase() : "J"}
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-purple-700 transition-colors">
+                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-700 transition-colors">
                       {job.jobName || "Job"}
                     </h3>
                     <div className="mt-2 text-sm font-medium text-slate-600 space-y-1">
                       <p className="flex items-center gap-1.5">
                         <svg
-                          className="w-4 h-4 text-purple-400"
+                          className="w-4 h-4 text-blue-400"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -1040,7 +1040,7 @@ function SentApplicationsList({ applications, actionLoadingId, onWithdraw }) {
                 {employer._id && (
                   <Link
                     to={`/profile/${employer._id}`}
-                    className="px-5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 hover:text-purple-600 hover:border-purple-200 transition-all shadow-sm text-sm"
+                    className="px-5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm text-sm"
                   >
                     View Employer
                   </Link>

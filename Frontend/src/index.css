@@ -3,6 +3,61 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 
+  /* ========================================
+     SKILLIFY DESIGN SYSTEM - Color Palette
+     Premium SaaS-level UI Colors
+     ======================================== */
+
+  /* Primary (Blue) - Main brand color for buttons, links, active states */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+
+  /* Accent (Green) - Success states, highlights, positive actions */
+  --color-accent-50: #f0fdf4;
+  --color-accent-100: #dcfce7;
+  --color-accent-200: #bbf7d0;
+  --color-accent-300: #86efac;
+  --color-accent-400: #4ade80;
+  --color-accent-500: #22c55e;
+  --color-accent-600: #16a34a;
+  --color-accent-700: #15803d;
+  --color-accent-800: #166534;
+  --color-accent-900: #14532d;
+
+  /* Neutral (Gray) - Text, backgrounds, borders */
+  --color-neutral-50: #f9fafb;
+  --color-neutral-100: #f3f4f6;
+  --color-neutral-200: #e5e7eb;
+  --color-neutral-300: #d1d5db;
+  --color-neutral-400: #9ca3af;
+  --color-neutral-500: #6b7280;
+  --color-neutral-600: #4b5563;
+  --color-neutral-700: #374151;
+  --color-neutral-800: #1f2937;
+  --color-neutral-900: #111827;
+
+  /* Semantic Colors */
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+
+  --color-error-50: #fef2f2;
+  --color-error-100: #fee2e2;
+  --color-error-500: #ef4444;
+  --color-error-600: #dc2626;
+  --color-error-700: #b91c1c;
+
+  /* Animations */
   --animate-blob: blob 7s infinite;
   --animate-fade-in-up: fade-in-up 0.6s ease-out forwards;
   --animate-fade-in: fade-in 0.4s ease-out forwards;
@@ -73,37 +128,67 @@
   html,
   body,
   #root {
-    @apply h-full min-h-screen text-slate-800 antialiased selection:bg-indigo-500/30 selection:text-indigo-900;
+    @apply h-full min-h-screen antialiased;
+    color: var(--color-neutral-800);
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--color-primary-500) 30%, transparent);
+    color: var(--color-primary-900);
   }
 
   body {
-    @apply bg-slate-50;
+    background-color: var(--color-neutral-50);
     margin: 0;
   }
 }
 
 @layer components {
-  /* Premium Glassmorphism Cards */
-  .glass-card, .surface-card {
-    @apply bg-white/70 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl;
+  /* ========================================
+     SURFACE & CARD STYLES
+     Clean, minimal cards with soft shadows
+     ======================================== */
+  .glass-card,
+  .surface-card {
+    @apply bg-white/90 backdrop-blur-xl rounded-xl;
+    border: 1px solid var(--color-neutral-200);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
   }
 
-  .glass-card-hover, .surface-card-hover {
-    @apply bg-white/70 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 hover:border-indigo-100 transition-all duration-300;
+  .glass-card-hover,
+  .surface-card-hover {
+    @apply bg-white/90 backdrop-blur-xl rounded-xl transition-all duration-200;
+    border: 1px solid var(--color-neutral-200);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
   }
 
-  /* Vibrant Gradient Text */
+  .glass-card-hover:hover,
+  .surface-card-hover:hover {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    transform: translateY(-2px);
+    border-color: var(--color-primary-200);
+  }
+
+  /* ========================================
+     TEXT STYLES
+     Primary gradient kept subtle with blues only
+     ======================================== */
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500;
-  }
-  
-  .text-gradient-cyan {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-cyan-500;
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(to right, var(--color-primary-600), var(--color-primary-500));
   }
 
-  /* Core UI Classes */
+  .text-gradient-accent {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(to right, var(--color-accent-600), var(--color-accent-500));
+  }
+
+  /* ========================================
+     LAYOUT CLASSES
+     ======================================== */
   .app-shell {
-    @apply min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-50/50 via-slate-50 to-pink-50/50 overflow-x-hidden;
+    @apply min-h-screen overflow-x-hidden;
+    background-color: var(--color-neutral-50);
   }
 
   .page-container {
@@ -115,34 +200,175 @@
   }
 
   .section-title {
-    @apply text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900;
+    @apply text-3xl md:text-5xl font-bold tracking-tight;
+    color: var(--color-neutral-900);
   }
 
   .section-subtitle {
-    @apply mt-4 text-lg md:text-xl text-slate-600 max-w-3xl leading-relaxed;
+    @apply mt-4 text-lg md:text-xl max-w-3xl leading-relaxed;
+    color: var(--color-neutral-600);
   }
 
-  /* Buttons */
+  /* ========================================
+     BUTTON STYLES
+     Clean, consistent with proper states
+     ======================================== */
   .btn-primary {
-    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 hover:from-indigo-500 to-purple-600 hover:to-purple-500 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    background-color: var(--color-primary-600);
+    box-shadow: 0 1px 3px 0 rgb(37 99 235 / 0.3);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-primary-700);
+    box-shadow: 0 4px 6px -1px rgb(37 99 235 / 0.35);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:focus {
+    --tw-ring-color: var(--color-primary-500);
+  }
+
+  .btn-primary:active {
+    background-color: var(--color-primary-800);
+    transform: translateY(0);
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-slate-700 bg-white/90 backdrop-blur-sm border border-slate-200 shadow-sm hover:shadow hover:bg-white hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    color: var(--color-neutral-700);
+    background-color: white;
+    border: 1px solid var(--color-neutral-200);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--color-neutral-50);
+    border-color: var(--color-neutral-300);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary:focus {
+    --tw-ring-color: var(--color-neutral-400);
   }
 
   .btn-danger {
-    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-red-600 to-rose-600 shadow-lg shadow-red-500/30 hover:shadow-red-500/50 hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    background-color: var(--color-error-600);
+    box-shadow: 0 1px 3px 0 rgb(220 38 38 / 0.3);
+  }
+
+  .btn-danger:hover {
+    background-color: var(--color-error-700);
+    box-shadow: 0 4px 6px -1px rgb(220 38 38 / 0.35);
+    transform: translateY(-1px);
+  }
+
+  .btn-danger:focus {
+    --tw-ring-color: var(--color-error-500);
+  }
+
+  .btn-success {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    background-color: var(--color-accent-500);
+    box-shadow: 0 1px 3px 0 rgb(34 197 94 / 0.3);
+  }
+
+  .btn-success:hover {
+    background-color: var(--color-accent-600);
+    box-shadow: 0 4px 6px -1px rgb(34 197 94 / 0.35);
+    transform: translateY(-1px);
+  }
+
+  .btn-success:focus {
+    --tw-ring-color: var(--color-accent-500);
   }
 
   .btn-primary:disabled,
   .btn-secondary:disabled,
-  .btn-danger:disabled {
-    @apply opacity-50 cursor-not-allowed transform-none shadow-none hover:shadow-none hover:-translate-y-0;
+  .btn-danger:disabled,
+  .btn-success:disabled {
+    @apply opacity-50 cursor-not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
   }
 
-  /* Inputs */
+  /* ========================================
+     INPUT STYLES
+     Clean, accessible form inputs
+     ======================================== */
   .input-base {
-    @apply w-full rounded-xl border border-slate-200 bg-white/80 backdrop-blur-sm px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 outline-none;
+    @apply w-full rounded-xl px-4 py-3 text-sm transition-all duration-200 outline-none;
+    background-color: white;
+    border: 1px solid var(--color-neutral-200);
+    color: var(--color-neutral-900);
+  }
+
+  .input-base::placeholder {
+    color: var(--color-neutral-400);
+  }
+
+  .input-base:hover {
+    border-color: var(--color-neutral-300);
+  }
+
+  .input-base:focus {
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary-500) 15%, transparent);
+  }
+
+  /* ========================================
+     BADGE/TAG STYLES
+     ======================================== */
+  .badge-primary {
+    @apply inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold;
+    background-color: var(--color-primary-50);
+    color: var(--color-primary-700);
+    border: 1px solid var(--color-primary-100);
+  }
+
+  .badge-accent {
+    @apply inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold;
+    background-color: var(--color-accent-50);
+    color: var(--color-accent-700);
+    border: 1px solid var(--color-accent-100);
+  }
+
+  .badge-neutral {
+    @apply inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold;
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-700);
+    border: 1px solid var(--color-neutral-200);
+  }
+
+  /* ========================================
+     ALERT/NOTIFICATION STYLES
+     ======================================== */
+  .alert-success {
+    @apply rounded-xl p-4;
+    background-color: var(--color-accent-50);
+    border: 1px solid var(--color-accent-200);
+    color: var(--color-accent-800);
+  }
+
+  .alert-warning {
+    @apply rounded-xl p-4;
+    background-color: var(--color-warning-50);
+    border: 1px solid var(--color-warning-100);
+    color: var(--color-warning-700);
+  }
+
+  .alert-error {
+    @apply rounded-xl p-4;
+    background-color: var(--color-error-50);
+    border: 1px solid var(--color-error-100);
+    color: var(--color-error-700);
+  }
+
+  .alert-info {
+    @apply rounded-xl p-4;
+    background-color: var(--color-primary-50);
+    border: 1px solid var(--color-primary-100);
+    color: var(--color-primary-700);
   }
 }

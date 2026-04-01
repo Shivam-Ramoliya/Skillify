@@ -69,16 +69,16 @@ export default function PublishJob() {
   return (
     <div className="page-wrap relative">
       {/* Decorative Background */}
-      <div className="absolute top-20 right-10 w-[400px] h-[400px] bg-pink-300/40 rounded-full mix-blend-multiply filter blur-[120px] animate-blob pointer-events-none"></div>
-      <div className="absolute bottom-20 left-10 w-[500px] h-[500px] bg-indigo-300/40 rounded-full mix-blend-multiply filter blur-[120px] animate-blob pointer-events-none" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute top-20 right-10 w-[400px] h-[400px] bg-blue-200/30 rounded-full mix-blend-multiply filter blur-[120px] animate-blob pointer-events-none"></div>
+      <div className="absolute bottom-20 left-10 w-[500px] h-[500px] bg-blue-300/20 rounded-full mix-blend-multiply filter blur-[120px] animate-blob pointer-events-none" style={{ animationDelay: '2s' }}></div>
 
       <div className="page-container max-w-4xl relative z-10">
-        <section className="glass-card p-8 md:p-12 border border-white/80 bg-white/70 shadow-2xl shadow-indigo-500/10">
+        <section className="glass-card p-8 md:p-12 border border-slate-200/60 bg-white shadow-xl">
           <div className="text-center mb-10">
-            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-6 border border-white/20">
+            <div className="mx-auto w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center shadow-lg shadow-blue-500/20 mb-6">
                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
             </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-4">Publish a <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Job</span></h1>
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-4">Publish a <span className="text-blue-600">Job</span></h1>
             <p className="text-lg font-medium text-slate-600 max-w-2xl mx-auto">
               Create a high-quality listing to attract the best freelancers and open contributors.
             </p>
@@ -100,7 +100,7 @@ export default function PublishJob() {
           <form onSubmit={handleSubmit} className="space-y-8">
              <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
                  <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4 border-b border-slate-200 pb-4">
-                    <span className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">1</span>
+                     <span className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold">1</span>
                     Basic Details
                  </h2>
                 <div>
@@ -150,7 +150,7 @@ export default function PublishJob() {
 
             <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
                 <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4 border-b border-slate-200 pb-4">
-                   <span className="w-8 h-8 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-sm">2</span>
+                   <span className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold">2</span>
                    Requirements
                 </h2>
                 <div className="grid gap-6 md:grid-cols-2">
@@ -188,7 +188,7 @@ export default function PublishJob() {
 
             <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
                 <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4 border-b border-slate-200 pb-4">
-                   <span className="w-8 h-8 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center text-sm">3</span>
+                   <span className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold">3</span>
                    Terms & Attachments
                 </h2>
                 
@@ -216,7 +216,7 @@ export default function PublishJob() {
                   <div>
                     <label className="mb-2 block text-sm font-bold text-slate-700">
                       Salary {" "}
-                      {formData.compensationType === "paid" ? <span className="text-indigo-600">*</span> : <span className="text-slate-400 font-medium">(optional)</span>}
+                      {formData.compensationType === "paid" ? <span className="text-blue-600">*</span> : <span className="text-slate-400 font-medium">(optional)</span>}
                     </label>
                     <input
                       type="text"
@@ -268,7 +268,7 @@ export default function PublishJob() {
                       <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-2xl cursor-pointer bg-white/50 hover:bg-slate-50 transition-colors">
                           <div className="flex flex-col items-center justify-center pt-5 pb-6">
                               <svg className="w-8 h-8 mb-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                              <p className="mb-1 text-sm text-slate-500 font-semibold"><span className="font-bold text-indigo-600">Click to upload</span> or drag and drop</p>
+                              <p className="mb-1 text-sm text-slate-500 font-semibold"><span className="font-bold text-blue-600">Click to upload</span> or drag and drop</p>
                               <p className="text-xs text-slate-500 font-medium">PDF, DOCX, TXT, or MD (MAX 5MB)</p>
                           </div>
                           <input 
@@ -280,12 +280,12 @@ export default function PublishJob() {
                       </label>
                   </div>
                   {jobDescriptionDocument && (
-                    <div className="mt-4 flex items-center justify-between p-4 rounded-xl bg-indigo-50 border border-indigo-100">
+                    <div className="mt-4 flex items-center justify-between p-4 rounded-xl bg-blue-50 border border-blue-100">
                        <div className="flex items-center gap-3">
-                          <svg className="w-6 h-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                          <span className="text-sm font-bold text-indigo-900">{jobDescriptionDocument.name}</span>
+                          <svg className="w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                          <span className="text-sm font-bold text-blue-900">{jobDescriptionDocument.name}</span>
                        </div>
-                       <button type="button" onClick={() => setJobDescriptionDocument(null)} className="text-indigo-400 hover:text-rose-500 transition-colors">
+                       <button type="button" onClick={() => setJobDescriptionDocument(null)} className="text-blue-400 hover:text-rose-500 transition-colors">
                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                        </button>
                     </div>
@@ -297,7 +297,7 @@ export default function PublishJob() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary w-full py-4 text-lg font-extrabold tracking-wide uppercase shadow-xl shadow-indigo-500/20 group"
+                className="btn-primary w-full py-4 text-lg font-extrabold tracking-wide uppercase shadow-xl shadow-blue-500/20 group"
               >
                 <span className="flex items-center justify-center gap-2">
                   {loading ? (

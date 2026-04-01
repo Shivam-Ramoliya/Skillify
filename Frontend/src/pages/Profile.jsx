@@ -90,8 +90,8 @@ export default function Profile() {
   return (
     <div className="page-wrap relative">
       {/* Decorative Background */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-300/30 rounded-full mix-blend-multiply filter blur-[120px] animate-blob pointer-events-none"></div>
-      <div className="absolute top-60 left-0 w-[400px] h-[400px] bg-cyan-300/30 rounded-full mix-blend-multiply filter blur-[120px] animate-blob pointer-events-none" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-200/30 rounded-full mix-blend-multiply filter blur-[120px] animate-blob pointer-events-none"></div>
+      <div className="absolute top-60 left-0 w-[400px] h-[400px] bg-blue-300/20 rounded-full mix-blend-multiply filter blur-[120px] animate-blob pointer-events-none" style={{ animationDelay: '2s' }}></div>
 
       <div className="page-container max-w-5xl space-y-8 relative z-10">
         {error && (
@@ -101,8 +101,8 @@ export default function Profile() {
           </div>
         )}
 
-        <section className="glass-card overflow-hidden border border-white/60 bg-white/70 shadow-xl shadow-teal-900/5 transition-all duration-300">
-          <div className="h-40 bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 relative">
+        <section className="glass-card overflow-hidden border border-slate-200/60 bg-white shadow-xl transition-all duration-300">
+          <div className="h-40 bg-blue-600 relative">
              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 mix-blend-overlay"></div>
           </div>
           <div className="px-6 md:px-10 pb-8">
@@ -112,10 +112,10 @@ export default function Profile() {
                   <img
                     src={profile.profilePicture}
                     alt={profile.name}
-                    className="h-32 w-32 rounded-3xl border-4 border-white object-cover shadow-lg shadow-teal-500/20 bg-white"
+                    className="h-32 w-32 rounded-3xl border-4 border-white object-cover shadow-lg shadow-blue-500/20 bg-white"
                   />
                 ) : (
-                  <div className="flex h-32 w-32 items-center justify-center rounded-3xl border-4 border-white bg-gradient-to-br from-teal-500 to-cyan-500 text-5xl font-black text-white shadow-lg shadow-teal-500/20">
+                  <div className="flex h-32 w-32 items-center justify-center rounded-3xl border-4 border-white bg-blue-600 text-5xl font-black text-white shadow-lg shadow-blue-500/20">
                     {profile.name?.charAt(0)?.toUpperCase()}
                   </div>
                 )}
@@ -125,7 +125,7 @@ export default function Profile() {
                     {profile.name}
                   </h1>
                   {(profile.currentRole || profile.company) && (
-                    <p className="text-base font-semibold text-teal-700 mt-1">
+                    <p className="text-base font-semibold text-blue-700 mt-1">
                       {[profile.currentRole, profile.company]
                         .filter(Boolean)
                         .join(" at ")}
@@ -145,7 +145,7 @@ export default function Profile() {
                   <button
                     type="button"
                     onClick={() => setEditing((prev) => !prev)}
-                    className="btn-primary py-2.5 px-6 bg-teal-600 hover:bg-teal-700 shadow-teal-500/20"
+                    className="btn-primary py-2.5 px-6 bg-blue-600 hover:bg-blue-700 shadow-blue-500/20"
                   >
                     {editing ? "Cancel Editing" : "Edit Profile"}
                   </button>
@@ -197,7 +197,7 @@ export default function Profile() {
               {profile.experience && (
                 <article className="glass-card p-6 md:p-8 border border-white/60">
                   <h2 className="text-xl font-bold text-slate-900 flex items-center gap-3 border-b border-slate-100 pb-4 mb-4">
-                     <div className="bg-teal-100 p-2 rounded-xl text-teal-600"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg></div>
+                     <div className="bg-blue-100 p-2 rounded-xl text-blue-600"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg></div>
                     Experience
                   </h2>
                   <p className="whitespace-pre-line text-base font-medium leading-relaxed text-slate-600">
@@ -209,7 +209,7 @@ export default function Profile() {
               {profile.education && (
                 <article className="glass-card p-6 md:p-8 border border-white/60">
                   <h2 className="text-xl font-bold text-slate-900 flex items-center gap-3 border-b border-slate-100 pb-4 mb-4">
-                     <div className="bg-cyan-100 p-2 rounded-xl text-cyan-600"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" /></svg></div>
+                     <div className="bg-blue-100 p-2 rounded-xl text-blue-600"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" /></svg></div>
                     Education
                   </h2>
                   <p className="whitespace-pre-line text-base font-medium leading-relaxed text-slate-600">
@@ -251,7 +251,7 @@ export default function Profile() {
                     {profile.skills.map((skill, idx) => (
                       <span
                         key={idx}
-                        className="rounded-xl bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-100/50 px-3 py-1.5 text-xs font-bold text-teal-700 shadow-sm"
+                        className="rounded-xl bg-blue-50 border border-blue-100/50 px-3 py-1.5 text-xs font-bold text-blue-700 shadow-sm"
                       >
                         {skill}
                       </span>
@@ -297,7 +297,7 @@ export default function Profile() {
                         rel="noreferrer"
                         className="flex items-center gap-3 p-3 rounded-xl bg-slate-50/50 border border-slate-200 hover:border-slate-300 hover:bg-white transition-all text-slate-700 font-semibold text-sm group shadow-sm"
                       >
-                        <svg className="w-5 h-5 text-slate-600 group-hover:text-teal-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
+                        <svg className="w-5 h-5 text-slate-600 group-hover:text-blue-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
                         Personal Portfolio
                       </a>
                     )}
