@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { api } from "../utils/api";
+import { useAuth } from "../context/AuthContext";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
 
@@ -27,6 +28,7 @@ const statusStyles = {
 };
 
 export default function Discover() {
+  const { user } = useAuth();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -41,9 +43,19 @@ export default function Discover() {
     return () => resetPageTitle();
   }, []);
 
+  const isPublicProfile = user?.profileVisibility === "public";
+
   useEffect(() => {
+    if (!isPublicProfile) {
+      setLoading(false);
+      setError("Set your profile visibility to Public to discover and apply for jobs.");
+      setJobs([]);
+      setTotalJobs(0);
+      setJobsTotalPages(1);
+      return;
+    }
     fetchJobs();
-  }, [jobsPage]);
+  }, [jobsPage, isPublicProfile]);
 
   const fetchJobs = async (overrides = {}) => {
     const effectiveJobsPage = overrides.jobsPage ?? jobsPage;
@@ -72,17 +84,23 @@ export default function Discover() {
 
   const handleSearch = (e) => {
     e.preventDefault();
+    if (!isPublicProfile) return;
     setJobsPage(1);
     fetchJobs({ jobsPage: 1, skill: searchSkill });
   };
 
   const handleClearFilters = () => {
+    if (!isPublicProfile) return;
     setSearchSkill("");
     setJobsPage(1);
     fetchJobs({ jobsPage: 1, skill: "" });
   };
 
   const handleApply = async (jobId) => {
+    if (!isPublicProfile) {
+      setError("Set your profile visibility to Public to apply for jobs.");
+      return;
+    }
     setApplyLoadingId(jobId);
     setError("");
 
@@ -195,7 +213,6 @@ export default function Discover() {
             {error}
           </div>
         )}
-
         <section className="animate-fade-in">
           <div className="mb-6 flex items-center justify-between px-2">
             <h2

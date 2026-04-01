@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { api } from "../utils/api";
+import { useAuth } from "../context/AuthContext";
 import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
 
 export default function PublishJob() {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     jobName: "",
     githubRepoUrl: "",
@@ -18,6 +20,7 @@ export default function PublishJob() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const isPublicProfile = user?.profileVisibility === "public";
 
   useEffect(() => {
     setPageTitle("Publish Job | Skillify");
@@ -30,6 +33,10 @@ export default function PublishJob() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isPublicProfile) {
+      setError("Set your profile visibility to Public to publish jobs.");
+      return;
+    }
     setError("");
     setSuccess("");
     setLoading(true);
@@ -84,20 +91,27 @@ export default function PublishJob() {
             </p>
           </div>
 
-          {error && (
+          {!isPublicProfile ? (
             <div className="mb-8 rounded-2xl border border-red-200 bg-red-50/80 backdrop-blur-sm px-6 py-4 text-sm font-medium text-red-700 flex items-center gap-3 shadow-sm animate-fade-in-up">
               <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              {error}
+              Your profile is private. Switch visibility to Public from your profile page to publish jobs.
             </div>
-          )}
-          {success && (
-            <div className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50/80 backdrop-blur-sm px-6 py-4 text-sm font-medium text-emerald-700 flex items-center gap-3 shadow-sm animate-fade-in-up">
-               <svg className="w-5 h-5 text-emerald-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-               {success}
-            </div>
-          )}
+          ) : (
+            <>
+              {error && (
+                <div className="mb-8 rounded-2xl border border-red-200 bg-red-50/80 backdrop-blur-sm px-6 py-4 text-sm font-medium text-red-700 flex items-center gap-3 shadow-sm animate-fade-in-up">
+                  <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  {error}
+                </div>
+              )}
+              {success && (
+                <div className="mb-8 rounded-2xl border border-emerald-200 bg-emerald-50/80 backdrop-blur-sm px-6 py-4 text-sm font-medium text-emerald-700 flex items-center gap-3 shadow-sm animate-fade-in-up">
+                  <svg className="w-5 h-5 text-emerald-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  {success}
+                </div>
+              )}
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+              <form onSubmit={handleSubmit} className="space-y-8">
              <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
                  <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4 border-b border-slate-200 pb-4">
                      <span className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold">1</span>
@@ -315,7 +329,9 @@ export default function PublishJob() {
               </button>
               <p className="text-center text-xs text-slate-500 font-medium mt-4">By publishing, you agree to our terms of service.</p>
             </div>
-          </form>
+              </form>
+            </>
+          )}
         </section>
       </div>
     </div>

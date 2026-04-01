@@ -3,18 +3,37 @@ const JobApplication = require("../models/JobApplication");
 const User = require("../models/User");
 const { uploadToCloudinary } = require("../utils/cloudinaryUpload");
 
+const requirePublicProfileForJobs = async (userId, res) => {
+  const user = await User.findById(userId).select("_id profileVisibility");
+
+  if (!user) {
+    res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+    return null;
+  }
+
+  if (user.profileVisibility !== "public") {
+    res.status(403).json({
+      success: false,
+      message:
+        "Only users with a public profile can discover, apply, or publish jobs",
+    });
+    return null;
+  }
+
+  return user;
+};
+
 // @desc    Publish a new job
 // @route   POST /api/jobs/publish
 // @access  Private
 exports.publishJob = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("_id");
-
+    const user = await requirePublicProfileForJobs(req.user.id, res);
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+      return;
     }
 
     const {
@@ -152,6 +171,11 @@ exports.publishJob = async (req, res) => {
 // @access  Private
 exports.discoverJobs = async (req, res) => {
   try {
+    const user = await requirePublicProfileForJobs(req.user.id, res);
+    if (!user) {
+      return;
+    }
+
     const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
     const limit = Math.min(
       Math.max(parseInt(req.query.limit, 10) || 10, 1),
@@ -227,6 +251,11 @@ exports.discoverJobs = async (req, res) => {
 // @access  Private
 exports.applyToJob = async (req, res) => {
   try {
+    const user = await requirePublicProfileForJobs(req.user.id, res);
+    if (!user) {
+      return;
+    }
+
     const { jobId } = req.params;
 
     const job = await Job.findById(jobId).select("_id postedBy");
