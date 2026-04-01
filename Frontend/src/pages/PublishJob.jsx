@@ -15,6 +15,7 @@ export default function PublishJob() {
     salary: "",
     durationFrom: "",
     durationTo: "",
+    closingDate: "",
   });
   const [jobDescriptionDocument, setJobDescriptionDocument] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -33,12 +34,30 @@ export default function PublishJob() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isPublicProfile) {
+    if (!isPublicProfile) { 
       setError("Set your profile visibility to Public to publish jobs.");
       return;
     }
     setError("");
     setSuccess("");
+
+    // Client-side date validations
+    if (formData.durationFrom && formData.durationTo && formData.durationFrom >= formData.durationTo) {
+      setError("Job duration start date must be before the end date.");
+      return;
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+    if (formData.closingDate && formData.closingDate < today) {
+      setError("Application closing date cannot be in the past.");
+      return;
+    }
+
+    if (formData.closingDate && formData.durationFrom && formData.closingDate >= formData.durationFrom) {
+      setError("Application closing date must be before the job start date.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -63,6 +82,7 @@ export default function PublishJob() {
           salary: "",
           durationFrom: "",
           durationTo: "",
+          closingDate: "",
         });
         setJobDescriptionDocument(null);
       }
@@ -79,7 +99,7 @@ export default function PublishJob() {
       <div className="absolute top-20 right-10 w-[400px] h-[400px] bg-blue-200/30 rounded-full mix-blend-multiply filter blur-[120px] animate-blob pointer-events-none"></div>
       <div className="absolute bottom-20 left-10 w-[500px] h-[500px] bg-blue-300/20 rounded-full mix-blend-multiply filter blur-[120px] animate-blob pointer-events-none" style={{ animationDelay: '2s' }}></div>
 
-      <div className="page-container max-w-4xl relative z-10">
+      <div className="page-container relative z-10">
         <section className="glass-card p-8 md:p-12 border border-slate-200/60 bg-white shadow-xl">
           <div className="text-center mb-10">
             <div className="mx-auto w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center shadow-lg shadow-blue-500/20 mb-6">
@@ -245,10 +265,10 @@ export default function PublishJob() {
                   </div>
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-6 md:grid-cols-3">
                   <div>
                     <label className="mb-2 block text-sm font-bold text-slate-700">
-                      Duration From *
+                      Job Duration From *
                     </label>
                     <input
                       type="date"
@@ -261,7 +281,7 @@ export default function PublishJob() {
                   </div>
                   <div>
                     <label className="mb-2 block text-sm font-bold text-slate-700">
-                      Duration To *
+                      Job Duration To *
                     </label>
                     <input
                       type="date"
@@ -270,6 +290,19 @@ export default function PublishJob() {
                       onChange={handleChange}
                       required
                       className="input-base bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-bold text-slate-700">
+                      Applications Closing Date *
+                    </label>
+                    <input
+                      type="date"
+                      name="closingDate"
+                      value={formData.closingDate}
+                      onChange={handleChange}
+                      required
+                      className="input-base bg-white border-error-200 focus:border-error-500 focus:ring-error-500/20"
                     />
                   </div>
                 </div>

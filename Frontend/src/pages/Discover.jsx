@@ -3,6 +3,21 @@ import { api } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
+import { motion } from "framer-motion";
+import { 
+  Search, 
+  Info, 
+  MapPin, 
+  DollarSign, 
+  Calendar, 
+  ExternalLink, 
+  FileText, 
+  ChevronLeft, 
+  ChevronRight, 
+  Briefcase,
+  AlertCircle,
+  Clock
+} from "lucide-react";
 
 const statusStyles = {
   pending: {
@@ -24,6 +39,23 @@ const statusStyles = {
     bg: "var(--color-neutral-100)",
     text: "var(--color-neutral-600)",
     border: "var(--color-neutral-200)",
+  },
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 100, damping: 15 },
   },
 };
 
@@ -124,25 +156,23 @@ export default function Discover() {
 
   return (
     <div className="page-wrap relative">
+      {/* Background Orbs */}
+      <div className="absolute top-20 left-10 w-96 h-96 bg-primary-200 rounded-full mix-blend-multiply filter blur-[100px] opacity-30 animate-blob pointer-events-none"></div>
+      <div className="absolute top-60 right-10 w-96 h-96 bg-accent-200 rounded-full mix-blend-multiply filter blur-[100px] opacity-30 animate-blob pointer-events-none" style={{ animationDelay: '2s' }}></div>
+
       <div className="page-container space-y-8 relative z-10">
-        <section className="glass-card p-8 md:p-10 relative overflow-hidden">
-          <div
-            className="absolute top-0 left-0 w-1 h-full"
-            style={{ backgroundColor: "var(--color-primary-500)" }}
-          ></div>
+        <motion.section 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-card p-8 md:p-12 relative overflow-hidden shadow-xl"
+        >
+          <div className="absolute top-0 left-0 w-1.5 h-full bg-primary-500"></div>
           <div className="relative z-10">
-            <h1
-              className="text-4xl md:text-5xl font-bold tracking-tight mb-4"
-              style={{ color: "var(--color-neutral-900)" }}
-            >
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-neutral-900">
               Discover <span className="text-gradient">Opportunities</span>
             </h1>
-            <p
-              className="text-lg font-medium max-w-2xl mb-8"
-              style={{ color: "var(--color-neutral-600)" }}
-            >
-              Explore freelance and open-source roles posted by our community of
-              innovators and creators.
+            <p className="text-lg font-medium max-w-2xl mb-8 text-neutral-600">
+              Explore freelance and open-source roles posted by our community of innovators and creators.
             </p>
 
             <form
@@ -151,180 +181,88 @@ export default function Discover() {
             >
               <div className="relative flex-grow">
                 <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-                  <svg
-                    className="w-5 h-5"
-                    style={{ color: "var(--color-neutral-400)" }}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
+                  <Search className="w-5 h-5 text-neutral-400" />
                 </div>
                 <input
                   type="text"
                   value={searchSkill}
                   onChange={(e) => setSearchSkill(e.target.value)}
                   placeholder="Search by skill (React, Node.js, Design...)"
-                  className="input-base pl-13 py-4 text-base"
-                  style={{ paddingLeft: "3rem" }}
+                  className="input-base pl-14 py-4 text-base w-full shadow-sm"
                 />
               </div>
               <div className="flex gap-3">
-                <button
-                  type="submit"
-                  className="btn-primary py-4 px-8 md:w-auto w-full"
-                >
+                <button type="submit" className="btn-primary py-4 px-8 md:w-auto w-full shadow-md">
                   Search
                 </button>
-                <button
-                  type="button"
-                  onClick={handleClearFilters}
-                  className="btn-secondary py-4 px-6 md:w-auto w-full"
-                >
+                <button type="button" onClick={handleClearFilters} className="btn-secondary py-4 px-6 md:w-auto w-full">
                   Clear
                 </button>
               </div>
             </form>
           </div>
-        </section>
+        </motion.section>
 
         {error && (
-          <div className="alert-error flex items-center gap-3 animate-fade-in-up">
-            <svg
-              className="w-5 h-5"
-              style={{ color: "var(--color-error-500)" }}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            {error}
-          </div>
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="alert-error flex items-center gap-3 shadow-md">
+            <AlertCircle className="w-5 h-5 text-error-500" />
+            <span className="font-semibold">{error}</span>
+          </motion.div>
         )}
-        <section className="animate-fade-in">
-          <div className="mb-6 flex items-center justify-between px-2">
-            <h2
-              className="text-2xl font-bold tracking-tight flex items-center gap-3"
-              style={{ color: "var(--color-neutral-900)" }}
-            >
-              <span
-                className="flex h-3 w-3 rounded-full"
-                style={{ backgroundColor: "var(--color-accent-500)" }}
-              ></span>
+
+        <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+          <div className="mb-8 flex items-center justify-between px-2">
+            <h2 className="text-2xl font-bold tracking-tight flex items-center gap-3 text-neutral-900">
+              <span className="flex h-3 w-3 rounded-full bg-accent-500 shadow-sm animate-pulse"></span>
               Latest Jobs
             </h2>
-            <div
-              className="inline-flex items-center justify-center px-4 py-1.5 rounded-full text-sm font-semibold"
-              style={{
-                backgroundColor: "var(--color-primary-50)",
-                color: "var(--color-primary-700)",
-                border: "1px solid var(--color-primary-100)",
-              }}
-            >
+            <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full text-sm font-bold bg-primary-50 text-primary-700 border border-primary-100 shadow-sm">
               {totalJobs} available
             </div>
           </div>
 
           {jobs.length === 0 ? (
-            <div className="glass-card p-16 text-center">
-              <div
-                className="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-6"
-                style={{ backgroundColor: "var(--color-neutral-100)" }}
-              >
-                <svg
-                  className="w-10 h-10"
-                  style={{ color: "var(--color-neutral-400)" }}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-card p-16 text-center shadow-lg">
+              <div className="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-6 bg-neutral-100 text-neutral-400 shadow-sm">
+                <Search className="w-10 h-10" />
               </div>
-              <h3
-                className="text-xl font-bold tracking-tight mb-2"
-                style={{ color: "var(--color-neutral-900)" }}
-              >
+              <h3 className="text-2xl font-bold tracking-tight mb-2 text-neutral-900">
                 No jobs found
               </h3>
-              <p
-                className="font-medium"
-                style={{ color: "var(--color-neutral-500)" }}
-              >
-                We couldn't find any opportunities matching your current filter.
+              <p className="font-medium text-neutral-500 mb-6 max-w-md mx-auto">
+                We couldn't find any opportunities matching your current filter. Try adjusting your search criteria.
               </p>
-              <button onClick={handleClearFilters} className="mt-6 btn-primary">
+              <button onClick={handleClearFilters} className="btn-primary shadow-md">
                 Clear filters to see all
               </button>
-            </div>
+            </motion.div>
           ) : (
             <>
-              <div className="grid gap-6 lg:grid-cols-2">
-                {jobs.map((job, index) => (
-                  <article
+              <motion.div 
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="grid gap-6 lg:grid-cols-2"
+              >
+                {jobs.map((job) => (
+                  <motion.article
+                    variants={cardVariants}
                     key={job._id}
-                    className="group glass-card-hover p-6 md:p-8 relative overflow-hidden flex flex-col h-full"
-                    style={{ animationDelay: `${index * 50}ms` }}
+                    className="group glass-card-hover p-6 md:p-8 relative overflow-hidden flex flex-col h-full shadow-md"
                   >
-                    <div
-                      className="absolute top-0 left-0 w-full h-1 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"
-                      style={{ backgroundColor: "var(--color-primary-500)" }}
-                    ></div>
+                    <div className="absolute top-0 left-0 w-full h-1 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300 bg-primary-500"></div>
 
                     <div className="flex items-start justify-between gap-4 mb-4">
                       <div className="flex items-center gap-4">
-                        <div
-                          className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl font-bold flex-shrink-0 transition-all duration-200"
-                          style={{
-                            backgroundColor: "var(--color-primary-50)",
-                            color: "var(--color-primary-600)",
-                            border: "1px solid var(--color-primary-100)",
-                          }}
-                        >
+                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0 transition-transform duration-300 group-hover:scale-105 bg-primary-50 text-primary-600 border border-primary-200 shadow-sm">
                           {job.jobName.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <h3
-                            className="text-xl font-bold transition-colors line-clamp-1"
-                            style={{ color: "var(--color-neutral-900)" }}
-                          >
+                          <h3 className="text-xl font-bold transition-colors line-clamp-1 text-neutral-900 group-hover:text-primary-600">
                             {job.jobName}
                           </h3>
-                          <p
-                            className="mt-1 text-sm font-semibold flex items-center gap-1.5"
-                            style={{ color: "var(--color-neutral-500)" }}
-                          >
-                            <svg
-                              className="w-4 h-4"
-                              style={{ color: "var(--color-primary-400)" }}
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                              />
-                            </svg>
+                          <p className="mt-1 text-sm font-semibold flex items-center gap-1.5 text-neutral-500">
+                            <Briefcase className="w-4 h-4 text-primary-400" />
                             {job.postedBy?.name || "Unknown"}
                           </p>
                         </div>
@@ -332,14 +270,10 @@ export default function Discover() {
 
                       {job.applicationStatus && (
                         <span
-                          className="rounded-lg px-3 py-1.5 text-xs font-semibold uppercase tracking-wider"
+                          className="rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wider shadow-sm"
                           style={{
-                            backgroundColor:
-                              statusStyles[job.applicationStatus]?.bg ||
-                              statusStyles.pending.bg,
-                            color:
-                              statusStyles[job.applicationStatus]?.text ||
-                              statusStyles.pending.text,
+                            backgroundColor: statusStyles[job.applicationStatus]?.bg || statusStyles.pending.bg,
+                            color: statusStyles[job.applicationStatus]?.text || statusStyles.pending.text,
                             border: `1px solid ${statusStyles[job.applicationStatus]?.border || statusStyles.pending.border}`,
                           }}
                         >
@@ -349,189 +283,78 @@ export default function Discover() {
                     </div>
 
                     <div className="my-5 flex-grow">
-                      <p
-                        className="line-clamp-3 text-sm leading-relaxed font-medium"
-                        style={{ color: "var(--color-neutral-600)" }}
-                      >
+                      <p className="line-clamp-3 text-sm leading-relaxed font-medium text-neutral-600">
                         {job.jobDetails}
                       </p>
                     </div>
 
                     <div className="flex flex-wrap gap-2 mb-6">
                       {(job.skillsRequired || []).map((skill) => (
-                        <span
-                          key={`${job._id}-${skill}`}
-                          className="rounded-lg px-3 py-1.5 text-xs font-semibold"
-                          style={{
-                            backgroundColor: "var(--color-primary-50)",
-                            color: "var(--color-primary-700)",
-                            border: "1px solid var(--color-primary-100)",
-                          }}
-                        >
+                        <span key={`${job._id}-${skill}`} className="rounded-lg px-3 py-1.5 text-xs font-bold bg-primary-50 text-primary-700 border border-primary-100 shadow-sm">
                           {skill}
                         </span>
                       ))}
                     </div>
 
-                    <div
-                      className="grid gap-3 text-sm sm:grid-cols-2 p-4 rounded-xl mb-6"
-                      style={{
-                        backgroundColor: "var(--color-neutral-50)",
-                        border: "1px solid var(--color-neutral-200)",
-                      }}
-                    >
+                    <div className="grid gap-3 text-sm sm:grid-cols-2 p-4 rounded-xl mb-6 bg-neutral-50 border border-neutral-200">
                       <div className="flex items-center gap-2.5">
-                        <div
-                          className="p-1.5 rounded-lg"
-                          style={{
-                            backgroundColor: "var(--color-primary-100)",
-                          }}
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            style={{ color: "var(--color-primary-600)" }}
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                            />
-                          </svg>
+                        <div className="p-1.5 rounded-lg bg-primary-100 text-primary-600 shadow-sm">
+                          <MapPin className="w-4 h-4" />
                         </div>
-                        <span
-                          className="font-semibold"
-                          style={{ color: "var(--color-neutral-900)" }}
-                        >
+                        <span className="font-semibold text-neutral-900">
                           {job.experienceRequired}
                         </span>
                       </div>
                       <div className="flex items-center gap-2.5">
-                        <div
-                          className="p-1.5 rounded-lg"
-                          style={{ backgroundColor: "var(--color-accent-100)" }}
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            style={{ color: "var(--color-accent-600)" }}
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
+                        <div className="p-1.5 rounded-lg bg-accent-100 text-accent-600 shadow-sm">
+                          <DollarSign className="w-4 h-4" />
                         </div>
-                        <span
-                          className="font-semibold"
-                          style={{ color: "var(--color-neutral-900)" }}
-                        >
+                        <span className="font-semibold text-neutral-900">
                           {job.salary || "Negotiable"}
                         </span>
                       </div>
                       <div className="flex items-center gap-2.5">
-                        <div
-                          className="p-1.5 rounded-lg"
-                          style={{
-                            backgroundColor: "var(--color-primary-100)",
-                          }}
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            style={{ color: "var(--color-primary-600)" }}
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                            />
-                          </svg>
+                        <div className="p-1.5 rounded-lg bg-primary-100 text-primary-600 shadow-sm">
+                          <Info className="w-4 h-4" />
                         </div>
-                        <span
-                          className="font-semibold"
-                          style={{ color: "var(--color-neutral-900)" }}
-                        >
+                        <span className="font-semibold text-neutral-900">
                           {job.compensationType}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2.5">
-                        <div
-                          className="p-1.5 rounded-lg"
-                          style={{
-                            backgroundColor: "var(--color-primary-100)",
-                          }}
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            style={{ color: "var(--color-primary-600)" }}
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
+                      {job.closingDate && (
+                        <div className="flex items-center gap-2.5">
+                          <div className="p-1.5 rounded-lg bg-error-50 text-error-600 shadow-sm">
+                            <Clock className="w-4 h-4" />
+                          </div>
+                          <span className="font-semibold text-xs tracking-tight text-neutral-900">
+                            Closes: {new Date(job.closingDate).toLocaleDateString()}
+                          </span>
                         </div>
-                        <span
-                          className="font-semibold text-xs tracking-tight"
-                          style={{ color: "var(--color-neutral-900)" }}
-                        >
-                          {new Date(job.durationFrom).toLocaleDateString()} -{" "}
-                          {new Date(job.durationTo).toLocaleDateString()}
+                      )}
+                      <div className="flex items-center gap-2.5 sm:col-span-2">
+                        <div className="p-1.5 rounded-lg bg-primary-100 text-primary-600 shadow-sm">
+                          <Calendar className="w-4 h-4" />
+                        </div>
+                        <span className="font-semibold text-xs tracking-tight text-neutral-900">
+                          Duration: {new Date(job.durationFrom).toLocaleDateString()} - {new Date(job.durationTo).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
 
-                    <div
-                      className="mt-auto pt-5 flex flex-wrap items-center justify-between gap-3"
-                      style={{
-                        borderTop: "1px solid var(--color-neutral-100)",
-                      }}
-                    >
+                    <div className="mt-auto pt-5 flex flex-wrap items-center justify-between gap-3 border-t border-neutral-100">
                       <div className="flex-1">
-                        {!job.hasApplied ||
-                        job.applicationStatus === "withdrawn" ? (
+                        {!job.hasApplied || job.applicationStatus === "withdrawn" ? (
                           <button
                             type="button"
                             onClick={() => handleApply(job._id)}
                             disabled={applyLoadingId === job._id}
-                            className="btn-primary w-full py-3"
+                            className="btn-primary w-full py-3 shadow-md"
                           >
                             {applyLoadingId === job._id ? (
                               <span className="flex items-center justify-center gap-2">
-                                <svg
-                                  className="animate-spin h-4 w-4"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <circle
-                                    className="opacity-25"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                  ></circle>
-                                  <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                  ></path>
+                                <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
                                 Applying
                               </span>
@@ -540,11 +363,7 @@ export default function Discover() {
                             )}
                           </button>
                         ) : (
-                          <button
-                            type="button"
-                            disabled
-                            className="btn-secondary w-full py-3 opacity-50 cursor-not-allowed"
-                          >
+                          <button type="button" disabled className="btn-secondary w-full py-3 opacity-50 cursor-not-allowed">
                             Applied
                           </button>
                         )}
@@ -552,139 +371,47 @@ export default function Discover() {
 
                       <div className="flex items-center gap-2">
                         {job.githubRepoUrl && (
-                          <a
-                            href={job.githubRepoUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="p-3 rounded-xl bg-white transition-all group/btn"
-                            style={{
-                              border: "1px solid var(--color-neutral-200)",
-                              color: "var(--color-neutral-600)",
-                            }}
-                            title="View Repository"
-                          >
-                            <svg
-                              className="w-5 h-5 group-hover/btn:scale-110 transition-transform"
-                              fill="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
+                          <a href={job.githubRepoUrl} target="_blank" rel="noreferrer" className="p-3 rounded-xl bg-white border border-neutral-200 text-neutral-600 shadow-sm hover:border-primary-300 hover:text-primary-600 transition-all" title="View Repository">
+                            <ExternalLink className="w-5 h-5 transition-transform hover:scale-110" />
                           </a>
                         )}
                         {job.jobDescriptionDocument && (
-                          <a
-                            href={job.jobDescriptionDocument}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="p-3 rounded-xl bg-white transition-all group/btn"
-                            style={{
-                              border: "1px solid var(--color-neutral-200)",
-                              color: "var(--color-neutral-600)",
-                            }}
-                            title="View Document"
-                          >
-                            <svg
-                              className="w-5 h-5 group-hover/btn:scale-110 transition-transform"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                              />
-                            </svg>
+                          <a href={job.jobDescriptionDocument} target="_blank" rel="noreferrer" className="p-3 rounded-xl bg-white border border-neutral-200 text-neutral-600 shadow-sm hover:border-primary-300 hover:text-primary-600 transition-all" title="View Document">
+                            <FileText className="w-5 h-5 transition-transform hover:scale-110" />
                           </a>
                         )}
                       </div>
                     </div>
-                  </article>
+                  </motion.article>
                 ))}
-              </div>
+              </motion.div>
 
               {jobsTotalPages > 1 && (
-                <div
-                  className="mt-12 flex items-center justify-center gap-4 p-4 rounded-xl max-w-sm mx-auto"
-                  style={{
-                    backgroundColor: "white",
-                    border: "1px solid var(--color-neutral-200)",
-                  }}
-                >
+                <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="mt-12 flex items-center justify-center gap-4 p-4 rounded-2xl max-w-sm mx-auto bg-white border border-neutral-200 shadow-lg">
                   <button
                     type="button"
                     onClick={() => setJobsPage((prev) => Math.max(1, prev - 1))}
                     disabled={jobsPage === 1}
-                    className="w-12 h-12 rounded-full flex items-center justify-center bg-white transition-all disabled:opacity-50"
-                    style={{
-                      border: "1px solid var(--color-neutral-200)",
-                      color: "var(--color-neutral-600)",
-                    }}
+                    className="w-12 h-12 rounded-full flex items-center justify-center bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50 transition-all disabled:opacity-50 disabled:hover:bg-white"
                   >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 19l-7-7 7-7"
-                      />
-                    </svg>
+                    <ChevronLeft className="w-5 h-5" />
                   </button>
-                  <p
-                    className="text-sm font-semibold w-28 text-center uppercase tracking-wider"
-                    style={{ color: "var(--color-neutral-700)" }}
-                  >
-                    Page{" "}
-                    <span
-                      className="text-base mx-1"
-                      style={{ color: "var(--color-primary-600)" }}
-                    >
-                      {jobsPage}
-                    </span>
-                    / {jobsTotalPages}
+                  <p className="text-sm font-bold w-28 text-center uppercase tracking-wider text-neutral-700">
+                    Page <span className="text-base mx-1 text-primary-600">{jobsPage}</span>/ {jobsTotalPages}
                   </p>
                   <button
                     type="button"
-                    onClick={() =>
-                      setJobsPage((prev) => Math.min(jobsTotalPages, prev + 1))
-                    }
+                    onClick={() => setJobsPage((prev) => Math.min(jobsTotalPages, prev + 1))}
                     disabled={jobsPage === jobsTotalPages}
-                    className="w-12 h-12 rounded-full flex items-center justify-center bg-white transition-all disabled:opacity-50"
-                    style={{
-                      border: "1px solid var(--color-neutral-200)",
-                      color: "var(--color-neutral-600)",
-                    }}
+                    className="w-12 h-12 rounded-full flex items-center justify-center bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50 transition-all disabled:opacity-50 disabled:hover:bg-white"
                   >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
+                    <ChevronRight className="w-5 h-5" />
                   </button>
-                </div>
+                </motion.div>
               )}
             </>
           )}
-        </section>
+        </motion.section>
       </div>
     </div>
   );

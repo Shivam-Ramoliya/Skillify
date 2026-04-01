@@ -1,6 +1,8 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, LogOut, Code2 } from "lucide-react";
 
 const guestLinks = [
   { to: "/", label: "Home" },
@@ -16,10 +18,10 @@ const authLinks = [
 ];
 
 const linkClass = ({ isActive }) =>
-  `rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${
+  `relative rounded-xl px-4 py-2.5 text-sm font-bold transition-all duration-300 ${
     isActive
-      ? "bg-[var(--color-primary-50)] text-[var(--color-primary-700)]"
-      : "text-[var(--color-neutral-600)] hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-600)]"
+      ? "text-primary-700 bg-primary-50 shadow-sm"
+      : "text-neutral-600 hover:text-primary-600 hover:bg-primary-50/50"
   }`;
 
 export default function NavBar() {
@@ -38,43 +40,27 @@ export default function NavBar() {
   const links = user ? authLinks : guestLinks;
 
   return (
-    <header
-      className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b transition-all duration-200"
-      style={{ borderColor: "var(--color-neutral-200)" }}
-    >
-      <nav className="page-container">
-        <div className="flex h-16 items-center justify-between">
+    <header className="sticky top-0 z-50 transition-all duration-300">
+      {/* Premium Glass Backdrop */}
+      <div className="absolute inset-0 bg-white/70 backdrop-blur-2xl border-b border-neutral-200/60 shadow-[0_4px_24px_-2px_rgba(0,0,0,0.03)] pointer-events-none"></div>
+
+      <nav className="page-container relative z-10">
+        <div className="flex h-[4.5rem] items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl shadow-sm transition-transform duration-200 group-hover:scale-105">
-              <img
-                src="/Skillify.png"
-                alt="Skillify Logo"
-                className="h-full w-full object-contain"
-              />
+            <div className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl shadow-md transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 bg-gradient-to-br from-primary-600 to-accent-500">
+              <Code2 className="w-6 h-6 text-white" />
             </div>
             <div>
-              <p
-                className="text-lg font-bold tracking-tight transition-colors duration-200"
-                style={{ color: "var(--color-neutral-900)" }}
-              >
+              <p className="text-xl font-extrabold tracking-tight transition-colors duration-300 text-neutral-900 group-hover:text-primary-600">
                 Skillify
               </p>
-              <p
-                className="text-[10px] font-medium leading-none"
-                style={{ color: "var(--color-neutral-500)" }}
-              >
+              <p className="text-[11px] font-bold leading-none tracking-wider uppercase text-neutral-500">
                 Freelancer Network
               </p>
             </div>
           </Link>
 
-          <div
-            className="hidden items-center gap-1 md:flex p-1 rounded-xl border"
-            style={{
-              backgroundColor: "var(--color-neutral-50)",
-              borderColor: "var(--color-neutral-200)",
-            }}
-          >
+          <div className="hidden items-center gap-1.5 md:flex p-1.5 rounded-2xl border bg-white/50 border-neutral-200/60 shadow-inner">
             {links.map((link) => (
               <NavLink key={link.to} to={link.to} className={linkClass} end>
                 {link.label}
@@ -82,21 +68,18 @@ export default function NavBar() {
             ))}
           </div>
 
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-4">
             {user ? (
               <button
                 type="button"
                 onClick={handleLogout}
-                className="rounded-xl bg-white px-5 py-2.5 text-sm font-semibold transition-all duration-200 hover:bg-[var(--color-neutral-50)]"
-                style={{
-                  color: "var(--color-neutral-700)",
-                  border: "1px solid var(--color-neutral-200)",
-                }}
+                className="flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-bold shadow-sm transition-all duration-300 hover:bg-error-50 hover:text-error-600 hover:border-error-200 border border-neutral-200 text-neutral-700 hover:shadow-md"
               >
+                <LogOut className="w-4 h-4" />
                 Logout
               </button>
             ) : (
-              <Link to="/signup" className="btn-primary">
+              <Link to="/signup" className="btn-primary py-2.5 px-6 shadow-md">
                 Sign Up
               </Link>
             )}
@@ -105,85 +88,76 @@ export default function NavBar() {
           <button
             type="button"
             onClick={() => setMobileOpen((prev) => !prev)}
-            className="rounded-xl p-2.5 md:hidden transition-colors"
-            style={{ color: "var(--color-neutral-600)" }}
+            className="rounded-xl p-2.5 md:hidden transition-all text-neutral-600 hover:bg-neutral-100 focus:outline-none"
             aria-label="Toggle menu"
           >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              {mobileOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              )}
-            </svg>
+            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
 
-        {mobileOpen && (
-          <div
-            className="space-y-1 pb-6 pt-4 md:hidden animate-fade-in-up border-t"
-            style={{ borderColor: "var(--color-neutral-100)" }}
-          >
-            {links.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                className={({ isActive }) =>
-                  `block rounded-xl px-4 py-3 text-base font-semibold transition-all duration-200 ${
-                    isActive
-                      ? "bg-[var(--color-primary-50)] text-[var(--color-primary-700)]"
-                      : "text-[var(--color-neutral-600)] hover:bg-[var(--color-primary-50)] hover:text-[var(--color-primary-600)]"
-                  }`
-                }
-                onClick={closeMobile}
-                end
-              >
-                {link.label}
-              </NavLink>
-            ))}
-            <div
-              className="pt-4 mt-4"
-              style={{ borderTop: "1px solid var(--color-neutral-100)" }}
+        <AnimatePresence>
+          {mobileOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="md:hidden overflow-hidden border-t border-neutral-100"
             >
-              {user ? (
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="w-full rounded-xl px-4 py-3 text-left text-base font-semibold transition-colors"
-                  style={{
-                    backgroundColor: "var(--color-neutral-100)",
-                    color: "var(--color-neutral-700)",
-                  }}
+              <div className="space-y-1 pb-6 pt-4">
+                {links.map((link, i) => (
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    key={link.to}
+                  >
+                    <NavLink
+                      to={link.to}
+                      className={({ isActive }) =>
+                        `block rounded-2xl px-5 py-3.5 text-base font-bold transition-all duration-200 ${
+                          isActive
+                            ? "bg-primary-50 text-primary-700 shadow-sm"
+                            : "text-neutral-600 hover:bg-primary-50 hover:text-primary-600"
+                        }`
+                      }
+                      onClick={closeMobile}
+                      end
+                    >
+                      {link.label}
+                    </NavLink>
+                  </motion.div>
+                ))}
+                
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: links.length * 0.05 }}
+                  className="pt-4 mt-4 border-t border-neutral-100"
                 >
-                  Logout
-                </button>
-              ) : (
-                <Link
-                  to="/signup"
-                  onClick={closeMobile}
-                  className="flex w-full justify-center btn-primary py-3 text-base"
-                >
-                  Sign Up
-                </Link>
-              )}
-            </div>
-          </div>
-        )}
+                  {user ? (
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="w-full flex items-center justify-center gap-2 rounded-2xl px-5 py-4 text-base font-bold transition-colors bg-error-50 text-error-600 border border-error-100"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      Logout
+                    </button>
+                  ) : (
+                    <Link
+                      to="/signup"
+                      onClick={closeMobile}
+                      className="flex w-full justify-center btn-primary py-4 text-base shadow-lg"
+                    >
+                      Sign Up
+                    </Link>
+                  )}
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
     </header>
   );

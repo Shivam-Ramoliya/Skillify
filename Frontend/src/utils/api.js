@@ -169,4 +169,9 @@ export const api = {
       method: "PUT",
       body: { status },
     }),
+  toggleJobStatus: (jobId, closingDate) =>
+    request(`/api/jobs/${jobId}/status`, {
+      method: "PUT",
+      body: closingDate ? { closingDate } : {},
+    }),
 };

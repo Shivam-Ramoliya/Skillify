@@ -98,6 +98,53 @@ export default function Applications() {
     }
   };
 
+  const handleToggleJobStatus = async (job) => {
+    // If job is currently closed, prompt for a new closing date to re-open
+    if (job.status !== "open") {
+      const newClosingDate = prompt(
+        "Enter a new application closing date to re-open this job (YYYY-MM-DD):"
+      );
+      if (!newClosingDate) return; // User cancelled
+
+      const today = new Date().toISOString().split("T")[0];
+      if (newClosingDate < today) {
+        setError("Application closing date cannot be in the past.");
+        return;
+      }
+
+      setActionLoadingId(job._id + "toggle");
+      setError("");
+      try {
+        await api.toggleJobStatus(job._id, newClosingDate);
+        const postsRes = await api.getMyPostedJobs();
+        setMyPostedJobs(postsRes.data || []);
+        if (selectedJob && selectedJob._id === job._id) {
+          setSelectedJob(prev => ({ ...prev, status: "open", closingDate: newClosingDate }));
+        }
+      } catch (err) {
+        setError(err.message || "Failed to re-open job");
+      } finally {
+        setActionLoadingId("");
+      }
+    } else {
+      // Closing — no extra input needed
+      setActionLoadingId(job._id + "toggle");
+      setError("");
+      try {
+        await api.toggleJobStatus(job._id);
+        const postsRes = await api.getMyPostedJobs();
+        setMyPostedJobs(postsRes.data || []);
+        if (selectedJob && selectedJob._id === job._id) {
+          setSelectedJob(prev => ({ ...prev, status: "closed" }));
+        }
+      } catch (err) {
+        setError(err.message || "Failed to close job");
+      } finally {
+        setActionLoadingId("");
+      }
+    }
+  };
+
   if (loading) return <LoadingSpinner />;
 
   const activeButton =
@@ -119,7 +166,7 @@ export default function Applications() {
         style={{ animationDelay: "2s" }}
       ></div>
 
-      <div className="page-container space-y-8 relative z-10 max-w-5xl">
+      <div className="page-container space-y-8 relative z-10">
         {/* Header */}
         <section className="glass-card p-8 md:p-10 border border-slate-200/60 bg-white shadow-xl relative overflow-hidden flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="absolute top-0 left-0 w-2 h-full bg-blue-600"></div>
@@ -191,6 +238,8 @@ export default function Applications() {
               <MyPostedJobsGrid
                 jobs={myPostedJobs}
                 onSelectJob={handleSelectJob}
+                onToggleStatus={handleToggleJobStatus}
+                actionLoadingId={actionLoadingId}
               />
             )
           ) : (
@@ -207,7 +256,7 @@ export default function Applications() {
 }
 
 /* ─── Received Tab: Level 1 — Job Posts Grid ────────────────────────── */
-function MyPostedJobsGrid({ jobs, onSelectJob }) {
+function MyPostedJobsGrid({ jobs, onSelectJob, onToggleStatus, actionLoadingId }) {
   if (jobs.length === 0) {
     return (
       <div className="glass-card p-16 text-center border border-white/60">
@@ -274,10 +323,19 @@ function MyPostedJobsGrid({ jobs, onSelectJob }) {
                   {job.jobName.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-700 transition-colors line-clamp-1">
+                  <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-700 transition-colors line-clamp-1 flex items-center gap-2">
                     {job.jobName}
+                    <span
+                      className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold border ${
+                        job.status === "open"
+                          ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                          : "bg-slate-100 text-slate-500 border-slate-200"
+                      }`}
+                    >
+                      {job.status || "open"}
+                    </span>
                   </h3>
-                  <p className="mt-1 text-sm font-semibold text-slate-500 flex items-center gap-1.5">
+                  <p className="mt-1 text-sm font-semibold text-slate-500 flex items-center gap-1.5 flex-wrap">
                     <svg
                       className="w-4 h-4 text-blue-400"
                       fill="none"
@@ -297,6 +355,30 @@ function MyPostedJobsGrid({ jobs, onSelectJob }) {
                       day: "numeric",
                       year: "numeric",
                     })}
+                    {job.closingDate && (
+                      <>
+                        <span className="text-slate-300 mx-1">·</span>
+                        <svg
+                          className="w-3.5 h-3.5 text-red-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <span className="text-red-500">Closes{" "}
+                        {new Date(job.closingDate).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}</span>
+                      </>
+                    )}
                   </p>
                 </div>
               </div>
@@ -440,22 +522,39 @@ function MyPostedJobsGrid({ jobs, onSelectJob }) {
 
             {/* CTA footer */}
             <div className="mt-auto border-t border-slate-100 pt-5 flex items-center justify-between gap-3">
-              <span className="text-sm font-bold text-blue-600 group-hover:text-blue-700 flex items-center gap-2 transition-colors">
-                View Applicants
-                <svg
-                  className="w-4 h-4 transform group-hover:translate-x-1 transition-transform"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
-              </span>
+              <div className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-blue-600 group-hover:text-blue-700 flex items-center gap-1.5 transition-colors">
+                    View Applicants
+                    <svg
+                      className="w-4 h-4 transform group-hover:translate-x-1 transition-transform"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 7l5 5m0 0l-5 5m5-5H6"
+                      />
+                    </svg>
+                  </span>
+                  
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleStatus(job);
+                    }}
+                    disabled={actionLoadingId === job._id + "toggle"}
+                    className={`ml-2 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors border ${
+                        job.status === "open"
+                        ? "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"
+                        : "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100"
+                    }`}
+                  >
+                    {actionLoadingId === job._id + "toggle" ? "..." : job.status === "open" ? "Close Job" : "Re-open Job"}
+                  </button>
+              </div>
               <div className="flex items-center gap-2">
                 {job.githubRepoUrl && (
                   <a
@@ -570,8 +669,16 @@ function ReceivedJobApplications({
                 <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
                   {job.jobName}
                 </h2>
-                <p className="text-sm font-medium text-slate-500 mt-1">
-                  {job.skillsRequired?.join(" · ")}
+                <p className="text-sm font-medium text-slate-500 mt-1 flex items-center gap-3">
+                  <span>{job.skillsRequired?.join(" · ")}</span>
+                  {job.closingDate && (
+                    <span className="inline-flex items-center gap-1 text-slate-400">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Closes {new Date(job.closingDate).toLocaleDateString()}
+                    </span>
+                  )}
                 </p>
               </div>
             </div>

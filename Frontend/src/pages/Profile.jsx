@@ -6,6 +6,43 @@ import LoadingSpinner from "../components/common/LoadingSpinner";
 import EditProfileForm from "../components/profile/EditProfileForm";
 import DeleteAccountModal from "../components/profile/DeleteAccountModal";
 import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  AlertCircle,
+  MapPin,
+  Edit2,
+  EyeOff,
+  Eye,
+  User,
+  Briefcase,
+  GraduationCap,
+  GitBranch,
+  Link2,
+  Globe,
+  FileText,
+  Trash2,
+  X,
+  Mail,
+  Calendar
+} from "lucide-react";
+
+const pageVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { staggerChildren: 0.1, duration: 0.5, ease: "easeOut" }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { type: "spring", stiffness: 80, damping: 15 }
+  }
+};
 
 export default function Profile() {
   const { userId } = useParams();
@@ -74,94 +111,148 @@ export default function Profile() {
   };
 
   if (loading) return <LoadingSpinner />;
+  
   if (error && !profile) {
     return (
-      <div className="page-wrap relative">
-        <div className="page-container relative z-10">
-          <div className="rounded-2xl border border-red-200 bg-red-50/80 backdrop-blur-sm px-6 py-4 text-red-700 flex items-center gap-3 font-medium shadow-sm">
-            <svg className="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            {error}
+      <div className="page-wrap relative flex items-center justify-center min-h-[60vh]">
+        <div className="rounded-2xl border border-error-200 bg-error-50/90 backdrop-blur-md px-8 py-6 text-error-700 flex flex-col items-center gap-4 font-bold shadow-lg text-center max-w-md">
+          <div className="w-16 h-16 bg-error-100 rounded-full flex items-center justify-center mb-2">
+            <AlertCircle className="w-8 h-8 text-error-500 shrink-0" />
           </div>
+          <p className="text-xl">{error}</p>
+          {isOwnProfile && (
+            <button onClick={fetchProfile} className="mt-4 btn-primary bg-error-500 hover:bg-error-600 shadow-error-500/30">
+              Try Again
+            </button>
+          )}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="page-wrap relative">
-      {/* Decorative Background */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-200/30 rounded-full mix-blend-multiply filter blur-[120px] animate-blob pointer-events-none"></div>
-      <div className="absolute top-60 left-0 w-[400px] h-[400px] bg-blue-300/20 rounded-full mix-blend-multiply filter blur-[120px] animate-blob pointer-events-none" style={{ animationDelay: '2s' }}></div>
+    <div className="relative min-h-screen pb-24">
+      {/* Immersive Top Background that bleeds into the header */}
+      <div 
+        className="absolute top-0 w-full h-[400px] z-0 pointer-events-none"
+        style={{ 
+          background: "linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-accent-700) 100%)",
+          maskImage: "linear-gradient(to bottom, black 50%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, black 50%, transparent 100%)"
+        }}
+      >
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+      </div>
 
-      <div className="page-container max-w-5xl space-y-8 relative z-10">
+      <motion.div 
+        variants={pageVariants}
+        initial="hidden"
+        animate="visible"
+        className="page-container space-y-8 relative z-10 pt-[100px]"
+      >
         {error && (
-          <div className="rounded-2xl border border-red-200 bg-red-50/80 backdrop-blur-sm px-6 py-4 text-sm font-medium text-red-700 flex items-center gap-3 shadow-sm animate-fade-in-up">
-             <svg className="w-5 h-5 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <motion.div variants={itemVariants} className="rounded-2xl border border-error-200 bg-error-50/90 backdrop-blur-md px-6 py-4 text-sm font-bold text-error-700 flex items-center gap-3 shadow-xl relative z-20">
+             <AlertCircle className="w-5 h-5 text-error-500 shrink-0" />
              {error}
-          </div>
+          </motion.div>
         )}
 
-        <section className="glass-card overflow-hidden border border-slate-200/60 bg-white shadow-xl transition-all duration-300">
-          <div className="h-40 bg-blue-600 relative">
-             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 mix-blend-overlay"></div>
-          </div>
-          <div className="px-6 md:px-10 pb-8">
-            <div className="-mt-16 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between relative z-10">
-              <div className="flex flex-col sm:flex-row sm:items-end gap-5">
-                {profile.profilePicture ? (
+        <motion.section variants={itemVariants} className="glass-card shadow-2xl transition-all duration-300 border border-white/40 bg-white/80">
+          <div className="px-6 md:px-12 py-12 relative">
+            <div className="flex flex-col items-center justify-center text-center relative z-10 w-full">
+              {profile.profilePicture ? (
+                <motion.div
+                  initial={{ scale: 0.8, rotate: -5 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: "spring", stiffness: 120 }}
+                  className="relative shrink-0 group mb-6"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-tr from-primary-500 to-accent-500 rounded-[2.5rem] blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
                   <img
                     src={profile.profilePicture}
                     alt={profile.name}
-                    className="h-32 w-32 rounded-3xl border-4 border-white object-cover shadow-lg shadow-blue-500/20 bg-white"
+                    className="h-44 w-44 rounded-[2.5rem] border-8 border-white object-cover shadow-2xl relative z-10 bg-white"
                   />
-                ) : (
-                  <div className="flex h-32 w-32 items-center justify-center rounded-3xl border-4 border-white bg-blue-600 text-5xl font-black text-white shadow-lg shadow-blue-500/20">
+                </motion.div>
+              ) : (
+                <motion.div 
+                  initial={{ scale: 0.8, rotate: -5 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: "spring", stiffness: 120 }}
+                  className="relative shrink-0 group mb-6"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-tr from-primary-500 to-accent-500 rounded-[2.5rem] blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+                  <div 
+                    className="flex h-44 w-44 items-center justify-center rounded-[2.5rem] border-8 border-white text-7xl font-black text-white shadow-2xl relative z-10 bg-gradient-to-br from-primary-500 to-accent-600"
+                  >
                     {profile.name?.charAt(0)?.toUpperCase()}
                   </div>
-                )}
+                </motion.div>
+              )}
 
-                <div className="mb-2">
-                  <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                    {profile.name}
-                  </h1>
-                  {(profile.currentRole || profile.company) && (
-                    <p className="text-base font-semibold text-blue-700 mt-1">
-                      {[profile.currentRole, profile.company]
-                        .filter(Boolean)
-                        .join(" at ")}
-                    </p>
-                  )}
+              <div className="mt-2 w-full max-w-3xl mx-auto flex flex-col items-center">
+                <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-neutral-900" style={{ color: "var(--color-neutral-900)" }}>
+                  {profile.name}
+                </h1>
+                
+                {(profile.currentRole || profile.company) && (
+                  <p className="text-xl font-bold mt-3 text-primary-600" style={{ color: "var(--color-primary-600)" }}>
+                    {[profile.currentRole, profile.company]
+                      .filter(Boolean)
+                      .join(" at ")}
+                  </p>
+                )}
+                
+                <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
                   {profile.location && (
-                    <p className="text-sm font-medium text-slate-500 flex items-center gap-1.5 mt-1.5">
-                      <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <span className="text-sm font-bold flex items-center gap-1.5 px-4 py-2 rounded-xl bg-neutral-100 text-neutral-600 border border-neutral-200 shadow-sm">
+                      <MapPin className="w-4 h-4 text-primary-500" />
                       {profile.location}
-                    </p>
+                    </span>
                   )}
+                  {profile.email && (
+                    <span className="text-sm font-bold flex items-center gap-1.5 px-4 py-2 rounded-xl bg-neutral-100 text-neutral-600 border border-neutral-200 shadow-sm">
+                      <Mail className="w-4 h-4 text-primary-500" />
+                      {profile.email}
+                    </span>
+                  )}
+                  <span className="text-sm font-bold flex items-center gap-1.5 px-4 py-2 rounded-xl bg-neutral-100 text-neutral-600 border border-neutral-200 shadow-sm">
+                    <Calendar className="w-4 h-4 text-primary-500" />
+                    Joined {new Date(profile.createdAt || Date.now()).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+                  </span>
                 </div>
               </div>
 
               {isOwnProfile && (
-                <div className="flex flex-wrap gap-3 mb-2">
+                <div className="flex flex-wrap items-center justify-center gap-4 mt-10 w-full pt-8 border-t border-neutral-200/60 max-w-2xl mx-auto">
                   <button
                     type="button"
                     onClick={() => setEditing((prev) => !prev)}
-                    className="btn-primary py-2.5 px-6 bg-blue-600 hover:bg-blue-700 shadow-blue-500/20"
+                    className="btn-primary py-3 px-8 shadow-xl shadow-primary-500/20 flex items-center justify-center gap-2 border border-primary-500/50 rounded-xl"
                   >
-                    {editing ? "Cancel Editing" : "Edit Profile"}
+                    {editing ? (
+                      <>
+                        <X className="w-5 h-5" /> Cancel Edit
+                      </>
+                    ) : (
+                      <>
+                        <Edit2 className="w-5 h-5" /> Edit Profile
+                      </>
+                    )}
                   </button>
                   <button
                     type="button"
                     onClick={toggleVisibility}
-                    className="btn-secondary py-2.5 px-6 font-bold flex items-center gap-2 bg-white/80 border-slate-200"
+                    className="btn-secondary py-3 px-8 font-bold flex items-center justify-center gap-2 border-neutral-200 shadow-md bg-white hover:border-primary-300 rounded-xl transition-all"
                   >
                     {profile.profileVisibility === "public" ? (
                       <>
-                        <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+                        <EyeOff className="w-5 h-5 text-neutral-500" />
                         Make Private
                       </>
                     ) : (
                       <>
-                         <svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                         <Eye className="w-5 h-5 text-success-500" />
                          Make Public
                       </>
                     )}
@@ -170,187 +261,194 @@ export default function Profile() {
               )}
             </div>
           </div>
-        </section>
+        </motion.section>
 
-        {editing && isOwnProfile ? (
-          <section className="glass-card p-6 md:p-8 animate-fade-in border border-white/60">
-            <EditProfileForm
-              initialData={profile}
-              onSave={handleEditSave}
-              onCancel={() => setEditing(false)}
-              submitLabel="Save Changes"
-            />
-          </section>
-        ) : (
-          <section className="grid gap-8 lg:grid-cols-3 animate-fade-in">
-            <div className="space-y-8 lg:col-span-2">
-              <article className="glass-card p-6 md:p-8 border border-white/60">
-                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-3 border-b border-slate-100 pb-4 mb-4">
-                  <div className="bg-blue-100 p-2 rounded-xl text-blue-600"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg></div>
-                  About
-                </h2>
-                <p className="text-base font-medium leading-relaxed text-slate-600 whitespace-pre-line">
-                  {profile.bio || "No bio provided yet."}
-                </p>
-              </article>
-
-              {profile.experience && (
-                <article className="glass-card p-6 md:p-8 border border-white/60">
-                  <h2 className="text-xl font-bold text-slate-900 flex items-center gap-3 border-b border-slate-100 pb-4 mb-4">
-                     <div className="bg-blue-100 p-2 rounded-xl text-blue-600"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg></div>
-                    Experience
+        <AnimatePresence mode="wait">
+          {editing && isOwnProfile ? (
+            <motion.section 
+              key="editing"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -20 }}
+              className="glass-card p-8 md:p-12 shadow-2xl border border-white/60 bg-white/90"
+            >
+              <div className="max-w-4xl mx-auto">
+                <EditProfileForm
+                  initialData={profile}
+                  onSave={handleEditSave}
+                  onCancel={() => setEditing(false)}
+                  submitLabel="Save Changes"
+                />
+              </div>
+            </motion.section>
+          ) : (
+            <motion.section 
+              key="viewing"
+              variants={itemVariants}
+              className="flex flex-col gap-8"
+            >
+              <div className="space-y-8">
+                <article className="glass-card p-8 md:p-10 shadow-lg border border-white/50 bg-white/80 hover:bg-white transition-colors duration-300">
+                  <h2 className="text-2xl font-extrabold flex items-center gap-3 border-b-2 pb-5 mb-6" style={{ color: "var(--color-neutral-900)", borderColor: "var(--color-neutral-100)" }}>
+                    <div className="p-3 rounded-2xl shadow-sm bg-primary-50 text-primary-600">
+                      <User className="w-6 h-6" />
+                    </div>
+                    About Me
                   </h2>
-                  <p className="whitespace-pre-line text-base font-medium leading-relaxed text-slate-600">
-                    {profile.experience}
+                  <p className="text-lg font-medium leading-relaxed whitespace-pre-line text-neutral-600">
+                    {profile.bio || "This user prefers to let their skills speak for themselves."}
                   </p>
                 </article>
-              )}
 
-              {profile.education && (
-                <article className="glass-card p-6 md:p-8 border border-white/60">
-                  <h2 className="text-xl font-bold text-slate-900 flex items-center gap-3 border-b border-slate-100 pb-4 mb-4">
-                     <div className="bg-blue-100 p-2 rounded-xl text-blue-600"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" /></svg></div>
-                    Education
-                  </h2>
-                  <p className="whitespace-pre-line text-base font-medium leading-relaxed text-slate-600">
-                    {profile.education}
-                  </p>
-                </article>
-              )}
-            </div>
-
-            <div className="space-y-8">
-              <article className="glass-card p-6 md:p-8 border border-white/60">
-                <h2 className="text-lg font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3">
-                  Overview
-                </h2>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Availability</p>
-                    <p className="text-sm font-semibold text-slate-800 capitalize bg-slate-100 inline-block px-3 py-1.5 rounded-lg border border-slate-200/50">
-                      {profile.availability || "Not specified"}
+                {profile.experience && (
+                  <article className="glass-card p-8 md:p-10 shadow-lg border border-white/50 bg-white/80 hover:bg-white transition-colors duration-300">
+                    <h2 className="text-2xl font-extrabold flex items-center gap-3 border-b-2 pb-5 mb-6" style={{ color: "var(--color-neutral-900)", borderColor: "var(--color-neutral-100)" }}>
+                       <div className="p-3 rounded-2xl shadow-sm bg-accent-50 text-accent-600">
+                         <Briefcase className="w-6 h-6" />
+                       </div>
+                      Experience
+                    </h2>
+                    <p className="whitespace-pre-line text-lg font-medium leading-relaxed text-neutral-600">
+                      {profile.experience}
                     </p>
-                  </div>
-                  {typeof profile.yearsOfExperience === "number" && (
-                    <div>
-                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Experience</p>
-                      <p className="text-sm font-semibold text-slate-800 bg-slate-100 inline-block px-3 py-1.5 rounded-lg border border-slate-200/50">
-                        {profile.yearsOfExperience}+ years
+                  </article>
+                )}
+
+                {profile.education && (
+                  <article className="glass-card p-8 md:p-10 shadow-lg border border-white/50 bg-white/80 hover:bg-white transition-colors duration-300">
+                    <h2 className="text-2xl font-extrabold flex items-center gap-3 border-b-2 pb-5 mb-6" style={{ color: "var(--color-neutral-900)", borderColor: "var(--color-neutral-100)" }}>
+                       <div className="p-3 rounded-2xl shadow-sm bg-primary-50 text-primary-600">
+                         <GraduationCap className="w-6 h-6" />
+                       </div>
+                      Education
+                    </h2>
+                    <p className="whitespace-pre-line text-lg font-medium leading-relaxed text-neutral-600">
+                      {profile.education}
+                    </p>
+                  </article>
+                )}
+
+              </div>
+
+              {/* 2x2 Grid Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* 1. Quick Overview */}
+                <motion.article whileHover={{ y: -2 }} className="glass-card p-8 shadow-lg border border-white/50 bg-white/80 h-full flex flex-col">
+                  <h2 className="text-xl font-extrabold mb-6 border-b-2 pb-4 text-neutral-900 border-neutral-100 flex items-center gap-2">
+                    <Globe className="w-5 h-5 text-primary-500" />
+                    Quick Overview
+                  </h2>
+                  <div className="flex flex-col gap-6 flex-grow justify-center">
+                    <div className="flex flex-col gap-2">
+                      <p className="text-xs font-bold uppercase tracking-wider text-neutral-400">Availability</p>
+                      <p className="text-base font-bold capitalize inline-flex w-fit px-4 py-2 rounded-xl text-primary-700 bg-primary-50 border border-primary-100 shadow-sm">
+                        {profile.availability || "Not specified"}
                       </p>
                     </div>
-                  )}
-                </div>
-              </article>
-
-              {profile.skills?.length > 0 && (
-                <article className="glass-card p-6 md:p-8 border border-white/60">
-                  <h2 className="text-lg font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3">
-                    Top Skills
-                  </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.skills.map((skill, idx) => (
-                      <span
-                        key={idx}
-                        className="rounded-xl bg-blue-50 border border-blue-100/50 px-3 py-1.5 text-xs font-bold text-blue-700 shadow-sm"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </article>
-              )}
-
-              {(profile.githubUrl ||
-                profile.linkedinUrl ||
-                profile.portfolioUrl) && (
-                <article className="glass-card p-6 md:p-8 border border-white/60">
-                  <h2 className="text-lg font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3">
-                    Links & Social
-                  </h2>
-                  <div className="flex flex-col gap-3">
-                    {profile.githubUrl && (
-                      <a
-                        href={profile.githubUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-3 p-3 rounded-xl bg-slate-50/50 border border-slate-200 hover:border-slate-300 hover:bg-white transition-all text-slate-700 font-semibold text-sm group shadow-sm"
-                      >
-                        <svg className="w-5 h-5 text-slate-600 group-hover:text-black transition-colors" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" /></svg>
-                        GitHub Profile
-                      </a>
-                    )}
-                    {profile.linkedinUrl && (
-                      <a
-                        href={profile.linkedinUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-3 p-3 rounded-xl bg-slate-50/50 border border-slate-200 hover:border-slate-300 hover:bg-white transition-all text-slate-700 font-semibold text-sm group shadow-sm"
-                      >
-                         <svg className="w-5 h-5 text-slate-600 group-hover:text-blue-600 transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
-                        LinkedIn Profile
-                      </a>
-                    )}
-                    {profile.portfolioUrl && (
-                      <a
-                        href={profile.portfolioUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-3 p-3 rounded-xl bg-slate-50/50 border border-slate-200 hover:border-slate-300 hover:bg-white transition-all text-slate-700 font-semibold text-sm group shadow-sm"
-                      >
-                        <svg className="w-5 h-5 text-slate-600 group-hover:text-blue-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
-                        Personal Portfolio
-                      </a>
+                    {typeof profile.yearsOfExperience === "number" && (
+                      <div className="flex flex-col gap-2">
+                        <p className="text-xs font-bold uppercase tracking-wider text-neutral-400">Total Experience</p>
+                        <p className="text-base font-bold inline-flex w-fit px-4 py-2 rounded-xl text-accent-700 bg-accent-50 border border-accent-100 shadow-sm">
+                          {profile.yearsOfExperience}+ Years
+                        </p>
+                      </div>
                     )}
                   </div>
-                </article>
-              )}
+                </motion.article>
 
-              {profile.resume && (
-                <article className="glass-card p-6 md:p-8 border border-white/60">
-                  <h2 className="text-lg font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3 flex items-center gap-2">
-                     <svg className="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                    Resume
-                  </h2>
-                  <a
-                    href={profile.resume}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block w-full text-center py-3.5 bg-red-50 text-red-600 border border-red-200 font-bold rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-sm"
-                  >
-                    View / Download Resume
-                  </a>
-                </article>
-              )}
-            </div>
-          </section>
-        )}
+                {/* 2. Top Skills */}
+                {profile.skills?.length > 0 && (
+                  <motion.article whileHover={{ y: -2 }} className="glass-card p-8 shadow-lg border border-white/50 bg-white/80 h-full flex flex-col">
+                    <h2 className="text-xl font-extrabold mb-6 border-b-2 pb-4 text-neutral-900 border-neutral-100">
+                      Top Skills
+                    </h2>
+                    <div className="flex flex-wrap gap-2.5">
+                      {profile.skills.map((skill, idx) => (
+                        <span
+                          key={idx}
+                          className="rounded-xl px-4 py-2 text-sm font-bold shadow-sm transition-transform hover:scale-105 cursor-default bg-neutral-100 text-neutral-800 border border-neutral-200"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </motion.article>
+                )}
 
-        {/* Danger Zone — own profile only, not editing */}
-        {isOwnProfile && !editing && (
-          <section className="glass-card p-6 md:p-8 border border-red-200/60 bg-white/70 animate-fade-in">
-            <h2 className="text-xl font-bold text-red-700 flex items-center gap-3 border-b border-red-100 pb-4 mb-4">
-              <div className="bg-red-100 p-2 rounded-xl text-red-600">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+                {/* 3. Links & Social */}
+                {(profile.githubUrl || profile.linkedinUrl || profile.portfolioUrl) && (
+                  <motion.article whileHover={{ y: -2 }} className="glass-card p-8 shadow-lg border border-white/50 bg-white/80 h-full flex flex-col">
+                    <h2 className="text-xl font-extrabold mb-6 border-b-2 pb-4 text-neutral-900 border-neutral-100">
+                      Links & Social
+                    </h2>
+                    <div className="flex flex-col gap-3 flex-grow justify-center">
+                      {profile.githubUrl && (
+                        <a href={profile.githubUrl} target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-xl border border-neutral-200 bg-white shadow-sm hover:shadow-md hover:border-neutral-300 transition-all font-bold text-sm group">
+                          <div className="p-2 rounded-lg bg-neutral-100 group-hover:bg-neutral-200 transition-colors">
+                            <GitBranch className="w-5 h-5 text-neutral-700 group-hover:text-black" />
+                          </div>
+                          GitHub Profile
+                        </a>
+                      )}
+                      {profile.linkedinUrl && (
+                        <a href={profile.linkedinUrl} target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-xl border border-neutral-200 bg-white shadow-sm hover:shadow-md hover:border-[#0077b5]/30 transition-all font-bold text-sm group">
+                          <div className="p-2 rounded-lg bg-neutral-100 group-hover:bg-[#0077b5]/10 transition-colors">
+                            <Link2 className="w-5 h-5 text-neutral-700 group-hover:text-[#0077b5]" />
+                          </div>
+                          LinkedIn Profile
+                        </a>
+                      )}
+                      {profile.portfolioUrl && (
+                        <a href={profile.portfolioUrl} target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-xl border border-neutral-200 bg-white shadow-sm hover:shadow-md hover:border-primary-300 transition-all font-bold text-sm group">
+                          <div className="p-2 rounded-lg bg-neutral-100 group-hover:bg-primary-50 transition-colors">
+                            <Globe className="w-5 h-5 text-neutral-700 group-hover:text-primary-600" />
+                          </div>
+                          Personal Portfolio
+                        </a>
+                      )}
+                    </div>
+                  </motion.article>
+                )}
+
+                {/* 4. Resume */}
+                {profile.resume && (
+                  <motion.article whileHover={{ y: -2 }} className="glass-card p-8 shadow-lg border border-white/50 bg-white/80 h-full flex flex-col justify-center">
+                    <h2 className="text-xl font-extrabold mb-6 border-b-2 pb-4 flex items-center gap-2 text-neutral-900 border-neutral-100">
+                      <FileText className="w-5 h-5 text-error-500" />
+                      Resume
+                    </h2>
+                    <a href={profile.resume} target="_blank" rel="noreferrer" className="block w-full text-center py-4 font-bold rounded-xl transition-all shadow-md hover:-translate-y-1 hover:shadow-lg bg-error-50 text-error-600 border border-error-200 hover:bg-error-100">
+                      View / Download Resume
+                    </a>
+                  </motion.article>
+                )}
               </div>
-              Danger Zone
-            </h2>
-            <p className="text-sm text-slate-600 font-medium mb-5 leading-relaxed">
-              Permanently delete your account and all associated data. This action cannot be undone.
-            </p>
-            <button
-              type="button"
-              id="btn-delete-account"
-              onClick={() => setShowDeleteModal(true)}
-              className="btn-danger py-2.5 px-6 flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-              Delete Account
-            </button>
-          </section>
-        )}
-      </div>
 
-      {/* Delete Account Modal */}
+              {/* Danger Zone - full width outside grid */}
+              {isOwnProfile && !editing && (
+                <div className="mt-4">
+                  <motion.article whileHover={{ y: -2 }} className="glass-card p-8 shadow-lg border bg-error-50/30 border-error-200 flex flex-col justify-center">
+                    <h2 className="text-xl font-extrabold flex items-center gap-3 border-b-2 pb-5 mb-5 text-error-700 border-error-100">
+                      <div className="p-2 rounded-xl bg-error-100 text-error-600 shadow-sm">
+                        <Trash2 className="w-5 h-5" />
+                      </div>
+                      Danger Zone
+                    </h2>
+                    <p className="text-sm font-semibold mb-6 leading-relaxed text-error-800/80">
+                      Permanently delete your account and all associated data. This action cannot be undone.
+                    </p>
+                    <button onClick={() => setShowDeleteModal(true)} className="w-full py-3.5 flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg hover:shadow-red-500/30 transition-all">
+                      <Trash2 className="w-4 h-4" />
+                      Delete Account
+                    </button>
+                  </motion.article>
+                </div>
+              )}
+            </motion.section>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
       <DeleteAccountModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} />
     </div>
   );

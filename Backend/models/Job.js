@@ -56,6 +56,19 @@ const jobSchema = new mongoose.Schema(
       type: Date,
       required: [true, "Duration end date is required"],
     },
+    status: {
+      type: String,
+      enum: ["open", "closed"],
+      default: "open",
+    },
+    startDate: {
+      type: Date,
+      default: Date.now,
+    },
+    closingDate: {
+      type: Date,
+      required: [true, "Closing date is required"],
+    },
     jobDescriptionDocument: {
       type: String,
       default: null,

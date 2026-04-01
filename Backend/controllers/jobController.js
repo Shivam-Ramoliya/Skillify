@@ -45,15 +45,16 @@ exports.publishJob = async (req, res) => {
       salary,
       durationFrom,
       durationTo,
+      closingDate,
     } = req.body;
 
     let skillsRequired = req.body.skillsRequired;
 
-    if (!jobName || !jobDetails || !experienceRequired || !compensationType) {
+    if (!jobName || !jobDetails || !experienceRequired || !compensationType || !closingDate) {
       return res.status(400).json({
         success: false,
         message:
-          "Please provide job name, job details, experience required, and paid/unpaid option",
+          "Please provide job name, job details, experience required, paid/unpaid option, and closing date",
       });
     }
 
@@ -73,21 +74,42 @@ exports.publishJob = async (req, res) => {
 
     const parsedFrom = new Date(durationFrom);
     const parsedTo = new Date(durationTo);
+    const parsedClosing = new Date(closingDate);
 
     if (
       Number.isNaN(parsedFrom.getTime()) ||
-      Number.isNaN(parsedTo.getTime())
+      Number.isNaN(parsedTo.getTime()) ||
+      Number.isNaN(parsedClosing.getTime())
     ) {
       return res.status(400).json({
         success: false,
-        message: "Invalid duration dates",
+        message: "Invalid dates provided",
       });
     }
 
-    if (parsedFrom > parsedTo) {
+    if (parsedFrom >= parsedTo) {
       return res.status(400).json({
         success: false,
-        message: "Duration start date cannot be after end date",
+        message: "Job duration start date must be before the end date",
+      });
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const closingDay = new Date(parsedClosing);
+    closingDay.setHours(0, 0, 0, 0);
+
+    if (closingDay < today) {
+      return res.status(400).json({
+        success: false,
+        message: "Application closing date cannot be in the past",
+      });
+    }
+
+    if (parsedClosing >= parsedFrom) {
+      return res.status(400).json({
+        success: false,
+        message: "Application closing date must be before the job start date",
       });
     }
 
@@ -148,6 +170,9 @@ exports.publishJob = async (req, res) => {
         normalizedCompensationType === "paid" ? String(salary).trim() : "",
       durationFrom: parsedFrom,
       durationTo: parsedTo,
+      closingDate: parsedClosing,
+      status: "open",
+      startDate: new Date(),
       jobDescriptionDocument,
       jobDescriptionDocumentPublicId,
       postedBy: user._id,
@@ -159,6 +184,7 @@ exports.publishJob = async (req, res) => {
       data: job,
     });
   } catch (error) {
+    console.error("publishJob error:", error);
     res.status(500).json({
       success: false,
       message: error.message || "Server error while publishing job",
@@ -186,6 +212,8 @@ exports.discoverJobs = async (req, res) => {
 
     const query = {
       postedBy: { $ne: req.user.id },
+      status: "open",
+      closingDate: { $gt: new Date() }
     };
 
     if (skill) {
@@ -258,11 +286,18 @@ exports.applyToJob = async (req, res) => {
 
     const { jobId } = req.params;
 
-    const job = await Job.findById(jobId).select("_id postedBy");
+    const job = await Job.findById(jobId).select("_id postedBy status closingDate");
     if (!job) {
       return res.status(404).json({
         success: false,
         message: "Job not found",
+      });
+    }
+
+    if (job.status !== "open" || new Date() > new Date(job.closingDate)) {
+      return res.status(400).json({
+        success: false,
+        message: "This job is no longer accepting applications",
       });
     }
 
@@ -487,6 +522,87 @@ exports.getMyPostedJobs = async (req, res) => {
       success: false,
       message:
         error.message || "Server error while loading your posted jobs",
+    });
+  }
+};
+// @desc    Toggle job status (open/closed)
+// @route   PUT /api/jobs/:jobId/status
+// @access  Private
+exports.toggleJobStatus = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+
+    const job = await Job.findById(jobId);
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found",
+      });
+    }
+
+    if (String(job.postedBy) !== String(req.user.id)) {
+      return res.status(403).json({
+        success: false,
+        message: "Only the job poster can toggle its status",
+      });
+    }
+
+    // Toggle logic
+    if (job.status === "open") {
+      // Closing the job — no extra input needed
+      job.status = "closed";
+    } else {
+      // Re-opening — require a new closing date
+      const { closingDate } = req.body;
+      if (!closingDate) {
+        return res.status(400).json({
+          success: false,
+          message: "A new application closing date is required to re-open the job",
+        });
+      }
+
+      const parsedClosing = new Date(closingDate);
+      if (Number.isNaN(parsedClosing.getTime())) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid closing date",
+        });
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const closingDay = new Date(parsedClosing);
+      closingDay.setHours(0, 0, 0, 0);
+
+      if (closingDay < today) {
+        return res.status(400).json({
+          success: false,
+          message: "Application closing date cannot be in the past",
+        });
+      }
+
+      if (parsedClosing >= new Date(job.durationFrom)) {
+        return res.status(400).json({
+          success: false,
+          message: "Application closing date must be before the job start date",
+        });
+      }
+
+      job.status = "open";
+      job.closingDate = parsedClosing;
+    }
+
+    await job.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `Job is now ${job.status}`,
+      data: job,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Server error while toggling job status",
     });
   }
 };

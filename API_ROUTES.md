@@ -1,35 +1,59 @@
-# Skiilify API Routes Documentation
+# Skiilify Full API Documentation
 
-## Authentication Routes
+This document serves as a complete reference for all API routes available in the Skiilify project, including Authentication, Profiles, Jobs, and Health endpoints. It defines the HTTP methods, routes, descriptions, expected inputs (Body/Query/Params/Form-Data), and the expected outputs.
 
-| Method | Route                           | Description                | Auth Required | Request Body                                   |
-| ------ | ------------------------------- | -------------------------- | ------------- | ---------------------------------------------- |
-| POST   | `/api/auth/signup`              | Register a new user        | No            | `name`, `email`, `password`, `confirmPassword` |
-| POST   | `/api/auth/login`               | Login user                 | No            | `email`, `password`                            |
-| POST   | `/api/auth/verify-email`        | Verify email with token    | No            | `token`                                        |
-| POST   | `/api/auth/resend-verification` | Resend verification email  | No            | `email`                                        |
-| GET    | `/api/auth/me`                  | Get current logged-in user | Yes           | -                                              |
+## Base URL
+Local Development: `http://localhost:5000` 
+All routes are prefixed with `/api`. 
 
 ---
 
-## Profile Routes
+## Route Summary Tables
 
-| Method | Route                     | Description                     | Auth Required | Query Params                     | Request Body                                                                                                        |
-| ------ | ------------------------- | ------------------------------- | ------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| PUT    | `/api/profile/update`     | Update user profile             | Yes           | -                                | `bio`, `location`, `profilePicture`, `resume`, `availability`, `skillsOffered`, `skillsWanted`, `profileVisibility` |
-| GET    | `/api/profile/me`         | Get current user's profile      | Yes           | -                                | -                                                                                                                   |
-| GET    | `/api/profile/status`     | Check profile completion status | Yes           | -                                | -                                                                                                                   |
-| GET    | `/api/profile/:userId`    | Get specific user's profile     | No            | -                                | -                                                                                                                   |
-| PUT    | `/api/profile/visibility` | Update profile visibility       | Yes           | -                                | `profileVisibility`                                                                                                 |
-| GET    | `/api/profile/discover`   | Discover public profiles        | No            | `role`, `skill`, `page`, `limit` | -                                                                                                                   |
+### 1. Authentication Routes (`/api/auth`)
 
----
+| Method | Route | Description | Auth Req |
+| :--- | :--- | :--- | :---: |
+| `POST` | `/signup` | Register a new user | ❌ |
+| `POST` | `/login` | Login user | ❌ |
+| `POST` | `/verify-email` | Verify email with token | ❌ |
+| `POST` | `/resend-verification` | Resend verification email | ❌ |
+| `GET` | `/me` | Get current logged-in user details | ✅ |
 
-## Health Check
+### 2. Profile Routes (`/api/profile`)
 
-| Method | Route         | Description         | Auth Required |
-| ------ | ------------- | ------------------- | ------------- |
-| GET    | `/api/health` | Server health check | No            |
+| Method | Route | Description | Auth Req |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/discover` | Get public profiles | ❌ |
+| `PUT` | `/update` | Update user profile | ✅ |
+| `GET` | `/me` | Get current user's profile | ✅ |
+| `GET` | `/status` | Check profile completion | ✅ |
+| `PUT` | `/visibility` | Update visibility | ✅ |
+| `POST` | `/upload-picture` | Upload profile picture | ✅ |
+| `POST` | `/upload-resume` | Upload resume | ✅ |
+| `POST` | `/request-delete` | Request account deletion (OTP) | ✅ |
+| `DELETE` | `/delete` | Confirm account delete | ✅ |
+| `GET` | `/:userId` | Get a specific user's profile | ❌ |
+
+### 3. Jobs Routes (`/api/jobs`)
+
+*Note: Accessing job creation, discovery, and applying functionalities requires the user to have their profile visibility set to "public".*
+
+| Method | Route | Description | Auth Req |
+| :--- | :--- | :--- | :---: |
+| `POST` | `/publish` | Publish a new job | ✅ |
+| `GET` | `/discover` | Discover recent jobs | ✅ |
+| `GET` | `/my-posts` | Get jobs posted by me | ✅ |
+| `GET` | `/applications/sent` | Applications sent by me | ✅ |
+| `GET` | `/applications/received` | Applications received | ✅ |
+| `PUT` | `/applications/:applicationId/status` | Accept/Reject/Withdraw app | ✅ |
+| `POST` | `/:jobId/apply` | Apply to a job | ✅ |
+
+### 4. General / Operations
+
+| Method | Route | Description | Auth Req |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/health` | Server health check | ❌ |
 
 ---
 
@@ -38,11 +62,9 @@
 ### 1. Authentication Routes
 
 #### POST `/api/auth/signup`
-
 **Description:** Register a new user
-
-**Request:**
-
+**Auth Required:** No
+**Request Body (JSON):**
 ```json
 {
   "name": "John Doe",
@@ -51,15 +73,12 @@
   "confirmPassword": "password123"
 }
 ```
-
-**Response (201):**
-
+**Response (201 Created):**
 ```json
 {
   "success": true,
-  "message": "User registered successfully. Please check your email to verify your account.",
+  "message": "User registered successfully",
   "user": {
-    "id": "507f1f77bcf86cd799439011",
     "name": "John Doe",
     "email": "john@example.com",
     "isVerified": false,
@@ -68,117 +87,80 @@
 }
 ```
 
----
-
 #### POST `/api/auth/login`
-
-**Description:** Login user (requires verified email)
-
-**Request:**
-
+**Description:** Login user
+**Auth Required:** No
+**Request Body (JSON):**
 ```json
 {
   "email": "john@example.com",
   "password": "password123"
 }
 ```
-
-**Response (200):**
-
+**Response (200 OK):**
 ```json
 {
   "success": true,
   "message": "Login successful",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token": "eyJhbGciOiJIUz...",
   "user": {
-    "id": "507f1f77bcf86cd799439011",
+    "id": "60d5ecb8b48...",
     "name": "John Doe",
     "email": "john@example.com",
-    "profileComplete": false
+    "profileComplete": true
   }
 }
 ```
 
----
-
 #### POST `/api/auth/verify-email`
-
-**Description:** Verify user's email address using token from email
-
-**Request:**
-
+**Description:** Verify email with token
+**Auth Required:** No
+**Request Body (JSON):**
 ```json
 {
-  "token": "verification_token_from_email"
+  "token": "verification-token-from-email"
 }
 ```
-
-**Response (200):**
-
+**Response (200 OK):**
 ```json
 {
   "success": true,
   "message": "Email verified successfully",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": {
-    "id": "507f1f77bcf86cd799439011",
-    "name": "John Doe",
-    "email": "john@example.com",
-    "profileComplete": false
-  }
+  "token": "eyJhbGciOiJIUz...",
+  "user": { ... }
 }
 ```
 
----
-
 #### POST `/api/auth/resend-verification`
-
 **Description:** Resend verification email
-
-**Request:**
-
+**Auth Required:** No
+**Request Body (JSON):**
 ```json
 {
   "email": "john@example.com"
 }
 ```
-
-**Response (200):**
-
+**Response (200 OK):**
 ```json
 {
   "success": true,
-  "message": "Verification email sent successfully"
+  "message": "Verification email sent"
 }
 ```
 
----
-
 #### GET `/api/auth/me`
-
-**Description:** Get current logged-in user's data
-
-**Headers:**
-
-```
-Authorization: Bearer your_jwt_token
-```
-
-**Response (200):**
-
+**Description:** Get current logged-in user details
+**Auth Required:** Yes (`Authorization: Bearer <token>`)
+**Response (200 OK):**
 ```json
 {
   "success": true,
   "data": {
-    "_id": "507f1f77bcf86cd799439011",
+    "_id": "60d5ecb8b48...",
     "name": "John Doe",
     "email": "john@example.com",
     "isVerified": true,
-    "profileComplete": true,
-    "bio": "...",
-    "location": "...",
-    "createdAt": "2026-01-28T10:30:00Z",
-    "updatedAt": "2026-01-28T10:30:00Z"
+    "profileComplete": true
   }
 }
 ```
@@ -187,178 +169,100 @@ Authorization: Bearer your_jwt_token
 
 ### 2. Profile Routes
 
-#### PUT `/api/profile/update`
-
-**Description:** Update user profile (calculates profile completion automatically)
-
-**Headers:**
-
-```
-Authorization: Bearer your_jwt_token
-Content-Type: application/json
-```
-
-**Request:**
-
+#### GET `/api/profile/discover`
+**Description:** Get public profiles
+**Auth Required:** Optional (helps exclude self if provided)
+**Query Parameters:**
+- `role` (Optional): Filter by role
+- `skill` (Optional): Filter by skill
+- `page` (Optional, default 1)
+- `limit` (Optional, default 10)
+**Response (200 OK):**
 ```json
 {
-  "bio": "I am a passionate developer",
-  "location": "New York, USA",
-  "profilePicture": "https://example.com/profile.jpg",
-  "resume": "https://example.com/resume.pdf",
-  "availability": "full-time",
-  "skillsOffered": ["JavaScript", "React", "Node.js"],
-  "skillsWanted": ["Python", "Machine Learning"],
-  "profileVisibility": "public"
+  "success": true,
+  "total": 5,
+  "page": 1,
+  "pages": 1,
+  "data": [
+    {
+      "_id": "...",
+      "name": "Jane Doe",
+      "bio": "Software Engineer",
+      "skills": ["React", "Node.js"],
+      "profileVisibility": "public"
+    }
+  ]
 }
 ```
 
-**Response (200):**
-
+#### PUT `/api/profile/update`
+**Description:** Update user profile. Overwrites provided fields.
+**Auth Required:** Yes
+**Request Body (JSON):**
+```json
+{
+  "bio": "Dynamic developer",
+  "location": "New York, NY",
+  "availability": "full-time",
+  "education": "BS Computer Science",
+  "experience": "2 years as Frontend",
+  "yearsOfExperience": 2,
+  "currentRole": "Frontend Developer",
+  "company": "Tech Corp",
+  "skills": ["JavaScript", "React"],
+  "githubUrl": "https://github.com/.../",
+  "linkedinUrl": "https://linkedin.com/.../",
+  "portfolioUrl": "https://...",
+  "profileVisibility": "public"
+}
+```
+**Response (200 OK):**
 ```json
 {
   "success": true,
   "message": "Profile updated successfully",
   "profileComplete": true,
-  "user": {
-    "id": "507f1f77bcf86cd799439011",
-    "name": "John Doe",
-    "email": "john@example.com",
-    "bio": "I am a passionate developer",
-    "location": "New York, USA",
-    "profilePicture": "https://example.com/profile.jpg",
-    "resume": "https://example.com/resume.pdf",
-    "availability": "full-time",
-    "skillsOffered": ["JavaScript", "React", "Node.js"],
-    "skillsWanted": ["Python", "Machine Learning"],
-    "profileVisibility": "public",
-    "profileComplete": true
-  }
+  "user": { ... }
 }
 ```
 
----
-
 #### GET `/api/profile/me`
-
-**Description:** Get current user's complete profile
-
-**Headers:**
-
-```
-Authorization: Bearer your_jwt_token
-```
-
-**Response (200):**
-
+**Description:** Get current user's profile
+**Auth Required:** Yes
+**Response (200 OK):**
 ```json
 {
   "success": true,
-  "data": {
-    "_id": "507f1f77bcf86cd799439011",
-    "name": "John Doe",
-    "email": "john@example.com",
-    "bio": "I am a passionate developer",
-    "location": "New York, USA",
-    "profilePicture": "https://example.com/profile.jpg",
-    "resume": "https://example.com/resume.pdf",
-    "availability": "full-time",
-    "skillsOffered": ["JavaScript", "React", "Node.js"],
-    "skillsWanted": ["Python", "Machine Learning"],
-    "profileVisibility": "public",
-    "profileComplete": true,
-    "isVerified": true,
-    "createdAt": "2026-01-28T10:30:00Z"
-  }
+  "data": { ... full user profile data ... }
 }
 ```
 
----
-
 #### GET `/api/profile/status`
-
-**Description:** Check profile completion status and percentage
-
-**Headers:**
-
-```
-Authorization: Bearer your_jwt_token
-```
-
-**Response (200):**
-
+**Description:** Check profile completion
+**Auth Required:** Yes
+**Response (200 OK):**
 ```json
 {
   "success": true,
   "data": {
     "profileComplete": false,
-    "completionPercentage": 60,
-    "missingFields": ["profilePicture", "skillsOffered"]
+    "completionPercentage": 85,
+    "missingFields": ["profilePicture", "location"]
   }
 }
 ```
-
----
-
-#### GET `/api/profile/:userId`
-
-**Description:** Get a specific user's profile (respects privacy settings)
-
-**Parameters:**
-
-- `userId` - User ID (from URL path)
-
-**Response (200):**
-
-```json
-{
-  "success": true,
-  "data": {
-    "_id": "507f1f77bcf86cd799439011",
-    "name": "John Doe",
-    "email": "john@example.com",
-    "bio": "I am a passionate developer",
-    "location": "New York, USA",
-    "profilePicture": "https://example.com/profile.jpg",
-    "availability": "full-time",
-    "skillsOffered": ["JavaScript", "React"],
-    "skillsWanted": ["Python"],
-    "profileVisibility": "public"
-  }
-}
-```
-
-**Response (403) - Private Profile:**
-
-```json
-{
-  "success": false,
-  "message": "This profile is private"
-}
-```
-
----
 
 #### PUT `/api/profile/visibility`
-
-**Description:** Change profile visibility (public/private)
-
-**Headers:**
-
-```
-Authorization: Bearer your_jwt_token
-```
-
-**Request:**
-
+**Description:** Update visibility
+**Auth Required:** Yes
+**Request Body (JSON):**
 ```json
 {
-  "profileVisibility": "private"
+  "profileVisibility": "private" 
 }
 ```
-
-**Response (200):**
-
+**Response (200 OK):**
 ```json
 {
   "success": true,
@@ -367,59 +271,229 @@ Authorization: Bearer your_jwt_token
 }
 ```
 
----
-
-#### GET `/api/profile/discover`
-
-**Description:** Discover public profiles (for finding users by skills or role)
-
-**Query Parameters:**
-
-- `role` (optional) - Filter by role (e.g., "student")
-- `skill` (optional) - Filter by specific skill
-- `page` (optional, default: 1) - Page number
-- `limit` (optional, default: 10) - Results per page
-
-**Examples:**
-
-```
-GET /api/profile/discover?page=1&limit=10
-GET /api/profile/discover?skill=JavaScript
-GET /api/profile/discover?role=student&skill=React&page=2
-```
-
-**Response (200):**
-
+#### POST `/api/profile/upload-picture`
+**Description:** Upload profile picture directly to Cloudinary
+**Auth Required:** Yes
+**Headers:** `Content-Type: multipart/form-data`
+**Body:**
+- `profilePicture`: (Binary File)
+**Response (200 OK):**
 ```json
 {
   "success": true,
-  "total": 25,
-  "page": 1,
-  "pages": 3,
+  "message": "Profile picture uploaded successfully",
+  "profilePicture": "https://res.cloudinary.com/..."
+}
+```
+
+#### POST `/api/profile/upload-resume`
+**Description:** Upload resume directly to Cloudinary
+**Auth Required:** Yes
+**Headers:** `Content-Type: multipart/form-data`
+**Body:**
+- `resume`: (Binary File)
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Resume uploaded successfully",
+  "resume": "https://res.cloudinary.com/..."
+}
+```
+
+#### POST `/api/profile/request-delete`
+**Description:** Request account deletion. Generates and sends OTP to email.
+**Auth Required:** Yes
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "A verification code has been sent to your email address."
+}
+```
+
+#### DELETE `/api/profile/delete`
+**Description:** Confirm and execute account deletion utilizing the OTP sent to email.
+**Auth Required:** Yes
+**Request Body (JSON):**
+```json
+{
+  "otp": "123456"
+}
+```
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Account and all associated data deleted successfully"
+}
+```
+
+#### GET `/api/profile/:userId`
+**Description:** Get a specific user's public profile
+**Auth Required:** No
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": { ... public user mapping ... }
+}
+```
+
+---
+
+### 3. Jobs Routes
+
+*Note: Accessing job creation, discovery, and applying functionalities requires the user to have their profile visibility set to "public".*
+
+#### POST `/api/jobs/publish`
+**Description:** Publish a new job
+**Auth Required:** Yes
+**Headers:** `Content-Type: multipart/form-data`
+**Body Form-Data:**
+- `jobName` (Text)
+- `githubRepoUrl` (Text, optional)
+- `jobDetails` (Text)
+- `skillsRequired` (Text array or comma-separated string)
+- `experienceRequired` (Text)
+- `compensationType` (Text: "paid" or "unpaid")
+- `salary` (Text, required if paid)
+- `durationFrom` (Date string)
+- `durationTo` (Date string)
+- `jobDescriptionDocument` (Binary File, optional)
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Job published successfully",
+  "data": { ... inserted job document ... }
+}
+```
+
+#### GET `/api/jobs/discover`
+**Description:** Discover recent jobs posted by others.
+**Auth Required:** Yes
+**Query Parameters:**
+- `page` (Optional, default 1)
+- `limit` (Optional, default 10)
+- `skill` (Optional, string)
+**Response (200 OK):**
+```json
+{
+  "success": true,
   "data": [
     {
-      "_id": "507f1f77bcf86cd799439011",
-      "name": "John Doe",
-      "bio": "I am a passionate developer",
-      "location": "New York, USA",
-      "profilePicture": "https://example.com/profile.jpg",
-      "availability": "full-time",
-      "skillsOffered": ["JavaScript", "React"],
-      "skillsWanted": ["Python"],
-      "profileVisibility": "public"
-    },
+      "_id": "60d5...",
+      "jobName": "Frontend Engineer",
+      "hasApplied": false,
+      "applicationStatus": null,
+      "postedBy": { ... }
+    }
+  ],
+  "page": 1,
+  "pages": 5,
+  "total": 50
+}
+```
+
+#### GET `/api/jobs/my-posts`
+**Description:** Get jobs posted by the current user along with their applicant counts.
+**Auth Required:** Yes
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
     {
-      "_id": "507f1f77bcf86cd799439012",
-      "name": "Jane Smith",
-      "bio": "Full-stack developer",
-      "location": "San Francisco, USA",
-      "profilePicture": "https://example.com/profile2.jpg",
-      "availability": "part-time",
-      "skillsOffered": ["Node.js", "MongoDB"],
-      "skillsWanted": ["React Native"],
-      "profileVisibility": "public"
+      "_id": "60d5...",
+      "jobName": "Backend Dev",
+      "applicantCount": 4
     }
   ]
+}
+```
+
+#### GET `/api/jobs/applications/sent`
+**Description:** Applications sent by the current user.
+**Auth Required:** Yes
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "...",
+      "job": { ... job reference ... },
+      "status": "pending"
+    }
+  ]
+}
+```
+
+#### GET `/api/jobs/applications/received`
+**Description:** Applications received on jobs posted by the current user.
+**Auth Required:** Yes
+**Query Parameters:**
+- `jobId` (Optional, filters by specific job)
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "...",
+      "applicant": { ... full applicant profile block ... },
+      "status": "pending"
+    }
+  ]
+}
+```
+
+#### PUT `/api/jobs/applications/:applicationId/status`
+**Description:** Change the status of a specific job application. The employer can accept/reject, while the applicant can only withdraw.
+**Auth Required:** Yes
+**Request Body (JSON):**
+```json
+{
+  "status": "accepted" // "accepted", "rejected", or "withdrawn"
+}
+```
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Application status updated successfully",
+  "data": { ... application document ... }
+}
+```
+
+#### POST `/api/jobs/:jobId/apply`
+**Description:** Apply to a job
+**Auth Required:** Yes
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Application submitted successfully",
+  "data": {
+    "job": "60d5...",
+    "applicant": "61a2...",
+    "status": "pending"
+  }
+}
+```
+
+---
+
+### 4. General / Operations
+
+#### GET `/api/health`
+**Description:** Server health check
+**Auth Required:** No
+**Response (200 OK):**
+```json
+{
+  "message": "Server is running"
 }
 ```
 
@@ -427,17 +501,17 @@ GET /api/profile/discover?role=student&skill=React&page=2
 
 ## Error Responses
 
-### 400 - Bad Request
+By default, missing fields, validation failures, or server errors conform to this format:
 
+### 400 - Bad Request
 ```json
 {
   "success": false,
-  "message": "Please provide all required fields"
+  "message": "Please provide [field name]"
 }
 ```
 
 ### 401 - Unauthorized
-
 ```json
 {
   "success": false,
@@ -446,16 +520,14 @@ GET /api/profile/discover?role=student&skill=React&page=2
 ```
 
 ### 403 - Forbidden
-
 ```json
 {
   "success": false,
-  "message": "Please verify your email before logging in"
+  "message": "This profile is private"
 }
 ```
 
 ### 404 - Not Found
-
 ```json
 {
   "success": false,
@@ -464,55 +536,9 @@ GET /api/profile/discover?role=student&skill=React&page=2
 ```
 
 ### 500 - Server Error
-
 ```json
 {
   "success": false,
   "message": "Server error during [operation]"
 }
 ```
-
----
-
-## Required Fields Summary
-
-### Profile Completion Requirements
-
-All of these must be filled to mark profile as complete:
-
-- ✅ `bio` (max 500 characters)
-- ✅ `location` (required)
-- ✅ `profilePicture` (required)
-- ✅ `availability` (must be "part-time" or "full-time", not "not available")
-- ✅ `skillsOffered` (minimum 1 skill)
-
-### Optional Fields
-
-- `resume` (PDF/document link)
-- `skillsWanted` (skills user wants to learn)
-
----
-
-## Authentication
-
-Most profile routes require JWT token in the header:
-
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-Get the token from:
-
-- `/api/auth/signup` response
-- `/api/auth/login` response
-- `/api/auth/verify-email` response
-
----
-
-## Base URL
-
-```
-http://localhost:5000
-```
-
-All routes are prefixed with `/api`

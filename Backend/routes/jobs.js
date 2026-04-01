@@ -9,6 +9,7 @@ const {
   getReceivedApplications,
   updateApplicationStatus,
   getMyPostedJobs,
+  toggleJobStatus,
 } = require("../controllers/jobController");
 
 const router = express.Router();
@@ -34,5 +35,6 @@ router.put(
   updateApplicationStatus,
 );
 router.post("/:jobId/apply", protect, applyToJob);
+router.put("/:jobId/status", protect, toggleJobStatus);
 
 module.exports = router;

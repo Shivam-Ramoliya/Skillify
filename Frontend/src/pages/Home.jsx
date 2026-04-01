@@ -2,72 +2,50 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useEffect } from "react";
 import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
+import { motion } from "framer-motion";
+import {
+  ShieldCheck,
+  Layers,
+  LayoutDashboard,
+  ArrowRight,
+  CheckCircle2,
+  Briefcase
+} from "lucide-react";
 
 const pillars = [
   {
     title: "Freelance-ready profiles",
-    icon: (
-      <svg
-        className="w-6 h-6"
-        style={{ color: "var(--color-primary-500)" }}
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-        />
-      </svg>
-    ),
-    description:
-      "Showcase your expertise, experience, and project links so clients can trust you quickly and hire you seamlessly.",
+    icon: <ShieldCheck className="w-8 h-8 text-primary-500" />,
+    description: "Showcase your expertise, experience, and project links so clients can trust you quickly and hire you seamlessly.",
   },
   {
     title: "Open project collaboration",
-    icon: (
-      <svg
-        className="w-6 h-6"
-        style={{ color: "var(--color-primary-600)" }}
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-        />
-      </svg>
-    ),
-    description:
-      "Publish contribution opportunities and attract contributors by matching required skills and verified experience.",
+    icon: <Layers className="w-8 h-8 text-primary-600" />,
+    description: "Publish contribution opportunities and attract contributors by matching required skills and verified experience.",
   },
   {
     title: "Transparent applications",
-    icon: (
-      <svg
-        className="w-6 h-6"
-        style={{ color: "var(--color-accent-500)" }}
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
-    ),
-    description:
-      "Track sent and received applications with clear status actions in one unified, clutter-free workspace.",
+    icon: <LayoutDashboard className="w-8 h-8 text-accent-500" />,
+    description: "Track sent and received applications with clear status actions in one unified, clutter-free workspace.",
   },
 ];
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15, delayChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: { type: "spring", stiffness: 100, damping: 15 },
+  },
+};
 
 export default function Home() {
   const { user } = useAuth();
@@ -78,109 +56,84 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="relative overflow-hidden w-full">
-      {/* Subtle Background Gradient */}
-      <div
-        className="absolute top-0 left-1/4 w-96 h-96 rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob pointer-events-none"
+    <div className="relative overflow-hidden w-full app-shell">
+      {/* Subtle Background Gradient Animations */}
+      <div 
+        className="absolute -top-40 -left-20 w-[600px] h-[600px] rounded-full mix-blend-multiply filter blur-[128px] opacity-40 animate-blob pointer-events-none"
         style={{ backgroundColor: "var(--color-primary-200)" }}
       ></div>
-      <div
-        className="absolute top-40 right-1/4 w-96 h-96 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob pointer-events-none"
-        style={{
-          backgroundColor: "var(--color-primary-300)",
-          animationDelay: "2s",
-        }}
+      <div 
+        className="absolute top-60 right-0 w-[500px] h-[500px] rounded-full mix-blend-multiply filter blur-[128px] opacity-30 animate-blob pointer-events-none" 
+        style={{ backgroundColor: "var(--color-accent-200)", animationDelay: "2s" }}
       ></div>
 
-      <div className="page-container relative z-10 pt-20 pb-32">
+      <div className="page-container relative z-10 pt-24 pb-32">
         {/* Hero Section */}
-        <section className="text-center max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 md:mt-20 animate-fade-in-up">
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-card mb-8">
-            <span
-              className="flex h-2.5 w-2.5 rounded-full animate-pulse"
-              style={{ backgroundColor: "var(--color-accent-500)" }}
-            ></span>
-            <span
-              className="text-sm font-semibold uppercase tracking-wider"
-              style={{ color: "var(--color-primary-700)" }}
-            >
+        <motion.section
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="text-center max-w-5xl mx-auto px-4 mt-8"
+        >
+          <motion.div variants={itemVariants} className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full surface-card mb-8">
+            <span className="flex h-3 w-3 rounded-full animate-pulse" style={{ backgroundColor: "var(--color-accent-500)" }}></span>
+            <span className="text-sm font-bold uppercase tracking-wider" style={{ color: "var(--color-primary-700)" }}>
               Freelancer + Open Source Workspace
             </span>
-          </div>
+          </motion.div>
 
-          <h1
-            className="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1]"
-            style={{ color: "var(--color-neutral-900)" }}
-          >
-            Build your career by shipping{" "}
-            <span className="text-gradient">real projects</span> with the right
-            people
-          </h1>
+          <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.15]" style={{ color: "var(--color-neutral-900)" }}>
+            Build your career by shipping <span className="text-gradient-premium">real projects</span> with the perfect team
+          </motion.h1>
 
-          <p
-            className="mt-6 text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed mb-12"
-            style={{ color: "var(--color-neutral-600)" }}
-          >
-            Skillify helps freelancers and contributors discover opportunities,
-            publish projects, and manage applications with a clean, professional
-            workflow.
-          </p>
+          <motion.p variants={itemVariants} className="mt-6 text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed mb-12" style={{ color: "var(--color-neutral-600)" }}>
+            Skillify helps freelancers and contributors discover opportunities, publish projects, and manage applications with a clean, professional, and powerful workflow.
+          </motion.p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mt-10">
+          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-5 mt-10">
             {user ? (
               <>
-                <Link
-                  to="/discover"
-                  className="btn-primary text-lg px-8 py-4 sm:w-auto w-full"
-                >
+                <Link to="/discover" className="btn-primary flex items-center gap-2 group w-full sm:w-auto">
+                  <Briefcase className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   Discover Jobs
                 </Link>
-                <Link
-                  to="/publish-job"
-                  className="btn-secondary text-lg px-8 py-4 sm:w-auto w-full"
-                >
+                <Link to="/publish-job" className="btn-secondary w-full sm:w-auto">
                   Publish a Job
                 </Link>
               </>
             ) : (
               <>
-                <Link
-                  to="/signup"
-                  className="btn-primary text-lg px-8 py-4 sm:w-auto w-full"
-                >
+                <Link to="/signup" className="btn-primary flex items-center gap-2 group w-full sm:w-auto">
                   Get Started for Free
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <Link
-                  to="/login"
-                  className="btn-secondary text-lg px-8 py-4 sm:w-auto w-full"
-                >
+                <Link to="/login" className="btn-secondary w-full sm:w-auto">
                   Sign In
                 </Link>
               </>
             )}
-          </div>
-        </section>
+          </motion.div>
+        </motion.section>
 
-        {/* Feature Grid / What you can do */}
-        <section className="mt-32 max-w-6xl mx-auto px-4 relative z-20">
-          <div className="glass-card p-8 md:p-12 relative overflow-hidden">
+        {/* Feature Grid */}
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="mt-40 max-w-6xl mx-auto px-4 relative z-20"
+        >
+          <div className="glass-card p-10 md:p-14 relative overflow-hidden">
             <div className="flex flex-col md:flex-row gap-12 items-center">
               <div className="md:w-1/3">
-                <h2
-                  className="text-3xl font-bold tracking-tight mb-4"
-                  style={{ color: "var(--color-neutral-900)" }}
-                >
+                <h2 className="text-3xl font-extrabold tracking-tight mb-4" style={{ color: "var(--color-neutral-900)" }}>
                   Everything you need
                 </h2>
-                <p
-                  className="text-lg"
-                  style={{ color: "var(--color-neutral-600)" }}
-                >
-                  A powerful suite of tools designed to streamline your
-                  freelance operations from end to end.
+                <p className="text-lg leading-relaxed" style={{ color: "var(--color-neutral-600)" }}>
+                  A powerful suite of tools designed to streamline your operations from end to end.
                 </p>
               </div>
-              <div className="md:w-2/3 grid grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {[
                   "Publish global jobs",
                   "Apply instantly",
@@ -189,132 +142,105 @@ export default function Home() {
                   "Share your portfolio",
                   "Collaborate globally",
                 ].map((item, i) => (
-                  <div
+                  <motion.div
                     key={item}
-                    className="px-5 py-4 text-sm font-semibold flex items-center gap-3 rounded-xl transition-colors duration-200"
+                    whileHover={{ scale: 1.03 }}
+                    className="px-5 py-4 text-sm font-bold flex items-center gap-3 rounded-2xl cursor-default transition-all"
                     style={{
-                      backgroundColor: "var(--color-neutral-50)",
+                      backgroundColor: "rgba(255,255,255,0.8)",
                       color: "var(--color-neutral-800)",
                       border: "1px solid var(--color-neutral-200)",
-                      animationDelay: `${i * 100}ms`,
+                      boxShadow: "0 2px 10px rgba(0,0,0,0.02)"
                     }}
                   >
-                    <svg
-                      className="w-5 h-5 flex-shrink-0"
-                      style={{ color: "var(--color-primary-500)" }}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
+                    <CheckCircle2 className="w-5 h-5 flex-shrink-0" style={{ color: "var(--color-primary-500)" }} />
                     {item}
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Pillars Section */}
-        <section className="mt-32 max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2
-              className="text-4xl md:text-5xl font-bold tracking-tight"
-              style={{ color: "var(--color-neutral-900)" }}
-            >
+        <section className="mt-40 max-w-7xl mx-auto px-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight" style={{ color: "var(--color-neutral-900)" }}>
               Built for <span className="text-gradient">real workflows</span>
             </h2>
-            <p
-              className="mt-6 text-xl max-w-2xl mx-auto"
-              style={{ color: "var(--color-neutral-600)" }}
-            >
-              Everything is designed to keep hiring and collaboration simple,
-              transparent, and remarkably fast.
+            <p className="mt-6 text-xl max-w-2xl mx-auto" style={{ color: "var(--color-neutral-600)" }}>
+              Everything is designed to keep hiring and collaboration simple, transparent, and remarkably fast.
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid gap-8 md:grid-cols-3">
             {pillars.map((pillar, index) => (
-              <article
+              <motion.article
                 key={pillar.title}
-                className="glass-card-hover p-8 md:p-10 relative group overflow-hidden"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.15, duration: 0.5 }}
+                className="glass-card-hover p-10 relative group overflow-hidden"
               >
-                <div
-                  className="absolute top-0 left-0 w-full h-1 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"
+                <div 
+                  className="absolute top-0 left-0 w-full h-1.5 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"
                   style={{ backgroundColor: "var(--color-primary-500)" }}
                 ></div>
-                <div
-                  className="w-14 h-14 rounded-xl bg-white shadow-sm flex items-center justify-center mb-6 group-hover:-translate-y-1 transition-transform duration-200"
+                <div 
+                  className="w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-6 group-hover:-translate-y-2 transition-transform duration-300"
                   style={{ border: "1px solid var(--color-neutral-200)" }}
                 >
                   {pillar.icon}
                 </div>
-                <h3
-                  className="text-2xl font-bold mb-4 tracking-tight"
-                  style={{ color: "var(--color-neutral-900)" }}
-                >
+                <h3 className="text-2xl font-bold mb-4 tracking-tight" style={{ color: "var(--color-neutral-900)" }}>
                   {pillar.title}
                 </h3>
-                <p
-                  className="leading-relaxed text-base"
-                  style={{ color: "var(--color-neutral-600)" }}
-                >
+                <p className="leading-relaxed text-base" style={{ color: "var(--color-neutral-600)" }}>
                   {pillar.description}
                 </p>
-              </article>
+              </motion.article>
             ))}
           </div>
         </section>
 
         {/* CTA Section */}
-        <section className="mt-32 max-w-5xl mx-auto px-4">
-          <div
-            className="relative rounded-2xl overflow-hidden p-12 md:p-20 text-center"
-            style={{ backgroundColor: "var(--color-primary-600)" }}
+        <motion.section
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mt-40 max-w-5xl mx-auto px-4"
+        >
+          <div 
+            className="relative rounded-[2.5rem] overflow-hidden p-14 md:p-24 text-center shadow-2xl"
+            style={{ background: "linear-gradient(135deg, var(--color-primary-700) 0%, var(--color-accent-600) 100%)" }}
           >
+            <div className="absolute inset-0 bg-white opacity-5 mix-blend-overlay" style={{ backgroundImage: "radial-gradient(ellipse at center, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%)" }}></div>
             <div className="relative z-10">
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
+              <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight leading-tight">
                 Ready to elevate your freelance career?
               </h2>
-              <p
-                className="text-xl mb-10 max-w-2xl mx-auto"
-                style={{ color: "var(--color-primary-100)" }}
-              >
-                Join thousands of professionals finding meaningful work and
-                building extraordinary projects.
+              <p className="text-xl md:text-2xl mb-12 max-w-2xl mx-auto font-medium" style={{ color: "var(--color-primary-50)" }}>
+                Join thousands of professionals finding meaningful work and building extraordinary projects today.
               </p>
               {user ? (
-                <Link
-                  to="/discover"
-                  className="inline-flex items-center justify-center px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-200 hover:scale-105"
-                  style={{
-                    backgroundColor: "white",
-                    color: "var(--color-primary-700)",
-                  }}
-                >
+                <Link to="/discover" className="btn-secondary text-lg px-10 py-4 shadow-xl text-primary-800">
                   Explore Opportunities Now
                 </Link>
               ) : (
-                <Link
-                  to="/signup"
-                  className="inline-flex items-center justify-center px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-200 hover:scale-105"
-                  style={{
-                    backgroundColor: "white",
-                    color: "var(--color-primary-700)",
-                  }}
-                >
+                <Link to="/signup" className="btn-secondary text-lg px-10 py-4 shadow-xl" style={{ color: "var(--color-primary-800)" }}>
                   Create Your Free Account
                 </Link>
               )}
             </div>
           </div>
-        </section>
+        </motion.section>
       </div>
     </div>
   );

@@ -8,119 +8,71 @@
      Premium SaaS-level UI Colors
      ======================================== */
 
-  /* Primary (Blue) - Main brand color for buttons, links, active states */
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
+  /* Primary (Indigo/Blue) - Main brand color */
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-400: #818cf8;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
 
-  /* Accent (Green) - Success states, highlights, positive actions */
-  --color-accent-50: #f0fdf4;
-  --color-accent-100: #dcfce7;
-  --color-accent-200: #bbf7d0;
-  --color-accent-300: #86efac;
-  --color-accent-400: #4ade80;
-  --color-accent-500: #22c55e;
-  --color-accent-600: #16a34a;
-  --color-accent-700: #15803d;
-  --color-accent-800: #166534;
-  --color-accent-900: #14532d;
+  /* Accent (Purple/Pink burst for highlights) */
+  --color-accent-50: #faf5ff;
+  --color-accent-100: #f3e8ff;
+  --color-accent-200: #e9d5ff;
+  --color-accent-300: #d8b4fe;
+  --color-accent-400: #c084fc;
+  --color-accent-500: #a855f7;
+  --color-accent-600: #9333ea;
+  --color-accent-700: #7e22ce;
+  --color-accent-800: #6b21a8;
+  --color-accent-900: #581c87;
 
-  /* Neutral (Gray) - Text, backgrounds, borders */
-  --color-neutral-50: #f9fafb;
-  --color-neutral-100: #f3f4f6;
-  --color-neutral-200: #e5e7eb;
-  --color-neutral-300: #d1d5db;
-  --color-neutral-400: #9ca3af;
-  --color-neutral-500: #6b7280;
-  --color-neutral-600: #4b5563;
-  --color-neutral-700: #374151;
-  --color-neutral-800: #1f2937;
-  --color-neutral-900: #111827;
+  /* Neutral (Slate Gray) - Text, backgrounds, borders */
+  --color-neutral-50: #f8fafc;
+  --color-neutral-100: #f1f5f9;
+  --color-neutral-200: #e2e8f0;
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-500: #64748b;
+  --color-neutral-600: #475569;
+  --color-neutral-700: #334155;
+  --color-neutral-800: #1e293b;
+  --color-neutral-900: #0f172a;
 
   /* Semantic Colors */
   --color-warning-50: #fffbeb;
-  --color-warning-100: #fef3c7;
   --color-warning-500: #f59e0b;
-  --color-warning-600: #d97706;
   --color-warning-700: #b45309;
 
   --color-error-50: #fef2f2;
-  --color-error-100: #fee2e2;
   --color-error-500: #ef4444;
-  --color-error-600: #dc2626;
   --color-error-700: #b91c1c;
 
-  /* Animations */
+  --color-success-50: #f0fdf4;
+  --color-success-500: #22c55e;
+  --color-success-700: #15803d;
+
+  /* Tailwind CSS Animations (Used for basic native CSS movement) */
   --animate-blob: blob 7s infinite;
-  --animate-fade-in-up: fade-in-up 0.6s ease-out forwards;
-  --animate-fade-in: fade-in 0.4s ease-out forwards;
-  --animate-slide-in-right: slide-in-right 0.5s ease-out forwards;
-  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-float: float 6s ease-in-out infinite;
 
   @keyframes blob {
-    0% {
-      transform: translate(0px, 0px) scale(1);
-    }
-    33% {
-      transform: translate(30px, -50px) scale(1.1);
-    }
-    66% {
-      transform: translate(-20px, 20px) scale(0.9);
-    }
-    100% {
-      transform: translate(0px, 0px) scale(1);
-    }
-  }
-
-  @keyframes fade-in-up {
-    0% {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes fade-in {
-    0% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
-
-  @keyframes slide-in-right {
-    0% {
-      opacity: 0;
-      transform: translateX(20px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateX(0);
-    }
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(0px, 0px) scale(1); }
   }
 
   @keyframes float {
-    0% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-    100% {
-      transform: translateY(0px);
-    }
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+    100% { transform: translateY(0px); }
   }
 }
 
@@ -130,6 +82,7 @@
   #root {
     @apply h-full min-h-screen antialiased;
     color: var(--color-neutral-800);
+    scroll-behavior: smooth;
   }
 
   ::selection {
@@ -140,67 +93,70 @@
   body {
     background-color: var(--color-neutral-50);
     margin: 0;
+    /* Subtle dot grid pattern on exactly the body background */
+    background-image: radial-gradient(var(--color-neutral-200) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 }
 
 @layer components {
   /* ========================================
      SURFACE & CARD STYLES
-     Clean, minimal cards with soft shadows
+     Gorgeous Glassmorphism
      ======================================== */
   .glass-card,
   .surface-card {
-    @apply bg-white/90 backdrop-blur-xl rounded-xl;
-    border: 1px solid var(--color-neutral-200);
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+    @apply bg-white/60 backdrop-blur-2xl rounded-2xl transition-all duration-300;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.03), 0 0 1px rgba(0,0,0,0.1);
   }
 
   .glass-card-hover,
   .surface-card-hover {
-    @apply bg-white/90 backdrop-blur-xl rounded-xl transition-all duration-200;
-    border: 1px solid var(--color-neutral-200);
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+    @apply bg-white/60 backdrop-blur-2xl rounded-2xl transition-all duration-300 cursor-pointer;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.03), 0 0 1px rgba(0,0,0,0.1);
   }
 
   .glass-card-hover:hover,
   .surface-card-hover:hover {
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-    transform: translateY(-2px);
+    @apply bg-white/80;
+    box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.08), 0 0 1px rgba(0,0,0,0.1);
+    transform: translateY(-4px);
     border-color: var(--color-primary-200);
   }
 
   /* ========================================
-     TEXT STYLES
-     Primary gradient kept subtle with blues only
+     TEXT & GRADIENTS
+     Premium Gradients
      ======================================== */
   .text-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(to right, var(--color-primary-600), var(--color-primary-500));
+    @apply bg-clip-text text-transparent inline-block;
+    background-image: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-400) 100%);
   }
 
-  .text-gradient-accent {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(to right, var(--color-accent-600), var(--color-accent-500));
+  .text-gradient-premium {
+    @apply bg-clip-text text-transparent inline-block font-extrabold;
+    background-image: linear-gradient(to right, var(--color-primary-500), var(--color-accent-500));
   }
 
   /* ========================================
      LAYOUT CLASSES
      ======================================== */
   .app-shell {
-    @apply min-h-screen overflow-x-hidden;
-    background-color: var(--color-neutral-50);
+    @apply min-h-screen overflow-x-hidden relative;
   }
 
   .page-container {
-    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10;
   }
 
   .page-wrap {
-    @apply py-8 md:py-12 animate-fade-in;
+    @apply py-8 md:py-16;
   }
 
   .section-title {
-    @apply text-3xl md:text-5xl font-bold tracking-tight;
+    @apply text-3xl md:text-5xl font-extrabold tracking-tight;
     color: var(--color-neutral-900);
   }
 
@@ -211,77 +167,55 @@
 
   /* ========================================
      BUTTON STYLES
-     Clean, consistent with proper states
+     Pill-shaped, gorgeous glows
      ======================================== */
   .btn-primary {
-    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
-    background-color: var(--color-primary-600);
-    box-shadow: 0 1px 3px 0 rgb(37 99 235 / 0.3);
+    @apply relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-sm sm:text-base font-bold text-white transition-all duration-300 focus:outline-none overflow-hidden hover:scale-105;
+    background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-500) 100%);
+    box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.39);
   }
 
   .btn-primary:hover {
-    background-color: var(--color-primary-700);
-    box-shadow: 0 4px 6px -1px rgb(37 99 235 / 0.35);
-    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.23);
   }
-
-  .btn-primary:focus {
-    --tw-ring-color: var(--color-primary-500);
-  }
-
+  
   .btn-primary:active {
-    background-color: var(--color-primary-800);
-    transform: translateY(0);
+    transform: scale(0.98);
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
-    color: var(--color-neutral-700);
-    background-color: white;
+    @apply inline-flex items-center justify-center px-8 py-3.5 rounded-full text-sm sm:text-base font-bold transition-all duration-300 focus:outline-none hover:scale-105;
+    color: var(--color-neutral-800);
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
     border: 1px solid var(--color-neutral-200);
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.05);
   }
 
   .btn-secondary:hover {
-    background-color: var(--color-neutral-50);
+    background-color: white;
     border-color: var(--color-neutral-300);
-    transform: translateY(-1px);
-  }
-
-  .btn-secondary:focus {
-    --tw-ring-color: var(--color-neutral-400);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
   }
 
   .btn-danger {
-    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
-    background-color: var(--color-error-600);
-    box-shadow: 0 1px 3px 0 rgb(220 38 38 / 0.3);
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-bold text-white transition-all duration-300 focus:outline-none hover:scale-105;
+    background: linear-gradient(135deg, var(--color-error-600) 0%, var(--color-error-500) 100%);
+    box-shadow: 0 4px 14px 0 rgba(220, 38, 38, 0.39);
   }
 
   .btn-danger:hover {
-    background-color: var(--color-error-700);
-    box-shadow: 0 4px 6px -1px rgb(220 38 38 / 0.35);
-    transform: translateY(-1px);
-  }
-
-  .btn-danger:focus {
-    --tw-ring-color: var(--color-error-500);
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.23);
   }
 
   .btn-success {
-    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
-    background-color: var(--color-accent-500);
-    box-shadow: 0 1px 3px 0 rgb(34 197 94 / 0.3);
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full text-sm font-bold text-white transition-all duration-300 focus:outline-none hover:scale-105;
+    background: linear-gradient(135deg, var(--color-success-700) 0%, var(--color-success-500) 100%);
+    box-shadow: 0 4px 14px 0 rgba(34, 197, 94, 0.39);
   }
 
   .btn-success:hover {
-    background-color: var(--color-accent-600);
-    box-shadow: 0 4px 6px -1px rgb(34 197 94 / 0.35);
-    transform: translateY(-1px);
-  }
-
-  .btn-success:focus {
-    --tw-ring-color: var(--color-accent-500);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.23);
   }
 
   .btn-primary:disabled,
@@ -295,12 +229,13 @@
 
   /* ========================================
      INPUT STYLES
-     Clean, accessible form inputs
+     Clean, minimalist, thick focus rings
      ======================================== */
   .input-base {
-    @apply w-full rounded-xl px-4 py-3 text-sm transition-all duration-200 outline-none;
-    background-color: white;
-    border: 1px solid var(--color-neutral-200);
+    @apply w-full rounded-2xl px-5 py-3.5 text-base transition-all duration-300 outline-none;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 2px solid var(--color-neutral-200);
     color: var(--color-neutral-900);
   }
 
@@ -313,29 +248,33 @@
   }
 
   .input-base:focus {
+    background-color: white;
     border-color: var(--color-primary-500);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary-500) 15%, transparent);
+    box-shadow: 0 8px 24px -8px color-mix(in srgb, var(--color-primary-500) 30%, transparent);
   }
 
   /* ========================================
      BADGE/TAG STYLES
      ======================================== */
   .badge-primary {
-    @apply inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold;
+    @apply inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors;
     background-color: var(--color-primary-50);
     color: var(--color-primary-700);
     border: 1px solid var(--color-primary-100);
   }
+  .badge-primary:hover {
+    background-color: var(--color-primary-100);
+  }
 
   .badge-accent {
-    @apply inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold;
+    @apply inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors;
     background-color: var(--color-accent-50);
     color: var(--color-accent-700);
     border: 1px solid var(--color-accent-100);
   }
 
   .badge-neutral {
-    @apply inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold;
+    @apply inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider;
     background-color: var(--color-neutral-100);
     color: var(--color-neutral-700);
     border: 1px solid var(--color-neutral-200);
@@ -345,30 +284,30 @@
      ALERT/NOTIFICATION STYLES
      ======================================== */
   .alert-success {
-    @apply rounded-xl p-4;
-    background-color: var(--color-accent-50);
-    border: 1px solid var(--color-accent-200);
-    color: var(--color-accent-800);
+    @apply rounded-2xl p-5 shadow-sm;
+    background-color: var(--color-success-50);
+    border: 1px solid color-mix(in srgb, var(--color-success-500) 30%, transparent);
+    color: var(--color-success-700);
   }
 
   .alert-warning {
-    @apply rounded-xl p-4;
+    @apply rounded-2xl p-5 shadow-sm;
     background-color: var(--color-warning-50);
-    border: 1px solid var(--color-warning-100);
+    border: 1px solid color-mix(in srgb, var(--color-warning-500) 30%, transparent);
     color: var(--color-warning-700);
   }
 
   .alert-error {
-    @apply rounded-xl p-4;
+    @apply rounded-2xl p-5 shadow-sm;
     background-color: var(--color-error-50);
-    border: 1px solid var(--color-error-100);
+    border: 1px solid color-mix(in srgb, var(--color-error-500) 30%, transparent);
     color: var(--color-error-700);
   }
 
   .alert-info {
-    @apply rounded-xl p-4;
+    @apply rounded-2xl p-5 shadow-sm;
     background-color: var(--color-primary-50);
-    border: 1px solid var(--color-primary-100);
+    border: 1px solid color-mix(in srgb, var(--color-primary-500) 30%, transparent);
     color: var(--color-primary-700);
   }
 }
