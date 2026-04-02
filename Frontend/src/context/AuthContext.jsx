@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { api } from "../utils/api";
 
@@ -38,6 +39,7 @@ export function AuthProvider({ children }) {
       const response = await api.getMe();
       setUser(normalizeUser(response.data));
     } catch (error) {
+      console.error("Failed to refresh user session:", error);
       clearSession();
     } finally {
       setLoading(false);
@@ -56,7 +58,7 @@ export function AuthProvider({ children }) {
         const me = await api.getMe();
         setUser(normalizeUser(me.data));
       } catch (error) {
-        // keep minimal user data
+        console.error("Failed to hydrate logged-in user:", error);
       }
     }
     return response;
@@ -75,7 +77,7 @@ export function AuthProvider({ children }) {
         const me = await api.getMe();
         setUser(normalizeUser(me.data));
       } catch (error) {
-        // keep minimal user data
+        console.error("Failed to hydrate verified user:", error);
       }
     }
     return response;
@@ -83,6 +85,24 @@ export function AuthProvider({ children }) {
 
   const resendVerification = async (email) => {
     return api.resendVerification(email);
+  };
+
+  const forgotPassword = async (email) => {
+    return api.forgotPassword(email);
+  };
+
+  const resetPassword = async (payload) => {
+    const response = await api.resetPassword(payload);
+    if (response.token) {
+      setSession(response.token, response.user);
+      try {
+        const me = await api.getMe();
+        setUser(normalizeUser(me.data));
+      } catch (error) {
+        console.error("Failed to hydrate reset-password user:", error);
+      }
+    }
+    return response;
   };
 
   const logout = () => {
@@ -101,6 +121,8 @@ export function AuthProvider({ children }) {
       signup,
       verifyEmail,
       resendVerification,
+      forgotPassword,
+      resetPassword,
       logout,
       updateUser,
       refreshUser,

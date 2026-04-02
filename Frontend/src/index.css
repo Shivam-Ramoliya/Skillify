@@ -91,11 +91,10 @@
   }
 
   body {
-    background-color: var(--color-neutral-50);
     margin: 0;
-    /* Subtle dot grid pattern on exactly the body background */
-    background-image: radial-gradient(var(--color-neutral-200) 1px, transparent 1px);
-    background-size: 24px 24px;
+    /* Beautiful purple-blue gradient fixed to the viewport */
+    background: linear-gradient(135deg, var(--color-primary-50) 0%, var(--color-accent-100) 50%, var(--color-primary-100) 100%);
+    background-attachment: fixed;
   }
 }
 
@@ -132,7 +131,7 @@
      ======================================== */
   .text-gradient {
     @apply bg-clip-text text-transparent inline-block;
-    background-image: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-400) 100%);
+    background-image: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-accent-600) 100%);
   }
 
   .text-gradient-premium {
@@ -148,7 +147,7 @@
   }
 
   .page-container {
-    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10;
+    @apply w-[92%] md:w-[80%] lg:w-[70%] max-w-[1600px] mx-auto relative z-10;
   }
 
   .page-wrap {
@@ -171,8 +170,8 @@
      ======================================== */
   .btn-primary {
     @apply relative inline-flex items-center justify-center px-8 py-3.5 rounded-full text-sm sm:text-base font-bold text-white transition-all duration-300 focus:outline-none overflow-hidden hover:scale-105;
-    background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-500) 100%);
-    box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.39);
+    background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-accent-600) 100%);
+    box-shadow: 0 4px 14px 0 rgba(147, 51, 234, 0.39);
   }
 
   .btn-primary:hover {

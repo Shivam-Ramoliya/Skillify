@@ -3,8 +3,9 @@
 This document serves as a complete reference for all API routes available in the Skiilify project, including Authentication, Profiles, Jobs, and Health endpoints. It defines the HTTP methods, routes, descriptions, expected inputs (Body/Query/Params/Form-Data), and the expected outputs.
 
 ## Base URL
-Local Development: `http://localhost:5000` 
-All routes are prefixed with `/api`. 
+
+Local Development: `http://localhost:5000`
+All routes are prefixed with `/api`.
 
 ---
 
@@ -12,48 +13,50 @@ All routes are prefixed with `/api`.
 
 ### 1. Authentication Routes (`/api/auth`)
 
-| Method | Route | Description | Auth Req |
-| :--- | :--- | :--- | :---: |
-| `POST` | `/signup` | Register a new user | ❌ |
-| `POST` | `/login` | Login user | ❌ |
-| `POST` | `/verify-email` | Verify email with token | ❌ |
-| `POST` | `/resend-verification` | Resend verification email | ❌ |
-| `GET` | `/me` | Get current logged-in user details | ✅ |
+| Method | Route                  | Description                        | Auth Req |
+| :----- | :--------------------- | :--------------------------------- | :------: |
+| `POST` | `/signup`              | Register a new user                |    ❌    |
+| `POST` | `/login`               | Login user                         |    ❌    |
+| `POST` | `/verify-email`        | Verify email with JWT link token   |    ❌    |
+| `POST` | `/resend-verification` | Resend verification email          |    ❌    |
+| `POST` | `/forgot-password`     | Send password reset link           |    ❌    |
+| `POST` | `/reset-password`      | Reset password using token         |    ❌    |
+| `GET`  | `/me`                  | Get current logged-in user details |    ✅    |
 
 ### 2. Profile Routes (`/api/profile`)
 
-| Method | Route | Description | Auth Req |
-| :--- | :--- | :--- | :---: |
-| `GET` | `/discover` | Get public profiles | ❌ |
-| `PUT` | `/update` | Update user profile | ✅ |
-| `GET` | `/me` | Get current user's profile | ✅ |
-| `GET` | `/status` | Check profile completion | ✅ |
-| `PUT` | `/visibility` | Update visibility | ✅ |
-| `POST` | `/upload-picture` | Upload profile picture | ✅ |
-| `POST` | `/upload-resume` | Upload resume | ✅ |
-| `POST` | `/request-delete` | Request account deletion (OTP) | ✅ |
-| `DELETE` | `/delete` | Confirm account delete | ✅ |
-| `GET` | `/:userId` | Get a specific user's profile | ❌ |
+| Method   | Route             | Description                    | Auth Req |
+| :------- | :---------------- | :----------------------------- | :------: |
+| `GET`    | `/discover`       | Get public profiles            |    ❌    |
+| `PUT`    | `/update`         | Update user profile            |    ✅    |
+| `GET`    | `/me`             | Get current user's profile     |    ✅    |
+| `GET`    | `/status`         | Check profile completion       |    ✅    |
+| `PUT`    | `/visibility`     | Update visibility              |    ✅    |
+| `POST`   | `/upload-picture` | Upload profile picture         |    ✅    |
+| `POST`   | `/upload-resume`  | Upload resume                  |    ✅    |
+| `POST`   | `/request-delete` | Request account deletion (OTP) |    ✅    |
+| `DELETE` | `/delete`         | Confirm account delete         |    ✅    |
+| `GET`    | `/:userId`        | Get a specific user's profile  |    ❌    |
 
 ### 3. Jobs Routes (`/api/jobs`)
 
-*Note: Accessing job creation, discovery, and applying functionalities requires the user to have their profile visibility set to "public".*
+_Note: Accessing job creation, discovery, and applying functionalities requires the user to have their profile visibility set to "public"._
 
-| Method | Route | Description | Auth Req |
-| :--- | :--- | :--- | :---: |
-| `POST` | `/publish` | Publish a new job | ✅ |
-| `GET` | `/discover` | Discover recent jobs | ✅ |
-| `GET` | `/my-posts` | Get jobs posted by me | ✅ |
-| `GET` | `/applications/sent` | Applications sent by me | ✅ |
-| `GET` | `/applications/received` | Applications received | ✅ |
-| `PUT` | `/applications/:applicationId/status` | Accept/Reject/Withdraw app | ✅ |
-| `POST` | `/:jobId/apply` | Apply to a job | ✅ |
+| Method | Route                                 | Description                | Auth Req |
+| :----- | :------------------------------------ | :------------------------- | :------: |
+| `POST` | `/publish`                            | Publish a new job          |    ✅    |
+| `GET`  | `/discover`                           | Discover recent jobs       |    ✅    |
+| `GET`  | `/my-posts`                           | Get jobs posted by me      |    ✅    |
+| `GET`  | `/applications/sent`                  | Applications sent by me    |    ✅    |
+| `GET`  | `/applications/received`              | Applications received      |    ✅    |
+| `PUT`  | `/applications/:applicationId/status` | Accept/Reject/Withdraw app |    ✅    |
+| `POST` | `/:jobId/apply`                       | Apply to a job             |    ✅    |
 
 ### 4. General / Operations
 
-| Method | Route | Description | Auth Req |
-| :--- | :--- | :--- | :---: |
-| `GET` | `/health` | Server health check | ❌ |
+| Method | Route     | Description         | Auth Req |
+| :----- | :-------- | :------------------ | :------: |
+| `GET`  | `/health` | Server health check |    ❌    |
 
 ---
 
@@ -62,9 +65,11 @@ All routes are prefixed with `/api`.
 ### 1. Authentication Routes
 
 #### POST `/api/auth/signup`
+
 **Description:** Register a new user
 **Auth Required:** No
 **Request Body (JSON):**
+
 ```json
 {
   "name": "John Doe",
@@ -73,7 +78,9 @@ All routes are prefixed with `/api`.
   "confirmPassword": "password123"
 }
 ```
+
 **Response (201 Created):**
+
 ```json
 {
   "success": true,
@@ -88,16 +95,20 @@ All routes are prefixed with `/api`.
 ```
 
 #### POST `/api/auth/login`
+
 **Description:** Login user
 **Auth Required:** No
 **Request Body (JSON):**
+
 ```json
 {
   "email": "john@example.com",
   "password": "password123"
 }
 ```
+
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -113,15 +124,19 @@ All routes are prefixed with `/api`.
 ```
 
 #### POST `/api/auth/verify-email`
-**Description:** Verify email with token
+
+**Description:** Verify email using the signed JWT token from the email link
 **Auth Required:** No
 **Request Body (JSON):**
+
 ```json
 {
-  "token": "verification-token-from-email"
+  "token": "jwt-token-from-email-link"
 }
 ```
+
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -132,15 +147,19 @@ All routes are prefixed with `/api`.
 ```
 
 #### POST `/api/auth/resend-verification`
+
 **Description:** Resend verification email
 **Auth Required:** No
 **Request Body (JSON):**
+
 ```json
 {
   "email": "john@example.com"
 }
 ```
+
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -148,10 +167,58 @@ All routes are prefixed with `/api`.
 }
 ```
 
+#### POST `/api/auth/forgot-password`
+
+**Description:** Send a secure password reset link to the user's email
+**Auth Required:** No
+**Request Body (JSON):**
+
+```json
+{
+  "email": "john@example.com"
+}
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "If an account exists for that email, a password reset link has been sent."
+}
+```
+
+#### POST `/api/auth/reset-password`
+
+**Description:** Reset password using the token from the email link
+**Auth Required:** No
+**Request Body (JSON):**
+
+```json
+{
+  "token": "reset-token-from-email",
+  "password": "newPassword123",
+  "confirmPassword": "newPassword123"
+}
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Password reset successfully",
+  "token": "eyJhbGciOiJIUz...",
+  "user": { ... }
+}
+```
+
 #### GET `/api/auth/me`
+
 **Description:** Get current logged-in user details
 **Auth Required:** Yes (`Authorization: Bearer <token>`)
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -170,14 +237,17 @@ All routes are prefixed with `/api`.
 ### 2. Profile Routes
 
 #### GET `/api/profile/discover`
+
 **Description:** Get public profiles
 **Auth Required:** Optional (helps exclude self if provided)
 **Query Parameters:**
+
 - `role` (Optional): Filter by role
 - `skill` (Optional): Filter by skill
 - `page` (Optional, default 1)
 - `limit` (Optional, default 10)
-**Response (200 OK):**
+  **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -197,9 +267,11 @@ All routes are prefixed with `/api`.
 ```
 
 #### PUT `/api/profile/update`
+
 **Description:** Update user profile. Overwrites provided fields.
 **Auth Required:** Yes
 **Request Body (JSON):**
+
 ```json
 {
   "bio": "Dynamic developer",
@@ -217,7 +289,9 @@ All routes are prefixed with `/api`.
   "profileVisibility": "public"
 }
 ```
+
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -228,9 +302,11 @@ All routes are prefixed with `/api`.
 ```
 
 #### GET `/api/profile/me`
+
 **Description:** Get current user's profile
 **Auth Required:** Yes
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -239,9 +315,11 @@ All routes are prefixed with `/api`.
 ```
 
 #### GET `/api/profile/status`
+
 **Description:** Check profile completion
 **Auth Required:** Yes
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -254,15 +332,19 @@ All routes are prefixed with `/api`.
 ```
 
 #### PUT `/api/profile/visibility`
+
 **Description:** Update visibility
 **Auth Required:** Yes
 **Request Body (JSON):**
+
 ```json
 {
-  "profileVisibility": "private" 
+  "profileVisibility": "private"
 }
 ```
+
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -272,12 +354,15 @@ All routes are prefixed with `/api`.
 ```
 
 #### POST `/api/profile/upload-picture`
+
 **Description:** Upload profile picture directly to Cloudinary
 **Auth Required:** Yes
 **Headers:** `Content-Type: multipart/form-data`
 **Body:**
+
 - `profilePicture`: (Binary File)
-**Response (200 OK):**
+  **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -287,12 +372,15 @@ All routes are prefixed with `/api`.
 ```
 
 #### POST `/api/profile/upload-resume`
+
 **Description:** Upload resume directly to Cloudinary
 **Auth Required:** Yes
 **Headers:** `Content-Type: multipart/form-data`
 **Body:**
+
 - `resume`: (Binary File)
-**Response (200 OK):**
+  **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -302,26 +390,32 @@ All routes are prefixed with `/api`.
 ```
 
 #### POST `/api/profile/request-delete`
-**Description:** Request account deletion. Generates and sends OTP to email.
+
+**Description:** Request account deletion. Generates and sends a signed confirmation link to email.
 **Auth Required:** Yes
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
-  "message": "A verification code has been sent to your email address."
+  "message": "A confirmation link has been sent to your email address."
 }
 ```
 
 #### DELETE `/api/profile/delete`
-**Description:** Confirm and execute account deletion utilizing the OTP sent to email.
+
+**Description:** Confirm and execute account deletion using the signed JWT token from the email link.
 **Auth Required:** Yes
 **Request Body (JSON):**
+
 ```json
 {
-  "otp": "123456"
+  "token": "jwt-token-from-email-link"
 }
 ```
+
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -330,9 +424,11 @@ All routes are prefixed with `/api`.
 ```
 
 #### GET `/api/profile/:userId`
+
 **Description:** Get a specific user's public profile
 **Auth Required:** No
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -344,13 +440,15 @@ All routes are prefixed with `/api`.
 
 ### 3. Jobs Routes
 
-*Note: Accessing job creation, discovery, and applying functionalities requires the user to have their profile visibility set to "public".*
+_Note: Accessing job creation, discovery, and applying functionalities requires the user to have their profile visibility set to "public"._
 
 #### POST `/api/jobs/publish`
+
 **Description:** Publish a new job
 **Auth Required:** Yes
 **Headers:** `Content-Type: multipart/form-data`
 **Body Form-Data:**
+
 - `jobName` (Text)
 - `githubRepoUrl` (Text, optional)
 - `jobDetails` (Text)
@@ -361,7 +459,8 @@ All routes are prefixed with `/api`.
 - `durationFrom` (Date string)
 - `durationTo` (Date string)
 - `jobDescriptionDocument` (Binary File, optional)
-**Response (201 Created):**
+  **Response (201 Created):**
+
 ```json
 {
   "success": true,
@@ -371,13 +470,16 @@ All routes are prefixed with `/api`.
 ```
 
 #### GET `/api/jobs/discover`
+
 **Description:** Discover recent jobs posted by others.
 **Auth Required:** Yes
 **Query Parameters:**
+
 - `page` (Optional, default 1)
 - `limit` (Optional, default 10)
 - `skill` (Optional, string)
-**Response (200 OK):**
+  **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -397,9 +499,11 @@ All routes are prefixed with `/api`.
 ```
 
 #### GET `/api/jobs/my-posts`
+
 **Description:** Get jobs posted by the current user along with their applicant counts.
 **Auth Required:** Yes
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -414,9 +518,11 @@ All routes are prefixed with `/api`.
 ```
 
 #### GET `/api/jobs/applications/sent`
+
 **Description:** Applications sent by the current user.
 **Auth Required:** Yes
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -431,11 +537,14 @@ All routes are prefixed with `/api`.
 ```
 
 #### GET `/api/jobs/applications/received`
+
 **Description:** Applications received on jobs posted by the current user.
 **Auth Required:** Yes
 **Query Parameters:**
+
 - `jobId` (Optional, filters by specific job)
-**Response (200 OK):**
+  **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -450,15 +559,19 @@ All routes are prefixed with `/api`.
 ```
 
 #### PUT `/api/jobs/applications/:applicationId/status`
+
 **Description:** Change the status of a specific job application. The employer can accept/reject, while the applicant can only withdraw.
 **Auth Required:** Yes
 **Request Body (JSON):**
+
 ```json
 {
   "status": "accepted" // "accepted", "rejected", or "withdrawn"
 }
 ```
+
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -468,9 +581,11 @@ All routes are prefixed with `/api`.
 ```
 
 #### POST `/api/jobs/:jobId/apply`
+
 **Description:** Apply to a job
 **Auth Required:** Yes
 **Response (201 Created):**
+
 ```json
 {
   "success": true,
@@ -488,9 +603,11 @@ All routes are prefixed with `/api`.
 ### 4. General / Operations
 
 #### GET `/api/health`
+
 **Description:** Server health check
 **Auth Required:** No
 **Response (200 OK):**
+
 ```json
 {
   "message": "Server is running"
@@ -504,6 +621,7 @@ All routes are prefixed with `/api`.
 By default, missing fields, validation failures, or server errors conform to this format:
 
 ### 400 - Bad Request
+
 ```json
 {
   "success": false,
@@ -512,6 +630,7 @@ By default, missing fields, validation failures, or server errors conform to thi
 ```
 
 ### 401 - Unauthorized
+
 ```json
 {
   "success": false,
@@ -520,6 +639,7 @@ By default, missing fields, validation failures, or server errors conform to thi
 ```
 
 ### 403 - Forbidden
+
 ```json
 {
   "success": false,
@@ -528,6 +648,7 @@ By default, missing fields, validation failures, or server errors conform to thi
 ```
 
 ### 404 - Not Found
+
 ```json
 {
   "success": false,
@@ -536,6 +657,7 @@ By default, missing fields, validation failures, or server errors conform to thi
 ```
 
 ### 500 - Server Error
+
 ```json
 {
   "success": false,

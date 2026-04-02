@@ -37,29 +37,33 @@ const emailWrapper = (content) => `
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; background-color: #F9FAFB; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #F9FAFB; padding: 40px 0;">
+<body style="margin: 0; padding: 0; background: linear-gradient(180deg, #eef2ff 0%, #faf5ff 48%, #ffffff 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding: 40px 0;">
     <tr>
       <td align="center">
-        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(37, 99, 235, 0.1);">
-          <!-- Header -->
+        <table role="presentation" width="640" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 24px 64px rgba(79, 70, 229, 0.16); border: 1px solid rgba(255, 255, 255, 0.65);">
           <tr>
-            <td style="background-color: #2563EB; padding: 32px 40px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: 1px;">Skillify</h1>
-              <p style="margin: 6px 0 0; color: #BFDBFE; font-size: 13px; letter-spacing: 0.5px;">Exchange. Learn. Grow.</p>
+            <td style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #a855f7 100%); padding: 32px 40px; text-align: center; color: #ffffff;">
+              <div style="display: inline-block; padding: 7px 16px; border: 1px solid rgba(255,255,255,0.28); border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; background: rgba(255,255,255,0.12);">Skillify</div>
+              <h1 style="margin: 0; color: #ffffff; font-size: 30px; font-weight: 800; letter-spacing: -0.02em;">Freelance work, simplified</h1>
+              <p style="margin: 10px 0 0; color: #e9d5ff; font-size: 13px; letter-spacing: 0.6px;">Connect, collaborate, and keep moving forward.</p>
             </td>
           </tr>
-          <!-- Body -->
           <tr>
-            <td style="padding: 40px;">
-              ${content}
+            <td style="padding: 0 24px 24px; background: linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.9) 100%);">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="background-color: #ffffff; padding: 40px 36px; border-radius: 0 0 20px 20px; border: 1px solid #e5e7eb; border-top: none;">
+                    ${content}
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
-          <!-- Footer -->
           <tr>
-            <td style="background-color: #EFF6FF; padding: 24px 40px; text-align: center; border-top: 1px solid #DBEAFE;">
-              <p style="margin: 0; color: #3B82F6; font-size: 12px;">&copy; 2026 Skillify. All rights reserved.</p>
-              <p style="margin: 6px 0 0; color: #93C5FD; font-size: 11px;">If you didn't request this email, please ignore it.</p>
+            <td style="background: #f8fafc; padding: 22px 28px; text-align: center; border-top: 1px solid #e2e8f0;">
+              <p style="margin: 0; color: #4f46e5; font-size: 12px; font-weight: 700;">&copy; 2026 Skillify. All rights reserved.</p>
+              <p style="margin: 8px 0 0; color: #94a3b8; font-size: 11px;">If you didn't request this email, you can safely ignore it.</p>
             </td>
           </tr>
         </table>
@@ -70,40 +74,39 @@ const emailWrapper = (content) => `
 </html>
 `;
 
-// Send verification email with 8-digit code
-const sendVerificationEmail = async (email, verificationCode) => {
+// Send verification email with a signed link
+const sendVerificationEmail = async (email, verificationToken, name) => {
   try {
-    // Format code as spaced groups for readability: 1234 5678
-    const formattedCode =
-      verificationCode.slice(0, 4) + " " + verificationCode.slice(4);
+    const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${encodeURIComponent(verificationToken)}&email=${encodeURIComponent(email)}`;
 
     const content = `
               <h2 style="margin: 0 0 8px; color: #1E3A8A; font-size: 22px; font-weight: 700;">Verify Your Email</h2>
-              <p style="margin: 0 0 24px; color: #6B7280; font-size: 15px; line-height: 1.6;">Thanks for signing up! Use the verification code below to complete your registration.</p>
-              
-              <div style="background-color: #EFF6FF; border: 2px solid #BFDBFE; border-radius: 12px; padding: 28px; text-align: center; margin: 24px 0;">
-                <p style="margin: 0 0 12px; color: #6B7280; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">Your Verification Code</p>
-                <p style="margin: 0; font-size: 36px; font-weight: 800; color: #2563EB; letter-spacing: 6px; font-family: 'Courier New', Courier, monospace;">${formattedCode}</p>
+              <p style="margin: 0 0 24px; color: #6B7280; font-size: 15px; line-height: 1.6;">Thanks for signing up${name ? `, ${name}` : ""}! Use the button below to verify your Skillify account.</p>
+
+              <div style="background: linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 100%); border: 1px solid #C7D2FE; border-radius: 14px; padding: 24px; margin: 24px 0;">
+                <p style="margin: 0 0 10px; color: #4338CA; font-size: 13px; text-transform: uppercase; letter-spacing: 1.4px; font-weight: 700;">Verification Link</p>
+                <p style="margin: 0; color: #475569; font-size: 14px; line-height: 1.7;">This secure link opens Skillify and verifies your account in one step.</p>
               </div>
 
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 24px 0;">
                 <tr>
                   <td align="center">
-                    <a href="${process.env.FRONTEND_URL}/verify-email?email=${encodeURIComponent(email)}&code=${verificationCode}" 
-                       style="display: inline-block; padding: 14px 36px; background-color: #2563EB; color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 15px; font-weight: 600; letter-spacing: 0.5px;">
-                      Copy &amp; Verify
+                    <a href="${verificationUrl}" 
+                       style="display: inline-block; padding: 14px 36px; background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%); color: #ffffff; text-decoration: none; border-radius: 999px; font-size: 15px; font-weight: 700; letter-spacing: 0.4px; box-shadow: 0 10px 24px rgba(79, 70, 229, 0.28);">
+                      Verify Email
                     </a>
                   </td>
                 </tr>
               </table>
 
-              <p style="margin: 0; color: #9CA3AF; font-size: 13px; text-align: center;">This code expires in <strong style="color: #2563EB;">24 hours</strong>.</p>
+              <p style="margin: 0; color: #64748B; font-size: 13px; text-align: center; line-height: 1.6;">If the button does not work, copy and paste this link into your browser:<br><a href="${verificationUrl}" style="color: #4f46e5; text-decoration: none; word-break: break-all;">${verificationUrl}</a></p>
+              <p style="margin: 18px 0 0; color: #9CA3AF; font-size: 12px; text-align: center;">This verification link expires in <strong style="color: #4f46e5;">24 hours</strong>.</p>
         `;
 
     const mailOptions = {
       from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: email,
-      subject: "Your Verification Code - Skillify",
+      subject: "Verify Your Skillify Account",
       html: emailWrapper(content),
     };
 
@@ -179,18 +182,63 @@ const sendWelcomeEmail = async (email, name) => {
   }
 };
 
-// Send account deletion OTP email
-const sendDeleteAccountOtpEmail = async (email, otp, name) => {
+// Send password reset email with secure reset link
+const sendPasswordResetEmail = async (email, name, resetToken) => {
   try {
-    const formattedOtp = otp.slice(0, 3) + " " + otp.slice(3);
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
+
+    const content = `
+              <h2 style="margin: 0 0 8px; color: #1E3A8A; font-size: 22px; font-weight: 700;">Reset Your Password</h2>
+              <p style="margin: 0 0 24px; color: #6B7280; font-size: 15px; line-height: 1.6;">Hi ${name || "there"}, we received a request to reset your Skillify password. Use the button below to choose a new one.</p>
+
+              <div style="background: linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 100%); border: 1px solid #C7D2FE; border-radius: 14px; padding: 24px; margin: 24px 0;">
+                <p style="margin: 0 0 10px; color: #4338CA; font-size: 13px; text-transform: uppercase; letter-spacing: 1.4px; font-weight: 700;">Password Reset Requested</p>
+                <p style="margin: 0; color: #475569; font-size: 14px; line-height: 1.7;">This link will take you directly to the secure password reset page inside Skillify.</p>
+              </div>
+
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 28px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="${resetUrl}" 
+                       style="display: inline-block; padding: 14px 36px; background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%); color: #ffffff; text-decoration: none; border-radius: 999px; font-size: 15px; font-weight: 700; letter-spacing: 0.4px; box-shadow: 0 10px 24px rgba(79, 70, 229, 0.28);">
+                      Reset Password
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 0; color: #64748B; font-size: 13px; text-align: center; line-height: 1.6;">If the button does not work, copy and paste this link into your browser:<br><a href="${resetUrl}" style="color: #4f46e5; text-decoration: none; word-break: break-all;">${resetUrl}</a></p>
+              <p style="margin: 18px 0 0; color: #9CA3AF; font-size: 12px; text-align: center;">This reset link expires in <strong style="color: #4f46e5;">1 hour</strong>.</p>
+        `;
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      to: email,
+      subject: "Reset Your Skillify Password",
+      html: emailWrapper(content),
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Password reset email sent:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Password reset email error:", error.message);
+    throw new Error("Failed to send password reset email");
+  }
+};
+
+// Send account deletion confirmation email with secure token link
+const sendDeleteAccountOtpEmail = async (email, token, name) => {
+  try {
+    const deleteUrl = `${process.env.FRONTEND_URL}/confirm-delete?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
 
     const content = `
               <h2 style="margin: 0 0 8px; color: #991b1b; font-size: 22px; font-weight: 700;">Account Deletion Request</h2>
-              <p style="margin: 0 0 24px; color: #6B7280; font-size: 15px; line-height: 1.6;">Hi ${name || "there"}, we received a request to permanently delete your Skillify account. Use the code below to confirm this action.</p>
-              
-              <div style="background-color: #fef2f2; border: 2px solid #fecaca; border-radius: 12px; padding: 28px; text-align: center; margin: 24px 0;">
-                <p style="margin: 0 0 12px; color: #92400e; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">Deletion Confirmation Code</p>
-                <p style="margin: 0; font-size: 40px; font-weight: 800; color: #dc2626; letter-spacing: 8px; font-family: 'Courier New', Courier, monospace;">${formattedOtp}</p>
+              <p style="margin: 0 0 24px; color: #6B7280; font-size: 15px; line-height: 1.6;">Hi ${name || "there"}, we received a request to permanently delete your Skillify account. Use the button below to confirm this action.</p>
+
+              <div style="background: linear-gradient(135deg, #fef2f2 0%, #fff1f2 100%); border: 1px solid #fecaca; border-radius: 14px; padding: 24px; margin: 24px 0;">
+                <p style="margin: 0 0 10px; color: #b91c1c; font-size: 13px; text-transform: uppercase; letter-spacing: 1.4px; font-weight: 700;">Deletion Confirmation Link</p>
+                <p style="margin: 0; color: #7f1d1d; font-size: 14px; line-height: 1.7;">This secure link will confirm the deletion request and remove your account.</p>
               </div>
 
               <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px; margin: 24px 0;">
@@ -198,28 +246,80 @@ const sendDeleteAccountOtpEmail = async (email, otp, name) => {
                 <p style="margin: 8px 0 0; color: #7f1d1d; font-size: 13px; line-height: 1.5;">Deleting your account will permanently remove all your data including your profile, job posts, applications, and uploaded files. This cannot be undone.</p>
               </div>
 
-              <p style="margin: 0; color: #9CA3AF; font-size: 13px; text-align: center;">This code expires in <strong style="color: #dc2626;">10 minutes</strong>.</p>
-              <p style="margin: 8px 0 0; color: #9CA3AF; font-size: 12px; text-align: center;">If you did not request this, please ignore this email and your account will remain safe.</p>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 24px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="${deleteUrl}" 
+                       style="display: inline-block; padding: 14px 36px; background: linear-gradient(135deg, #dc2626 0%, #e11d48 100%); color: #ffffff; text-decoration: none; border-radius: 999px; font-size: 15px; font-weight: 700; letter-spacing: 0.4px; box-shadow: 0 10px 24px rgba(220, 38, 38, 0.28);">
+                      Confirm Deletion
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 0; color: #64748B; font-size: 13px; text-align: center; line-height: 1.6;">If the button does not work, copy and paste this link into your browser:<br><a href="${deleteUrl}" style="color: #dc2626; text-decoration: none; word-break: break-all;">${deleteUrl}</a></p>
+              <p style="margin: 18px 0 0; color: #9CA3AF; font-size: 12px; text-align: center;">This deletion link expires in <strong style="color: #dc2626;">15 minutes</strong>.</p>
         `;
 
     const mailOptions = {
       from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: email,
-      subject: "⚠️ Account Deletion Confirmation - Skillify",
+      subject: "Confirm Your Skillify Account Deletion",
       html: emailWrapper(content),
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("Delete account OTP email sent:", info.messageId);
+    console.log("Delete account token email sent:", info.messageId);
     return true;
   } catch (error) {
-    console.error("Delete account OTP email error:", error.message);
-    throw new Error("Failed to send account deletion OTP email");
+    console.error("Delete account token email error:", error.message);
+    throw new Error("Failed to send account deletion email");
+  }
+};
+// Send final account deleted confirmation email (Post-deletion notification)
+const sendAccountDeletedConfirmationEmail = async (email, name) => {
+  try {
+    const content = `
+              <div style="text-align: center; margin-bottom: 24px;">
+                <div style="display: inline-block; background-color: #f3f4f6; border-radius: 50%; width: 72px; height: 72px; line-height: 72px; font-size: 32px; margin-bottom: 16px; color: #6b7280;">👋</div>
+              </div>
+              <h2 style="margin: 0 0 8px; color: #1f2937; font-size: 22px; font-weight: 700; text-align: center;">Account Deleted</h2>
+              <p style="margin: 0 0 24px; color: #4b5563; font-size: 15px; line-height: 1.6; text-align: center;">Hi ${name || "there"}, this email confirms that your Skillify account has been permanently deleted as requested.</p>
+              
+              <div style="background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin: 24px 0; text-align: left;">
+                <p style="margin: 0 0 12px; color: #374151; font-size: 14px; font-weight: 600;">As per your request, we have removed:</p>
+                <ul style="margin: 0; padding-left: 20px; color: #6b7280; font-size: 14px; line-height: 1.6;">
+                  <li>Your personal profile and settings</li>
+                  <li>All your uploaded files (resume, pictures)</li>
+                  <li>Jobs you have posted</li>
+                  <li>Your job applications</li>
+                </ul>
+              </div>
+
+              <p style="margin: 0; color: #6b7280; font-size: 14px; text-align: center;">We're sorry to see you go! If you ever want to return, you can always <a href="${process.env.FRONTEND_URL}/signup" style="color: #2563EB; text-decoration: none; font-weight: 600;">create a new account</a>.</p>
+        `;
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      to: email,
+      subject: "Account Successfully Deleted - Skillify",
+      html: emailWrapper(content),
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Account deleted confirmation email sent:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Account deleted confirmation email error:", error.message);
+    // Don't throw here to avoid preventing the actual account deletion from succeeding
+    return false;
   }
 };
 
 module.exports = {
   sendVerificationEmail,
   sendWelcomeEmail,
+  sendPasswordResetEmail,
   sendDeleteAccountOtpEmail,
+  sendAccountDeletedConfirmationEmail,
 };

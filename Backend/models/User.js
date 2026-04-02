@@ -7,17 +7,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please provide a name"],
       trim: true,
-      maxlength: [50, "Name cannot be more than 50 characters"],
+      maxlength: [100, "Name cannot be more than 100 characters"],
     },
     email: {
       type: String,
       required: [true, "Please provide an email"],
       unique: true,
       lowercase: true,
-      match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        "Please provide a valid email",
-      ],
+      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Please provide a valid email"],
     },
     password: {
       type: String,
@@ -34,6 +31,14 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
     emailVerificationExpire: {
+      type: Date,
+      default: null,
+    },
+    passwordResetToken: {
+      type: String,
+      default: null,
+    },
+    passwordResetExpire: {
       type: Date,
       default: null,
     },
@@ -77,16 +82,22 @@ const userSchema = new mongoose.Schema(
       enum: ["not available", "part-time", "full-time"],
       default: "not available",
     },
-    education: {
-      type: String,
-      maxlength: [300, "Education cannot be more than 300 characters"],
-      default: "",
-    },
-    experience: {
-      type: String,
-      maxlength: [1000, "Experience cannot be more than 1000 characters"],
-      default: "",
-    },
+    education: [
+      {
+        school: { type: String },
+        degree: { type: String },
+        from: { type: String },
+        to: { type: String },
+      },
+    ],
+    experience: [
+      {
+        company: { type: String },
+        role: { type: String },
+        from: { type: String },
+        to: { type: String },
+      },
+    ],
     yearsOfExperience: {
       type: Number,
       min: [0, "Years of experience cannot be negative"],
@@ -140,16 +151,11 @@ const userSchema = new mongoose.Schema(
 );
 
 // Hash password before saving
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
 
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
-  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 // Method to compare passwords

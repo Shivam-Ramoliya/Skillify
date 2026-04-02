@@ -127,6 +127,16 @@ export const api = {
       method: "POST",
       body: { email },
     }),
+  forgotPassword: (email) =>
+    request("/api/auth/forgot-password", {
+      method: "POST",
+      body: { email },
+    }),
+  resetPassword: (payload) =>
+    request("/api/auth/reset-password", {
+      method: "POST",
+      body: payload,
+    }),
   getMe: () => request("/api/auth/me"),
   updateProfile: (payload) =>
     request("/api/profile/update", { method: "PUT", body: payload }),
@@ -145,8 +155,8 @@ export const api = {
   uploadResume: (file) => fileRequest("/api/profile/upload-resume", file),
   requestAccountDeletion: () =>
     request("/api/profile/request-delete", { method: "POST" }),
-  deleteAccount: (otp) =>
-    request("/api/profile/delete", { method: "DELETE", body: { otp } }),
+  deleteAccount: (token) =>
+    request("/api/profile/delete", { method: "DELETE", body: { token } }),
   publishJob: (payload, file) =>
     multipartRequest(
       "/api/jobs/publish",

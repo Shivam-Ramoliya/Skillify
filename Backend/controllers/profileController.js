@@ -1,4 +1,3 @@
-const crypto = require("crypto");
 const User = require("../models/User");
 const Job = require("../models/Job");
 const JobApplication = require("../models/JobApplication");
@@ -9,7 +8,12 @@ const {
 } = require("../utils/cloudinaryUpload");
 const {
   sendDeleteAccountOtpEmail,
+  sendAccountDeletedConfirmationEmail,
 } = require("../utils/emailService");
+const {
+  generateAccountDeletionToken,
+  verifyAccountDeletionToken,
+} = require("../utils/tokenGenerator");
 
 // @desc    Upload Profile Picture
 // @route   POST /api/profile/upload-picture
@@ -158,7 +162,9 @@ exports.updateProfile = async (req, res) => {
       user.availability &&
       user.availability !== "not available" &&
       user.education &&
-      user.experience &&
+      user.education.length > 0 &&
+      (user.yearsOfExperience === 0 ||
+        (user.experience && user.experience.length > 0)) &&
       user.skills &&
       user.skills.length > 0 &&
       user.githubUrl &&
@@ -333,7 +339,13 @@ function calculateCompletionPercentage(user) {
   let completedFields = 0;
 
   requiredFields.forEach((field) => {
-    if (field === "skills") {
+    if (field === "experience") {
+      if (
+        user.yearsOfExperience === 0 ||
+        (user[field] && user[field].length > 0)
+      )
+        completedFields++;
+    } else if (field === "skills" || field === "education") {
       if (user[field] && user[field].length > 0) completedFields++;
     } else {
       if (field === "availability") {
@@ -356,8 +368,12 @@ function getMissingFields(user) {
   if (!user.profilePicture) missing.push("profilePicture");
   if (!user.availability || user.availability === "not available")
     missing.push("availability");
-  if (!user.education) missing.push("education");
-  if (!user.experience) missing.push("experience");
+  if (!user.education || user.education.length === 0) missing.push("education");
+  if (
+    user.yearsOfExperience > 0 &&
+    (!user.experience || user.experience.length === 0)
+  )
+    missing.push("experience");
   if (!user.skills || user.skills.length === 0) missing.push("skills");
   if (!user.githubUrl) missing.push("githubUrl");
   if (!user.linkedinUrl) missing.push("linkedinUrl");
@@ -470,94 +486,88 @@ exports.discoverProfiles = async (req, res) => {
   }
 };
 
-// @desc    Request account deletion (sends OTP email)
+// @desc    Request account deletion (sends confirmation link email)
 // @route   POST /api/profile/request-delete
 // @access  Private
 exports.requestAccountDeletion = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
-    // Generate 6-digit OTP
-    const otp = crypto.randomInt(100000, 1000000).toString();
-    const otpExpire = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const deletionToken = generateAccountDeletionToken({
+      userId: user._id.toString(),
+      email: user.email,
+    });
 
-    user.deleteAccountOtp = otp;
-    user.deleteAccountOtpExpire = otpExpire;
-    await user.save();
-
-    // Send OTP email
+    // Send confirmation link email
     try {
-      await sendDeleteAccountOtpEmail(user.email, otp, user.name);
+      await sendDeleteAccountOtpEmail(user.email, deletionToken, user.name);
     } catch (emailError) {
-      console.error("Failed to send deletion OTP email:", emailError);
+      console.error("Failed to send deletion confirmation email:", emailError);
       return res.status(500).json({
         success: false,
-        message: "Failed to send verification email. Please try again.",
+        message: "Failed to send deletion email. Please try again.",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "A verification code has been sent to your email address.",
+      message: "A confirmation link has been sent to your email address.",
     });
   } catch (error) {
     console.error("Request account deletion error:", error);
     res.status(500).json({
       success: false,
-      message: error.message || "Server error while requesting account deletion",
+      message:
+        error.message || "Server error while requesting account deletion",
     });
   }
 };
 
-// @desc    Confirm account deletion with OTP
+// @desc    Confirm account deletion with token
 // @route   DELETE /api/profile/delete
 // @access  Private
 exports.confirmAccountDeletion = async (req, res) => {
   try {
-    const { otp } = req.body;
+    const { token } = req.body;
 
-    if (!otp) {
+    if (!token) {
       return res.status(400).json({
         success: false,
-        message: "Verification code is required",
+        message: "Deletion token is required",
+      });
+    }
+
+    let payload;
+    try {
+      payload = verifyAccountDeletionToken(token);
+    } catch (tokenError) {
+      console.error("Deletion token validation failed:", tokenError);
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired deletion token",
       });
     }
 
     const user = await User.findById(req.user.id);
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
-    // Validate OTP
-    if (!user.deleteAccountOtp || !user.deleteAccountOtpExpire) {
+    if (payload.userId && payload.userId !== user._id.toString()) {
       return res.status(400).json({
         success: false,
-        message: "No deletion request found. Please request a new verification code.",
+        message: "Deletion token does not match the current account",
       });
     }
 
-    if (new Date() > new Date(user.deleteAccountOtpExpire)) {
-      // Clear expired OTP
-      user.deleteAccountOtp = null;
-      user.deleteAccountOtpExpire = null;
-      await user.save();
-      return res.status(400).json({
-        success: false,
-        message: "Verification code has expired. Please request a new one.",
-      });
-    }
-
-    if (String(user.deleteAccountOtp) !== String(otp).trim()) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid verification code. Please check and try again.",
-      });
-    }
-
-    // OTP is valid — proceed with full deletion
+    // Token is valid — proceed with full deletion
 
     // 1. Delete user files from Cloudinary
     if (user.profilePicturePublicId) {
@@ -569,7 +579,7 @@ exports.confirmAccountDeletion = async (req, res) => {
 
     // 2. Find jobs posted by the user
     const userJobs = await Job.find({ postedBy: user._id });
-    
+
     // For each job posted by user, delete the document attachment from cloudinary first
     for (const job of userJobs) {
       if (job.jobDescriptionDocumentPublicId) {
@@ -582,10 +592,13 @@ exports.confirmAccountDeletion = async (req, res) => {
 
     // 4. Delete all applications related to the user (either applicant or employer)
     await JobApplication.deleteMany({
-      $or: [{ applicant: user._id }, { employer: user._id }]
+      $or: [{ applicant: user._id }, { employer: user._id }],
     });
 
-    // 5. Delete the user document
+    // 5. Send confirmation email before deleting the user so we still have their email
+    await sendAccountDeletedConfirmationEmail(user.email, user.name);
+
+    // 6. Delete the user document
     await User.findByIdAndDelete(user._id);
 
     res.status(200).json({

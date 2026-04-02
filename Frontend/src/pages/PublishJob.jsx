@@ -102,10 +102,10 @@ export default function PublishJob() {
       <div className="page-container relative z-10">
         <section className="glass-card p-8 md:p-12 border border-slate-200/60 bg-white shadow-xl">
           <div className="text-center mb-10">
-            <div className="mx-auto w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center shadow-lg shadow-blue-500/20 mb-6">
+            <div className="mx-auto w-20 h-20 bg-gradient-to-r from-primary-600 to-accent-600 rounded-3xl flex items-center justify-center shadow-lg shadow-primary-500/20 mb-6">
                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
             </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-4">Publish a <span className="text-blue-600">Job</span></h1>
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-4">Publish a <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-accent-600">Job</span></h1>
             <p className="text-lg font-medium text-slate-600 max-w-2xl mx-auto">
               Create a high-quality listing to attract the best freelancers and open contributors.
             </p>
@@ -134,7 +134,7 @@ export default function PublishJob() {
               <form onSubmit={handleSubmit} className="space-y-8">
              <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
                  <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4 border-b border-slate-200 pb-4">
-                     <span className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold">1</span>
+                     <span className="w-8 h-8 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center text-sm font-bold">1</span>
                     Basic Details
                  </h2>
                 <div>
@@ -184,7 +184,7 @@ export default function PublishJob() {
 
             <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
                 <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4 border-b border-slate-200 pb-4">
-                   <span className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold">2</span>
+                   <span className="w-8 h-8 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center text-sm font-bold">2</span>
                    Requirements
                 </h2>
                 <div className="grid gap-6 md:grid-cols-2">
@@ -222,7 +222,7 @@ export default function PublishJob() {
 
             <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
                 <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4 border-b border-slate-200 pb-4">
-                   <span className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold">3</span>
+                   <span className="w-8 h-8 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center text-sm font-bold">3</span>
                    Terms & Attachments
                 </h2>
                 

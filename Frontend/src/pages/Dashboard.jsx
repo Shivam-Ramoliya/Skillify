@@ -46,7 +46,7 @@ export default function Dashboard() {
       <div className="page-container space-y-8 relative z-10">
         <section
           className="glass-card p-8 md:p-10 text-white overflow-hidden relative"
-          style={{ backgroundColor: "var(--color-primary-600)" }}
+          style={{ background: "linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-accent-600) 100%)" }}
         >
           <div className="relative z-10">
             <div
@@ -372,7 +372,7 @@ export default function Dashboard() {
             <Link
               to="/publish-job"
               className="group rounded-xl p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 relative overflow-hidden text-white"
-              style={{ backgroundColor: "var(--color-primary-600)" }}
+              style={{ background: "linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-accent-600) 100%)" }}
             >
               <div
                 className="w-12 h-12 rounded-xl flex items-center justify-center text-white mb-5 group-hover:scale-110 transition-all duration-200"

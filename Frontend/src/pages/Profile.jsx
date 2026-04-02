@@ -44,6 +44,14 @@ const itemVariants = {
   }
 };
 
+const formatDate = (dateStr) => {
+  if (!dateStr) return "";
+  if (dateStr === "Present") return "Present";
+  const parts = dateStr.split("-");
+  if (parts.length !== 2) return dateStr;
+  return `${parts[1]}/${parts[0]}`;
+};
+
 export default function Profile() {
   const { userId } = useParams();
   const { user: currentUser, updateUser } = useAuth();
@@ -300,7 +308,7 @@ export default function Profile() {
                   </p>
                 </article>
 
-                {profile.experience && (
+                {profile.experience && profile.experience.length > 0 && (
                   <article className="glass-card p-8 md:p-10 shadow-lg border border-white/50 bg-white/80 hover:bg-white transition-colors duration-300">
                     <h2 className="text-2xl font-extrabold flex items-center gap-3 border-b-2 pb-5 mb-6" style={{ color: "var(--color-neutral-900)", borderColor: "var(--color-neutral-100)" }}>
                        <div className="p-3 rounded-2xl shadow-sm bg-accent-50 text-accent-600">
@@ -308,13 +316,23 @@ export default function Profile() {
                        </div>
                       Experience
                     </h2>
-                    <p className="whitespace-pre-line text-lg font-medium leading-relaxed text-neutral-600">
-                      {profile.experience}
-                    </p>
+                    <div className="space-y-6">
+                      {Array.isArray(profile.experience) ? profile.experience.map((exp, idx) => (
+                        <div key={idx} className="border-l-2 border-accent-200 pl-4 py-1">
+                          <h3 className="text-xl font-bold text-neutral-800">{exp.role}</h3>
+                          <p className="text-lg font-semibold text-accent-600">{exp.company}</p>
+                          <p className="text-sm font-medium text-neutral-500 mt-1.5">{formatDate(exp.from)} — {formatDate(exp.to)}</p>
+                        </div>
+                      )) : (
+                        <p className="whitespace-pre-line text-lg font-medium leading-relaxed text-neutral-600">
+                          {profile.experience}
+                        </p>
+                      )}
+                    </div>
                   </article>
                 )}
 
-                {profile.education && (
+                {profile.education && profile.education.length > 0 && (
                   <article className="glass-card p-8 md:p-10 shadow-lg border border-white/50 bg-white/80 hover:bg-white transition-colors duration-300">
                     <h2 className="text-2xl font-extrabold flex items-center gap-3 border-b-2 pb-5 mb-6" style={{ color: "var(--color-neutral-900)", borderColor: "var(--color-neutral-100)" }}>
                        <div className="p-3 rounded-2xl shadow-sm bg-primary-50 text-primary-600">
@@ -322,9 +340,19 @@ export default function Profile() {
                        </div>
                       Education
                     </h2>
-                    <p className="whitespace-pre-line text-lg font-medium leading-relaxed text-neutral-600">
-                      {profile.education}
-                    </p>
+                    <div className="space-y-6">
+                      {Array.isArray(profile.education) ? profile.education.map((edu, idx) => (
+                        <div key={idx} className="border-l-2 border-primary-200 pl-4 py-1">
+                          <h3 className="text-xl font-bold text-neutral-800">{edu.degree}</h3>
+                          <p className="text-lg font-semibold text-primary-600">{edu.school}</p>
+                          <p className="text-sm font-medium text-neutral-500 mt-1.5">{formatDate(edu.from)} — {formatDate(edu.to)}</p>
+                        </div>
+                      )) : (
+                        <p className="whitespace-pre-line text-lg font-medium leading-relaxed text-neutral-600">
+                          {profile.education}
+                        </p>
+                      )}
+                    </div>
                   </article>
                 )}
 

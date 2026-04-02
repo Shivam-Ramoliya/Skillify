@@ -14,8 +14,8 @@ export default function EditProfileForm({
     profilePicture: initialData?.profilePicture || "",
     resume: initialData?.resume || "",
     availability: initialData?.availability || "part-time",
-    education: initialData?.education || "",
-    experience: initialData?.experience || "",
+    education: Array.isArray(initialData?.education) ? initialData.education : [],
+    experience: Array.isArray(initialData?.experience) ? initialData.experience : [],
     yearsOfExperience: initialData?.yearsOfExperience ?? 0,
     currentRole: initialData?.currentRole || "",
     company: initialData?.company || "",
@@ -171,6 +171,24 @@ export default function EditProfileForm({
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleArrayChange = (field, index, key, value) => {
+    const newArray = [...formData[field]];
+    newArray[index] = { ...newArray[index], [key]: value };
+    setFormData({ ...formData, [field]: newArray });
+  };
+
+  const addArrayItem = (field) => {
+    const newItem = field === "education"
+      ? { school: "", degree: "", from: "", to: "" }
+      : { company: "", role: "", from: "", to: "" };
+    setFormData({ ...formData, [field]: [...formData[field], newItem] });
+  };
+
+  const removeArrayItem = (field, index) => {
+    const newArray = formData[field].filter((_, i) => i !== index);
+    setFormData({ ...formData, [field]: newArray });
+  };
+
   const handlePictureUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -232,6 +250,38 @@ export default function EditProfileForm({
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    // Date Validation
+    const validateDates = (arr) => {
+      for (const item of arr) {
+        if (!item.from) return "Please select 'From' date";
+        if (item.to !== "Present" && !item.to) return "Please select 'To' date";
+        
+        const fromDate = new Date(item.from);
+        const today = new Date();
+        
+        if (fromDate > today) return "Start date cannot be in the future";
+        
+        if (item.to !== "Present") {
+          const toDate = new Date(item.to);
+          if (toDate > today) return "End date cannot be in the future";
+          if (fromDate > toDate) return "Start date must come before End date";
+        }
+      }
+      return null;
+    };
+
+    const eduError = validateDates(formData.education);
+    if (eduError) { setError(`Education: ${eduError}`); return; }
+
+    const expError = validateDates(formData.experience);
+    if (expError) { setError(`Experience: ${expError}`); return; }
+
+    if (Number(formData.yearsOfExperience) > 0 && formData.experience.length === 0) {
+      setError("Please add at least one Experience entry, or set your Total Experience to 0.");
+      return;
+    }
+
     setLoading(true);
     try {
       const payload = {
@@ -555,32 +605,146 @@ export default function EditProfileForm({
           <label className="block text-sm font-semibold text-gray-700 mb-3">
             Education <span className="text-red-500">*</span>
           </label>
-          <textarea
-            name="education"
-            value={formData.education}
-            onChange={handleChange}
-            rows="3"
-            placeholder="e.g. B.Tech in Computer Science, XYZ University (2022)"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-          />
+          <div className="space-y-4">
+            {formData.education.map((edu, index) => (
+              <div key={index} className="p-4 border border-gray-200 rounded-lg relative bg-white shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => removeArrayItem("education", index)}
+                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold"
+                  title="Remove"
+                >
+                  ✕
+                </button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                  <input
+                    type="text"
+                    value={edu.school}
+                    onChange={(e) => handleArrayChange("education", index, "school", e.target.value)}
+                    placeholder="School / College"
+                    className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-sm"
+                  />
+                  <input
+                    type="text"
+                    value={edu.degree}
+                    onChange={(e) => handleArrayChange("education", index, "degree", e.target.value)}
+                    placeholder="Degree / Standard"
+                    className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-sm"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">From</label>
+                    <input
+                      type="month"
+                      max={new Date().toISOString().slice(0, 7)}
+                      value={edu.from || ""}
+                      onChange={(e) => handleArrayChange("education", index, "from", e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">To</label>
+                    <input
+                      type="month"
+                      max={new Date().toISOString().slice(0, 7)}
+                      value={edu.to || ""}
+                      onChange={(e) => handleArrayChange("education", index, "to", e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => addArrayItem("education")}
+              className="text-sm font-semibold text-blue-600 border border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-lg px-4 py-2 flex items-center gap-2"
+            >
+               <span>+</span> Add Education
+            </button>
+          </div>
         </div>
 
         {/* Experience */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Experience <span className="text-red-500">*</span>
+            Experience {Number(formData.yearsOfExperience) > 0 && <span className="text-red-500">*</span>}
           </label>
-          <textarea
-            name="experience"
-            value={formData.experience}
-            onChange={handleChange}
-            rows="4"
-            placeholder="Describe your work experience, internships, and major projects"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-          />
+          <div className="space-y-4">
+            {formData.experience.map((exp, index) => (
+              <div key={index} className="p-4 border border-gray-200 rounded-lg relative bg-white shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => removeArrayItem("experience", index)}
+                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold"
+                  title="Remove"
+                >
+                  ✕
+                </button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                  <input
+                    type="text"
+                    value={exp.company}
+                    onChange={(e) => handleArrayChange("experience", index, "company", e.target.value)}
+                    placeholder="Company Name"
+                    className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-sm"
+                  />
+                  <input
+                    type="text"
+                    value={exp.role}
+                    onChange={(e) => handleArrayChange("experience", index, "role", e.target.value)}
+                    placeholder="Role"
+                    className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-sm"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">From</label>
+                    <input
+                      type="month"
+                      max={new Date().toISOString().slice(0, 7)}
+                      value={exp.from || ""}
+                      onChange={(e) => handleArrayChange("experience", index, "from", e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="block text-xs text-gray-500">To</label>
+                      <label className="flex items-center gap-1 text-xs text-blue-600 font-semibold cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={exp.to === "Present"}
+                          onChange={(e) => handleArrayChange("experience", index, "to", e.target.checked ? "Present" : "")}
+                          className="rounded text-blue-600 focus:ring-blue-500"
+                        />
+                        Present
+                      </label>
+                    </div>
+                    <input
+                      type="month"
+                      max={new Date().toISOString().slice(0, 7)}
+                      value={exp.to === "Present" ? "" : exp.to || ""}
+                      onChange={(e) => handleArrayChange("experience", index, "to", e.target.value)}
+                      disabled={exp.to === "Present"}
+                      className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-sm disabled:bg-gray-100 disabled:text-gray-400"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => addArrayItem("experience")}
+              className="text-sm font-semibold text-blue-600 border border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-lg px-4 py-2 flex items-center gap-2"
+            >
+               <span>+</span> Add Experience
+            </button>
+          </div>
         </div>
 
-        {/* Role and Company */}
+        {/* Role and Company (Current Overview) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-3">

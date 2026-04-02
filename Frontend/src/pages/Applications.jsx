@@ -3,6 +3,17 @@ import { Link } from "react-router-dom";
 import { api } from "../utils/api";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
+import {
+  MapPin,
+  DollarSign,
+  Calendar,
+  FileText,
+  Briefcase,
+  Info,
+  Clock,
+  Users,
+  ArrowRight,
+} from "lucide-react";
 
 const statusClassMap = {
   pending: "bg-amber-100/80 text-amber-800 border-amber-200 shadow-sm",
@@ -21,6 +32,9 @@ export default function Applications() {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("received");
   const [actionLoadingId, setActionLoadingId] = useState("");
+  const [reopenJob, setReopenJob] = useState(null);
+  const [reopenDate, setReopenDate] = useState("");
+  const [reopenError, setReopenError] = useState("");
 
   const loadInitialData = async () => {
     setError("");
@@ -99,49 +113,57 @@ export default function Applications() {
   };
 
   const handleToggleJobStatus = async (job) => {
-    // If job is currently closed, prompt for a new closing date to re-open
+    // If job is currently closed, open the date picker modal
     if (job.status !== "open") {
-      const newClosingDate = prompt(
-        "Enter a new application closing date to re-open this job (YYYY-MM-DD):"
-      );
-      if (!newClosingDate) return; // User cancelled
+      setReopenJob(job);
+      setReopenDate("");
+      setReopenError("");
+      return;
+    }
 
-      const today = new Date().toISOString().split("T")[0];
-      if (newClosingDate < today) {
-        setError("Application closing date cannot be in the past.");
-        return;
+    // Closing — no extra input needed
+    setActionLoadingId(job._id + "toggle");
+    setError("");
+    try {
+      await api.toggleJobStatus(job._id);
+      const postsRes = await api.getMyPostedJobs();
+      setMyPostedJobs(postsRes.data || []);
+      if (selectedJob && selectedJob._id === job._id) {
+        setSelectedJob(prev => ({ ...prev, status: "closed" }));
       }
+    } catch (err) {
+      setError(err.message || "Failed to close job");
+    } finally {
+      setActionLoadingId("");
+    }
+  };
 
-      setActionLoadingId(job._id + "toggle");
-      setError("");
-      try {
-        await api.toggleJobStatus(job._id, newClosingDate);
-        const postsRes = await api.getMyPostedJobs();
-        setMyPostedJobs(postsRes.data || []);
-        if (selectedJob && selectedJob._id === job._id) {
-          setSelectedJob(prev => ({ ...prev, status: "open", closingDate: newClosingDate }));
-        }
-      } catch (err) {
-        setError(err.message || "Failed to re-open job");
-      } finally {
-        setActionLoadingId("");
+  const handleConfirmReopen = async () => {
+    if (!reopenDate) {
+      setReopenError("Please select a closing date.");
+      return;
+    }
+    const today = new Date().toISOString().split("T")[0];
+    if (reopenDate < today) {
+      setReopenError("Closing date cannot be in the past.");
+      return;
+    }
+
+    const job = reopenJob;
+    setReopenJob(null);
+    setActionLoadingId(job._id + "toggle");
+    setError("");
+    try {
+      await api.toggleJobStatus(job._id, reopenDate);
+      const postsRes = await api.getMyPostedJobs();
+      setMyPostedJobs(postsRes.data || []);
+      if (selectedJob && selectedJob._id === job._id) {
+        setSelectedJob(prev => ({ ...prev, status: "open", closingDate: reopenDate }));
       }
-    } else {
-      // Closing — no extra input needed
-      setActionLoadingId(job._id + "toggle");
-      setError("");
-      try {
-        await api.toggleJobStatus(job._id);
-        const postsRes = await api.getMyPostedJobs();
-        setMyPostedJobs(postsRes.data || []);
-        if (selectedJob && selectedJob._id === job._id) {
-          setSelectedJob(prev => ({ ...prev, status: "closed" }));
-        }
-      } catch (err) {
-        setError(err.message || "Failed to close job");
-      } finally {
-        setActionLoadingId("");
-      }
+    } catch (err) {
+      setError(err.message || "Failed to re-open job");
+    } finally {
+      setActionLoadingId("");
     }
   };
 
@@ -251,6 +273,88 @@ export default function Applications() {
           )}
         </div>
       </div>
+
+      {/* Re-open Job Date Picker Modal */}
+      {reopenJob && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setReopenJob(null)}
+          ></div>
+
+          {/* Modal */}
+          <div className="relative bg-white rounded-3xl shadow-2xl border border-slate-200/60 w-full max-w-md overflow-hidden animate-fade-in-up">
+            {/* Accent bar */}
+            <div className="h-1.5 bg-gradient-to-r from-blue-500 to-blue-600"></div>
+
+            <div className="p-8">
+              {/* Header */}
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100 shadow-sm">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900">Re-open Job</h3>
+                  <p className="text-sm font-medium text-slate-500">
+                    {reopenJob.jobName}
+                  </p>
+                </div>
+              </div>
+
+              {/* Description */}
+              <p className="text-sm text-slate-600 mb-5 leading-relaxed">
+                Select a new application closing date to re-open this job for applicants.
+              </p>
+
+              {/* Date Input */}
+              <label className="block mb-2 text-sm font-bold text-slate-700">
+                Application Closing Date
+              </label>
+              <input
+                type="date"
+                value={reopenDate}
+                onChange={(e) => {
+                  setReopenDate(e.target.value);
+                  setReopenError("");
+                }}
+                min={new Date().toISOString().split("T")[0]}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all"
+              />
+
+              {/* Error */}
+              {reopenError && (
+                <p className="mt-3 text-sm font-semibold text-red-600 flex items-center gap-2">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {reopenError}
+                </p>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-3 mt-8">
+                <button
+                  type="button"
+                  onClick={() => setReopenJob(null)}
+                  className="flex-1 px-5 py-3 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmReopen}
+                  className="flex-1 px-5 py-3 rounded-xl bg-blue-600 text-sm font-bold text-white hover:bg-blue-700 transition-colors shadow-md shadow-blue-500/20"
+                >
+                  Re-open Job
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -314,16 +418,16 @@ function MyPostedJobsGrid({ jobs, onSelectJob, onToggleStatus, actionLoadingId }
             style={{ animationDelay: `${index * 50}ms` }}
           >
             {/* Top accent bar */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-blue-600 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-blue-600 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
 
-            {/* Header: Job name + applicant count */}
-            <div className="flex items-start justify-between gap-4 mb-4">
+            {/* Header */}
+            <div className="flex items-start justify-between gap-4 mb-2">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 font-black text-2xl border border-blue-100/50 shadow-sm flex-shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 font-black text-xl border border-blue-100/50 shadow-sm flex-shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
                   {job.jobName.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-700 transition-colors line-clamp-1 flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-700 transition-colors line-clamp-1 flex items-center gap-2">
                     {job.jobName}
                     <span
                       className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold border ${
@@ -335,84 +439,38 @@ function MyPostedJobsGrid({ jobs, onSelectJob, onToggleStatus, actionLoadingId }
                       {job.status || "open"}
                     </span>
                   </h3>
-                  <p className="mt-1 text-sm font-semibold text-slate-500 flex items-center gap-1.5 flex-wrap">
-                    <svg
-                      className="w-4 h-4 text-blue-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    Posted{" "}
-                    {new Date(job.createdAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                    {job.closingDate && (
-                      <>
-                        <span className="text-slate-300 mx-1">·</span>
-                        <svg
-                          className="w-3.5 h-3.5 text-red-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        <span className="text-red-500">Closes{" "}
-                        {new Date(job.closingDate).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}</span>
-                      </>
-                    )}
-                  </p>
                 </div>
               </div>
 
               {/* Applicant count badge */}
-              <div className="flex-shrink-0">
-                <span
-                  className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold uppercase tracking-wider ${
-                    job.applicantCount > 0
-                      ? "bg-blue-100/80 text-blue-800 border-blue-200 shadow-sm"
-                      : "bg-slate-100/80 text-slate-500 border-slate-200 shadow-sm"
-                  }`}
-                >
-                  <svg
-                    className="w-3.5 h-3.5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  {job.applicantCount}{" "}
-                  {job.applicantCount === 1 ? "applicant" : "applicants"}
-                </span>
-              </div>
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold uppercase tracking-wider flex-shrink-0 ${
+                  job.applicantCount > 0
+                    ? "bg-blue-50 text-blue-700 border-blue-200"
+                    : "bg-slate-50 text-slate-500 border-slate-200"
+                }`}
+              >
+                <Users className="w-3.5 h-3.5" />
+                {job.applicantCount} {job.applicantCount === 1 ? "Applicant" : "Applicants"}
+              </span>
             </div>
 
-            {/* Job details preview */}
-            <div className="my-3 flex-grow">
+            {/* Dates row */}
+            <div className="flex items-center gap-4 mb-4 ml-16 text-sm">
+              <div className="flex items-center gap-1.5 text-slate-500">
+                <Calendar className="w-3.5 h-3.5" />
+                <span className="font-medium">Posted {new Date(job.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+              </div>
+              {job.closingDate && (
+                <div className="flex items-center gap-1.5 text-red-500">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span className="font-semibold">Closes {new Date(job.closingDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Job details */}
+            <div className="mb-4 flex-grow">
               <p className="line-clamp-2 text-sm leading-relaxed text-slate-600 font-medium">
                 {job.jobDetails}
               </p>
@@ -435,125 +493,67 @@ function MyPostedJobsGrid({ jobs, onSelectJob, onToggleStatus, actionLoadingId }
               )}
             </div>
 
-            {/* Info grid */}
-            <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-2 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 mb-5">
+            {/* Info grid — labeled fields */}
+            <div className="grid gap-3 text-sm sm:grid-cols-2 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 mb-5">
               <div className="flex items-center gap-2.5">
                 <div className="bg-blue-100 p-1.5 rounded-lg">
-                  <svg
-                    className="w-4 h-4 text-blue-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                    />
-                  </svg>
+                  <Briefcase className="w-4 h-4 text-blue-600" />
                 </div>
-                <span className="font-semibold text-slate-900">
-                  {job.experienceRequired}
-                </span>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Experience</p>
+                  <p className="font-semibold text-slate-900 text-sm">{job.experienceRequired || "Any"}</p>
+                </div>
               </div>
               <div className="flex items-center gap-2.5">
                 <div className="bg-emerald-100 p-1.5 rounded-lg">
-                  <svg
-                    className="w-4 h-4 text-emerald-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
+                  <DollarSign className="w-4 h-4 text-emerald-600" />
                 </div>
-                <span className="font-semibold text-slate-900">
-                  {job.salary || "Unpaid"}
-                </span>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Salary</p>
+                  <p className="font-semibold text-slate-900 text-sm">{job.salary || "Unpaid"}</p>
+                </div>
               </div>
               <div className="flex items-center gap-2.5">
-                <div className="bg-blue-100 p-1.5 rounded-lg">
-                  <svg
-                    className="w-4 h-4 text-blue-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                    />
-                  </svg>
+                <div className="bg-violet-100 p-1.5 rounded-lg">
+                  <Info className="w-4 h-4 text-violet-600" />
                 </div>
-                <span className="font-semibold text-slate-900 capitalize">
-                  {job.compensationType}
-                </span>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Type</p>
+                  <p className="font-semibold text-slate-900 text-sm capitalize">{job.compensationType}</p>
+                </div>
               </div>
               <div className="flex items-center gap-2.5">
-                <div className="bg-slate-100 p-1.5 rounded-lg">
-                  <svg
-                    className="w-4 h-4 text-slate-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
+                <div className="bg-amber-100 p-1.5 rounded-lg">
+                  <Calendar className="w-4 h-4 text-amber-600" />
                 </div>
-                <span className="font-semibold text-slate-900 text-xs tracking-tight">
-                  {new Date(job.durationFrom).toLocaleDateString()} -{" "}
-                  {new Date(job.durationTo).toLocaleDateString()}
-                </span>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Duration</p>
+                  <p className="font-semibold text-slate-900 text-xs">{new Date(job.durationFrom).toLocaleDateString("en-US", { month: "short", day: "numeric" })} – {new Date(job.durationTo).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
+                </div>
               </div>
             </div>
 
-            {/* CTA footer */}
+            {/* Footer */}
             <div className="mt-auto border-t border-slate-100 pt-5 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                  <span className="text-sm font-bold text-blue-600 group-hover:text-blue-700 flex items-center gap-1.5 transition-colors">
-                    View Applicants
-                    <svg
-                      className="w-4 h-4 transform group-hover:translate-x-1 transition-transform"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 7l5 5m0 0l-5 5m5-5H6"
-                      />
-                    </svg>
-                  </span>
-                  
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleStatus(job);
-                    }}
-                    disabled={actionLoadingId === job._id + "toggle"}
-                    className={`ml-2 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors border ${
-                        job.status === "open"
-                        ? "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"
-                        : "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100"
-                    }`}
-                  >
-                    {actionLoadingId === job._id + "toggle" ? "..." : job.status === "open" ? "Close Job" : "Re-open Job"}
-                  </button>
+                <span className="text-sm font-bold text-blue-600 group-hover:text-blue-700 flex items-center gap-1.5 transition-colors">
+                  View Applicants
+                  <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleStatus(job);
+                  }}
+                  disabled={actionLoadingId === job._id + "toggle"}
+                  className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors border ${
+                    job.status === "open"
+                      ? "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"
+                      : "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100"
+                  }`}
+                >
+                  {actionLoadingId === job._id + "toggle" ? "..." : job.status === "open" ? "Close Job" : "Re-open Job"}
+                </button>
               </div>
               <div className="flex items-center gap-2">
                 {job.githubRepoUrl && (
@@ -565,16 +565,8 @@ function MyPostedJobsGrid({ jobs, onSelectJob, onToggleStatus, actionLoadingId }
                     className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm"
                     title="View Repository"
                   >
-                    <svg
-                      className="w-4 h-4"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                        clipRule="evenodd"
-                      />
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
                     </svg>
                   </a>
                 )}
@@ -587,19 +579,7 @@ function MyPostedJobsGrid({ jobs, onSelectJob, onToggleStatus, actionLoadingId }
                     className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm"
                     title="View Document"
                   >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
+                    <FileText className="w-4 h-4" />
                   </a>
                 )}
               </div>

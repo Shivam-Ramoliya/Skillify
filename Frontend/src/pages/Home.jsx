@@ -73,7 +73,7 @@ export default function Home() {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="text-center max-w-5xl mx-auto px-4 mt-8"
+          className="text-center w-full max-w-none mx-auto px-4 mt-8"
         >
           <motion.div variants={itemVariants} className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full surface-card mb-8">
             <span className="flex h-3 w-3 rounded-full animate-pulse" style={{ backgroundColor: "var(--color-accent-500)" }}></span>
@@ -121,7 +121,7 @@ export default function Home() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
-          className="mt-40 max-w-6xl mx-auto px-4 relative z-20"
+          className="mt-40 w-full xl:w-[90%] mx-auto px-4 relative z-20"
         >
           <div className="glass-card p-10 md:p-14 relative overflow-hidden">
             <div className="flex flex-col md:flex-row gap-12 items-center">
@@ -163,7 +163,7 @@ export default function Home() {
         </motion.section>
 
         {/* Pillars Section */}
-        <section className="mt-40 max-w-7xl mx-auto px-4">
+        <section className="mt-40 w-full mx-auto px-4">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -215,7 +215,7 @@ export default function Home() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mt-40 max-w-5xl mx-auto px-4"
+          className="mt-40 w-full xl:w-[80%] mx-auto px-4"
         >
           <div 
             className="relative rounded-[2.5rem] overflow-hidden p-14 md:p-24 text-center shadow-2xl"
