@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { api } from "../utils/api";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import EditProfileForm from "../components/profile/EditProfileForm";
@@ -55,9 +56,9 @@ const formatDate = (dateStr) => {
 export default function Profile() {
   const { userId } = useParams();
   const { user: currentUser, updateUser } = useAuth();
+  const toast = useToast();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [editing, setEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -75,7 +76,6 @@ export default function Profile() {
 
   const fetchProfile = async () => {
     setLoading(true);
-    setError("");
     try {
       const response = isOwnProfile
         ? await api.getMyProfile()
@@ -85,7 +85,7 @@ export default function Profile() {
         setProfile(profileData);
       }
     } catch (err) {
-      setError(err.message || "Failed to load profile");
+      toast.error(err.message || "Failed to load profile");
     } finally {
       setLoading(false);
     }
@@ -112,22 +112,31 @@ export default function Profile() {
           ...currentUser,
           profileVisibility: response.profileVisibility,
         });
+        toast.success(`Profile is now ${response.profileVisibility}`);
       }
     } catch (err) {
-      setError(err.message || "Failed to update visibility");
+      const message = err.message || "Failed to update visibility";
+      if (
+        message.includes("open posted jobs") ||
+        message.includes("pending applications")
+      ) {
+        toast.warning(message);
+      } else {
+        toast.error(message);
+      }
     }
   };
 
   if (loading) return <LoadingSpinner />;
   
-  if (error && !profile) {
+  if (!profile) {
     return (
       <div className="page-wrap relative flex items-center justify-center min-h-[60vh]">
         <div className="rounded-2xl border border-error-200 bg-error-50/90 backdrop-blur-md px-8 py-6 text-error-700 flex flex-col items-center gap-4 font-bold shadow-lg text-center max-w-md">
           <div className="w-16 h-16 bg-error-100 rounded-full flex items-center justify-center mb-2">
             <AlertCircle className="w-8 h-8 text-error-500 shrink-0" />
           </div>
-          <p className="text-xl">{error}</p>
+          <p className="text-xl">Unable to load profile.</p>
           {isOwnProfile && (
             <button onClick={fetchProfile} className="mt-4 btn-primary bg-error-500 hover:bg-error-600 shadow-error-500/30">
               Try Again
@@ -158,13 +167,6 @@ export default function Profile() {
         animate="visible"
         className="page-container space-y-8 relative z-10 pt-[100px]"
       >
-        {error && (
-          <motion.div variants={itemVariants} className="rounded-2xl border border-error-200 bg-error-50/90 backdrop-blur-md px-6 py-4 text-sm font-bold text-error-700 flex items-center gap-3 shadow-xl relative z-20">
-             <AlertCircle className="w-5 h-5 text-error-500 shrink-0" />
-             {error}
-          </motion.div>
-        )}
-
         <motion.section variants={itemVariants} className="glass-card shadow-2xl transition-all duration-300 border border-white/40 bg-white/80">
           <div className="px-6 md:px-12 py-12 relative">
             <div className="flex flex-col items-center justify-center text-center relative z-10 w-full">

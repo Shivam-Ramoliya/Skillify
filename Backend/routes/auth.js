@@ -5,6 +5,7 @@ const {
   getMe,
   verifyEmail,
   resendVerification,
+  checkVerification,
   forgotPassword,
   resetPassword,
 } = require("../controllers/authController");
@@ -17,6 +18,7 @@ router.post("/signup", signup);
 router.post("/login", login);
 router.post("/verify-email", verifyEmail);
 router.post("/resend-verification", resendVerification);
+router.post("/check-verification", checkVerification);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 

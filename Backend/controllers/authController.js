@@ -322,6 +322,59 @@ exports.resendVerification = async (req, res) => {
   }
 };
 
+// @desc    Check if user's email is verified (and log them in if so)
+// @route   POST /api/auth/check-verification
+// @access  Public
+exports.checkVerification = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (!user.isVerified) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Email is not verified yet. Please check your inbox and click the verification link.",
+      });
+    }
+
+    // User is verified - generate token for auto login
+    const authToken = generateToken(user._id);
+
+    res.status(200).json({
+      success: true,
+      message: "Email is verified",
+      token: authToken,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        profileComplete: user.profileComplete,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Server error",
+    });
+  }
+};
+
 // @desc    Request password reset link
 // @route   POST /api/auth/forgot-password
 // @access  Public

@@ -83,6 +83,20 @@ export function AuthProvider({ children }) {
     return response;
   };
 
+  const checkVerification = async (email) => {
+    const response = await api.checkVerification(email);
+    if (response.token) {
+      setSession(response.token, response.user);
+      try {
+        const me = await api.getMe();
+        setUser(normalizeUser(me.data));
+      } catch (error) {
+        console.error("Failed to hydrate verified user:", error);
+      }
+    }
+    return response;
+  };
+
   const resendVerification = async (email) => {
     return api.resendVerification(email);
   };
@@ -120,6 +134,7 @@ export function AuthProvider({ children }) {
       login,
       signup,
       verifyEmail,
+      checkVerification,
       resendVerification,
       forgotPassword,
       resetPassword,

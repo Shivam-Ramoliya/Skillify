@@ -1,11 +1,13 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import EditProfileForm from "../components/profile/EditProfileForm";
 import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
 
 export default function CompleteProfile() {
   const { user, updateUser } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,6 +17,7 @@ export default function CompleteProfile() {
 
   const handleSave = (response) => {
     updateUser(response.user);
+    toast.success("Profile completed successfully!");
     if (response.profileComplete) navigate("/dashboard");
   };
 
@@ -27,7 +30,7 @@ export default function CompleteProfile() {
         style={{ animationDelay: "2s" }}
       ></div>
 
-      <div className="page-container max-w-4xl relative z-10 w-full animate-fade-in-up">
+      <div className="page-container max-w-[70%] relative z-10 w-full animate-fade-in-up">
         <section className="glass-card p-6 md:p-10 border border-slate-200/60 bg-white shadow-xl backdrop-blur-xl rounded-3xl">
           <div className="text-center mb-10 border-b border-slate-200 pb-8">
             <div className="w-20 h-20 mx-auto bg-blue-600 rounded-3xl flex items-center justify-center text-white mb-6 shadow-lg shadow-blue-500/30">
@@ -49,8 +52,8 @@ export default function CompleteProfile() {
               Complete your <span className="text-blue-600">Profile</span>
             </h1>
             <p className="mt-4 text-lg font-medium text-slate-600">
-              Add your details so clients and collaborators can evaluate you
-              confidently.
+              Add your details so clients can discover you and hire you for
+              their projects.
             </p>
           </div>
 

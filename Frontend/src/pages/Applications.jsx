@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../utils/api";
+import { useToast } from "../context/ToastContext";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
 import {
@@ -23,13 +24,13 @@ const statusClassMap = {
 };
 
 export default function Applications() {
+  const toast = useToast();
   const [sentApplications, setSentApplications] = useState([]);
   const [myPostedJobs, setMyPostedJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [jobApplications, setJobApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [jobAppsLoading, setJobAppsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("received");
   const [actionLoadingId, setActionLoadingId] = useState("");
   const [reopenJob, setReopenJob] = useState(null);
@@ -37,7 +38,6 @@ export default function Applications() {
   const [reopenError, setReopenError] = useState("");
 
   const loadInitialData = async () => {
-    setError("");
     setLoading(true);
     try {
       const [sentRes, postsRes] = await Promise.all([
@@ -47,7 +47,7 @@ export default function Applications() {
       setSentApplications(sentRes.data || []);
       setMyPostedJobs(postsRes.data || []);
     } catch (err) {
-      setError(err.message || "Failed to load applications");
+      toast.error(err.message || "Failed to load applications");
     } finally {
       setLoading(false);
     }
@@ -62,12 +62,11 @@ export default function Applications() {
   const handleSelectJob = async (job) => {
     setSelectedJob(job);
     setJobAppsLoading(true);
-    setError("");
     try {
       const res = await api.getReceivedApplicationsForJob(job._id);
       setJobApplications(res.data || []);
     } catch (err) {
-      setError(err.message || "Failed to load applications for this job");
+      toast.error(err.message || "Failed to load applications for this job");
     } finally {
       setJobAppsLoading(false);
     }
@@ -80,9 +79,9 @@ export default function Applications() {
 
   const updateStatus = async (applicationId, status) => {
     setActionLoadingId(applicationId + status);
-    setError("");
     try {
       await api.updateApplicationStatus(applicationId, status);
+      toast.success(`Application ${status} successfully!`);
       // Refresh the applications for this specific job
       if (selectedJob) {
         const res = await api.getReceivedApplicationsForJob(selectedJob._id);
@@ -92,7 +91,7 @@ export default function Applications() {
         setMyPostedJobs(postsRes.data || []);
       }
     } catch (err) {
-      setError(err.message || "Failed to update application status");
+      toast.error(err.message || "Failed to update application status");
     } finally {
       setActionLoadingId("");
     }
@@ -100,13 +99,13 @@ export default function Applications() {
 
   const withdrawApplication = async (applicationId) => {
     setActionLoadingId(applicationId + "withdrawn");
-    setError("");
     try {
       await api.updateApplicationStatus(applicationId, "withdrawn");
+      toast.success("Application withdrawn successfully!");
       const sentRes = await api.getSentApplications();
       setSentApplications(sentRes.data || []);
     } catch (err) {
-      setError(err.message || "Failed to withdraw application");
+      toast.error(err.message || "Failed to withdraw application");
     } finally {
       setActionLoadingId("");
     }
@@ -123,16 +122,16 @@ export default function Applications() {
 
     // Closing — no extra input needed
     setActionLoadingId(job._id + "toggle");
-    setError("");
     try {
       await api.toggleJobStatus(job._id);
+      toast.success("Job closed successfully!");
       const postsRes = await api.getMyPostedJobs();
       setMyPostedJobs(postsRes.data || []);
       if (selectedJob && selectedJob._id === job._id) {
-        setSelectedJob(prev => ({ ...prev, status: "closed" }));
+        setSelectedJob((prev) => ({ ...prev, status: "closed" }));
       }
     } catch (err) {
-      setError(err.message || "Failed to close job");
+      toast.error(err.message || "Failed to close job");
     } finally {
       setActionLoadingId("");
     }
@@ -152,16 +151,20 @@ export default function Applications() {
     const job = reopenJob;
     setReopenJob(null);
     setActionLoadingId(job._id + "toggle");
-    setError("");
     try {
       await api.toggleJobStatus(job._id, reopenDate);
+      toast.success("Job re-opened successfully!");
       const postsRes = await api.getMyPostedJobs();
       setMyPostedJobs(postsRes.data || []);
       if (selectedJob && selectedJob._id === job._id) {
-        setSelectedJob(prev => ({ ...prev, status: "open", closingDate: reopenDate }));
+        setSelectedJob((prev) => ({
+          ...prev,
+          status: "open",
+          closingDate: reopenDate,
+        }));
       }
     } catch (err) {
-      setError(err.message || "Failed to re-open job");
+      toast.error(err.message || "Failed to re-open job");
     } finally {
       setActionLoadingId("");
     }
@@ -226,25 +229,6 @@ export default function Applications() {
           </div>
         </section>
 
-        {error && (
-          <div className="rounded-2xl border border-red-200 bg-red-50/80 backdrop-blur-sm px-6 py-4 text-sm font-medium text-red-700 flex items-center gap-3 shadow-sm animate-fade-in-up">
-            <svg
-              className="w-5 h-5 text-red-500 flex-shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            {error}
-          </div>
-        )}
-
         <div className="animate-fade-in">
           {activeTab === "received" ? (
             selectedJob ? (
@@ -292,12 +276,24 @@ export default function Applications() {
               {/* Header */}
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100 shadow-sm">
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900">Re-open Job</h3>
+                  <h3 className="text-xl font-bold text-slate-900">
+                    Re-open Job
+                  </h3>
                   <p className="text-sm font-medium text-slate-500">
                     {reopenJob.jobName}
                   </p>
@@ -306,7 +302,8 @@ export default function Applications() {
 
               {/* Description */}
               <p className="text-sm text-slate-600 mb-5 leading-relaxed">
-                Select a new application closing date to re-open this job for applicants.
+                Select a new application closing date to re-open this job for
+                applicants.
               </p>
 
               {/* Date Input */}
@@ -327,8 +324,18 @@ export default function Applications() {
               {/* Error */}
               {reopenError && (
                 <p className="mt-3 text-sm font-semibold text-red-600 flex items-center gap-2">
-                  <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    className="w-4 h-4 flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                   {reopenError}
                 </p>
@@ -360,7 +367,12 @@ export default function Applications() {
 }
 
 /* ─── Received Tab: Level 1 — Job Posts Grid ────────────────────────── */
-function MyPostedJobsGrid({ jobs, onSelectJob, onToggleStatus, actionLoadingId }) {
+function MyPostedJobsGrid({
+  jobs,
+  onSelectJob,
+  onToggleStatus,
+  actionLoadingId,
+}) {
   if (jobs.length === 0) {
     return (
       <div className="glass-card p-16 text-center border border-white/60">
@@ -451,7 +463,8 @@ function MyPostedJobsGrid({ jobs, onSelectJob, onToggleStatus, actionLoadingId }
                 }`}
               >
                 <Users className="w-3.5 h-3.5" />
-                {job.applicantCount} {job.applicantCount === 1 ? "Applicant" : "Applicants"}
+                {job.applicantCount}{" "}
+                {job.applicantCount === 1 ? "Applicant" : "Applicants"}
               </span>
             </div>
 
@@ -459,12 +472,26 @@ function MyPostedJobsGrid({ jobs, onSelectJob, onToggleStatus, actionLoadingId }
             <div className="flex items-center gap-4 mb-4 ml-16 text-sm">
               <div className="flex items-center gap-1.5 text-slate-500">
                 <Calendar className="w-3.5 h-3.5" />
-                <span className="font-medium">Posted {new Date(job.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                <span className="font-medium">
+                  Posted{" "}
+                  {new Date(job.createdAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
               </div>
               {job.closingDate && (
                 <div className="flex items-center gap-1.5 text-red-500">
                   <Clock className="w-3.5 h-3.5" />
-                  <span className="font-semibold">Closes {new Date(job.closingDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                  <span className="font-semibold">
+                    Closes{" "}
+                    {new Date(job.closingDate).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
                 </div>
               )}
             </div>
@@ -500,8 +527,12 @@ function MyPostedJobsGrid({ jobs, onSelectJob, onToggleStatus, actionLoadingId }
                   <Briefcase className="w-4 h-4 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Experience</p>
-                  <p className="font-semibold text-slate-900 text-sm">{job.experienceRequired || "Any"}</p>
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">
+                    Experience
+                  </p>
+                  <p className="font-semibold text-slate-900 text-sm">
+                    {job.experienceRequired || "Any"}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5">
@@ -509,8 +540,12 @@ function MyPostedJobsGrid({ jobs, onSelectJob, onToggleStatus, actionLoadingId }
                   <DollarSign className="w-4 h-4 text-emerald-600" />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Salary</p>
-                  <p className="font-semibold text-slate-900 text-sm">{job.salary || "Unpaid"}</p>
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">
+                    Salary
+                  </p>
+                  <p className="font-semibold text-slate-900 text-sm">
+                    {job.salary || "Unpaid"}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5">
@@ -518,8 +553,12 @@ function MyPostedJobsGrid({ jobs, onSelectJob, onToggleStatus, actionLoadingId }
                   <Info className="w-4 h-4 text-violet-600" />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Type</p>
-                  <p className="font-semibold text-slate-900 text-sm capitalize">{job.compensationType}</p>
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">
+                    Type
+                  </p>
+                  <p className="font-semibold text-slate-900 text-sm capitalize">
+                    {job.compensationType}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5">
@@ -527,8 +566,21 @@ function MyPostedJobsGrid({ jobs, onSelectJob, onToggleStatus, actionLoadingId }
                   <Calendar className="w-4 h-4 text-amber-600" />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Duration</p>
-                  <p className="font-semibold text-slate-900 text-xs">{new Date(job.durationFrom).toLocaleDateString("en-US", { month: "short", day: "numeric" })} – {new Date(job.durationTo).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">
+                    Duration
+                  </p>
+                  <p className="font-semibold text-slate-900 text-xs">
+                    {new Date(job.durationFrom).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    })}{" "}
+                    –{" "}
+                    {new Date(job.durationTo).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </p>
                 </div>
               </div>
             </div>
@@ -552,7 +604,11 @@ function MyPostedJobsGrid({ jobs, onSelectJob, onToggleStatus, actionLoadingId }
                       : "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100"
                   }`}
                 >
-                  {actionLoadingId === job._id + "toggle" ? "..." : job.status === "open" ? "Close Job" : "Re-open Job"}
+                  {actionLoadingId === job._id + "toggle"
+                    ? "..."
+                    : job.status === "open"
+                      ? "Close Job"
+                      : "Re-open Job"}
                 </button>
               </div>
               <div className="flex items-center gap-2">
@@ -565,8 +621,16 @@ function MyPostedJobsGrid({ jobs, onSelectJob, onToggleStatus, actionLoadingId }
                     className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm"
                     title="View Repository"
                   >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                   </a>
                 )}
@@ -653,8 +717,18 @@ function ReceivedJobApplications({
                   <span>{job.skillsRequired?.join(" · ")}</span>
                   {job.closingDate && (
                     <span className="inline-flex items-center gap-1 text-slate-400">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="w-3.5 h-3.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
                       Closes {new Date(job.closingDate).toLocaleDateString()}
                     </span>
@@ -918,8 +992,7 @@ function ReceivedJobApplications({
                           }
                           className="px-5 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 font-bold hover:bg-emerald-100 border border-emerald-200 transition-all shadow-sm text-sm flex items-center gap-2 disabled:opacity-50"
                         >
-                          {actionLoadingId ===
-                          application._id + "accepted" ? (
+                          {actionLoadingId === application._id + "accepted" ? (
                             <svg
                               className="animate-spin h-4 w-4"
                               fill="none"
@@ -966,8 +1039,7 @@ function ReceivedJobApplications({
                           }
                           className="px-5 py-2.5 rounded-xl bg-rose-50 text-rose-700 font-bold hover:bg-rose-100 border border-rose-200 transition-all shadow-sm text-sm flex items-center gap-2 disabled:opacity-50"
                         >
-                          {actionLoadingId ===
-                          application._id + "rejected" ? (
+                          {actionLoadingId === application._id + "rejected" ? (
                             <svg
                               className="animate-spin h-4 w-4"
                               fill="none"
@@ -1136,9 +1208,7 @@ function SentApplicationsList({ applications, actionLoadingId, onWithdraw }) {
                   <button
                     type="button"
                     onClick={() => onWithdraw(application._id)}
-                    disabled={
-                      actionLoadingId === application._id + "withdrawn"
-                    }
+                    disabled={actionLoadingId === application._id + "withdrawn"}
                     className="px-5 py-2.5 rounded-xl bg-slate-50 text-slate-600 font-bold hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-200 transition-all shadow-sm text-sm disabled:opacity-50 ml-auto"
                   >
                     {actionLoadingId === application._id + "withdrawn"

@@ -127,6 +127,11 @@ export const api = {
       method: "POST",
       body: { email },
     }),
+  checkVerification: (email) =>
+    request("/api/auth/check-verification", {
+      method: "POST",
+      body: { email },
+    }),
   forgotPassword: (email) =>
     request("/api/auth/forgot-password", {
       method: "POST",

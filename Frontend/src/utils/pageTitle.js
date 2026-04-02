@@ -6,11 +6,11 @@ export const setPageTitle = (title) => {
   if (metaDescription) {
     metaDescription.setAttribute(
       "content",
-      `${title} - Skillify skill exchange platform`,
+      `${title} - Skillify freelancer network`,
     );
   }
 };
 
 export const resetPageTitle = () => {
-  document.title = "Skillify - Skill Exchange Platform";
+  document.title = "Skillify | Freelancer Network";
 };

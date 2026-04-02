@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
 
 export default function ForgotPassword() {
   const { forgotPassword } = useAuth();
+  const toast = useToast();
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -18,17 +18,15 @@ export default function ForgotPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
-    setMessage("");
 
     try {
       const response = await forgotPassword(email.trim());
-      setMessage(
+      toast.success(
         response.message ||
           "If an account exists for that email, a reset link has been sent.",
       );
     } catch (err) {
-      setError(err.message || "Failed to send reset email");
+      toast.error(err.message || "Failed to send reset email");
     } finally {
       setLoading(false);
     }
@@ -64,18 +62,6 @@ export default function ForgotPassword() {
           </div>
 
           <div className="p-8 sm:p-10">
-            {message && (
-              <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-                {message}
-              </div>
-            )}
-
-            {error && (
-              <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-                {error}
-              </div>
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label

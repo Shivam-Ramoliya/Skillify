@@ -45,8 +45,8 @@ const emailWrapper = (content) => `
           <tr>
             <td style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #a855f7 100%); padding: 32px 40px; text-align: center; color: #ffffff;">
               <div style="display: inline-block; padding: 7px 16px; border: 1px solid rgba(255,255,255,0.28); border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; background: rgba(255,255,255,0.12);">Skillify</div>
-              <h1 style="margin: 0; color: #ffffff; font-size: 30px; font-weight: 800; letter-spacing: -0.02em;">Freelance work, simplified</h1>
-              <p style="margin: 10px 0 0; color: #e9d5ff; font-size: 13px; letter-spacing: 0.6px;">Connect, collaborate, and keep moving forward.</p>
+              <h1 style="margin: 0; color: #ffffff; font-size: 26px; font-weight: 800; letter-spacing: -0.02em;">Build your career by shipping real projects</h1>
+              <p style="margin: 10px 0 0; color: #e9d5ff; font-size: 13px; letter-spacing: 0.6px;">Discover opportunities, collaborate with clients, and grow.</p>
             </td>
           </tr>
           <tr>
@@ -134,19 +134,19 @@ const sendWelcomeEmail = async (email, name) => {
                   <tr>
                     <td style="padding: 8px 0;">
                       <span style="color: #2563EB; font-size: 18px; vertical-align: middle;">&#9733;</span>
-                      <span style="color: #374151; font-size: 14px; margin-left: 8px;">Discover opportunities tailored for you</span>
+                      <span style="color: #374151; font-size: 14px; margin-left: 8px;">Discover jobs and projects tailored for you</span>
                     </td>
                   </tr>
                   <tr>
                     <td style="padding: 8px 0;">
                       <span style="color: #2563EB; font-size: 18px; vertical-align: middle;">&#9733;</span>
-                      <span style="color: #374151; font-size: 14px; margin-left: 8px;">Exchange skills with talented people</span>
+                      <span style="color: #374151; font-size: 14px; margin-left: 8px;">Collaborate with clients worldwide</span>
                     </td>
                   </tr>
                   <tr>
                     <td style="padding: 8px 0;">
                       <span style="color: #2563EB; font-size: 18px; vertical-align: middle;">&#9733;</span>
-                      <span style="color: #374151; font-size: 14px; margin-left: 8px;">Track your progress &amp; grow</span>
+                      <span style="color: #374151; font-size: 14px; margin-left: 8px;">Ship real projects &amp; grow your career</span>
                     </td>
                   </tr>
                 </table>

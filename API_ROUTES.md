@@ -1,6 +1,6 @@
-# Skiilify Full API Documentation
+# Skillify Full API Documentation
 
-This document serves as a complete reference for all API routes available in the Skiilify project, including Authentication, Profiles, Jobs, and Health endpoints. It defines the HTTP methods, routes, descriptions, expected inputs (Body/Query/Params/Form-Data), and the expected outputs.
+This document serves as a complete reference for all API routes available in the Skillify project, including Authentication, Profiles, Jobs, and Health endpoints. It defines the HTTP methods, routes, descriptions, expected inputs (Body/Query/Params/Form-Data), and the expected outputs.
 
 ## Base URL
 

@@ -1,16 +1,17 @@
 {
-  "name": "skiilify-backend",
+  "name": "skillify-backend",
   "version": "1.0.0",
-  "description": "Backend for Skiilify application",
+  "description": "Backend for Skillify - Freelancer Network",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
   "keywords": [
-    "education",
-    "learning",
-    "skills"
+    "freelancer",
+    "freelance-network",
+    "jobs",
+    "collaboration"
   ],
   "author": "",
   "license": "ISC",

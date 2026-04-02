@@ -46,7 +46,10 @@ export default function Dashboard() {
       <div className="page-container space-y-8 relative z-10">
         <section
           className="glass-card p-8 md:p-10 text-white overflow-hidden relative"
-          style={{ background: "linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-accent-600) 100%)" }}
+          style={{
+            background:
+              "linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-accent-600) 100%)",
+          }}
         >
           <div className="relative z-10">
             <div
@@ -70,8 +73,8 @@ export default function Dashboard() {
               className="mt-4 text-lg max-w-2xl leading-relaxed"
               style={{ color: "var(--color-primary-100)" }}
             >
-              Manage your freelance profile, discover unparalleled
-              opportunities, and track your applications in real-time.
+              Build your career by shipping real projects. Discover jobs, track
+              applications, and collaborate with clients worldwide.
             </p>
           </div>
         </section>
@@ -372,7 +375,10 @@ export default function Dashboard() {
             <Link
               to="/publish-job"
               className="group rounded-xl p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 relative overflow-hidden text-white"
-              style={{ background: "linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-accent-600) 100%)" }}
+              style={{
+                background:
+                  "linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-accent-600) 100%)",
+              }}
             >
               <div
                 className="w-12 h-12 rounded-xl flex items-center justify-center text-white mb-5 group-hover:scale-110 transition-all duration-200"

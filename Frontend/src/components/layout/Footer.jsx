@@ -26,8 +26,8 @@ export default function Footer() {
           className="text-sm text-center leading-relaxed max-w-md mb-8"
           style={{ color: "var(--color-neutral-500)" }}
         >
-          Built for freelancers and open project contributors to discover work,
-          collaborate faster, and ship meaningful outcomes with modern tools.
+          Build your career by shipping real projects with the perfect team.
+          Discover opportunities, collaborate with clients, and grow.
         </p>
 
         <div

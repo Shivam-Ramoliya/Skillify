@@ -1,17 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
 
 export default function ConfirmDeleteAccount() {
   const { logout } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") || "";
-  const [message, setMessage] = useState("Deleting your account...");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(Boolean(token));
+  const [status, setStatus] = useState("processing");
+  const deletionAttemptedRef = useRef(false);
 
   useEffect(() => {
     setPageTitle("Confirm Deletion | Skillify");
@@ -19,9 +21,15 @@ export default function ConfirmDeleteAccount() {
   }, []);
 
   useEffect(() => {
+    if (deletionAttemptedRef.current) return;
+    deletionAttemptedRef.current = true;
+
     if (!token) {
       setLoading(false);
-      setError("Missing deletion token. Please request a new deletion link.");
+      setStatus("missing");
+      toast.error(
+        "Missing deletion token. Please request a new deletion link.",
+      );
       return;
     }
 
@@ -31,14 +39,16 @@ export default function ConfirmDeleteAccount() {
       try {
         const response = await api.deleteAccount(token);
         if (cancelled) return;
-        setMessage(response.message || "Account deleted successfully");
+        setStatus("success");
+        toast.success(response.message || "Account deleted successfully");
         setTimeout(() => {
           logout();
           navigate("/", { replace: true });
         }, 1800);
       } catch (err) {
         if (cancelled) return;
-        setError(err.message || "Failed to confirm account deletion");
+        setStatus("error");
+        toast.error(err.message || "Failed to confirm account deletion");
         setLoading(false);
       }
     };
@@ -48,7 +58,7 @@ export default function ConfirmDeleteAccount() {
     return () => {
       cancelled = true;
     };
-  }, [logout, navigate, token]);
+  }, [token]);
 
   return (
     <div className="page-wrap relative flex items-center justify-center min-h-[calc(100vh-160px)] py-12">
@@ -76,19 +86,38 @@ export default function ConfirmDeleteAccount() {
           </div>
 
           <div className="p-8 sm:p-10">
-            {loading && !error && (
-              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-                {message}
+            {loading && status === "processing" && (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700 flex items-center gap-3">
+                <svg
+                  className="animate-spin h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Deleting your account...
               </div>
             )}
 
-            {error && (
-              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-                {error}
+            {status === "success" && (
+              <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+                Account deleted. Redirecting...
               </div>
             )}
 
-            {!token && (
+            {status === "missing" && (
               <div className="space-y-4">
                 <p className="text-sm leading-6 text-slate-600">
                   The deletion link is missing or incomplete. Request a new link
@@ -96,7 +125,21 @@ export default function ConfirmDeleteAccount() {
                 </p>
                 <Link
                   to="/profile"
-                  className="btn-primary w-full py-3.5 text-base"
+                  className="btn-primary w-full py-3.5 text-base block text-center"
+                >
+                  Back to Profile
+                </Link>
+              </div>
+            )}
+
+            {status === "error" && (
+              <div className="space-y-4">
+                <p className="text-sm leading-6 text-slate-600">
+                  Failed to delete your account. The link may have expired.
+                </p>
+                <Link
+                  to="/profile"
+                  className="btn-primary w-full py-3.5 text-base block text-center"
                 >
                   Back to Profile
                 </Link>

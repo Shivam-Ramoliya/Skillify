@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
 
 export default function Login() {
   const { login } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -22,14 +23,25 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+
+    if (!formData.email.trim()) {
+      toast.warning("Please enter your email address");
+      return;
+    }
+
+    if (!formData.password.trim()) {
+      toast.warning("Please enter your password");
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await login(formData);
+      toast.success("Logged in successfully!");
       if (response?.user?.profileComplete) navigate("/dashboard");
       else navigate("/complete-profile");
     } catch (err) {
-      setError(err.message || "Login failed");
+      toast.error(err.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -37,7 +49,7 @@ export default function Login() {
 
   return (
     <div className="page-wrap flex items-center justify-center min-h-[calc(100vh-160px)]">
-      <div className="w-full max-w-5xl px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-[70%] px-4">
         <div
           className="overflow-hidden rounded-2xl bg-white shadow-lg grid lg:grid-cols-2"
           style={{ border: "1px solid var(--color-neutral-200)" }}
@@ -74,8 +86,8 @@ export default function Login() {
                 className="text-lg max-w-md mb-8 leading-relaxed"
                 style={{ color: "var(--color-primary-100)" }}
               >
-                Log in and pick up where you left off. Manage your projects,
-                connect with clients, and grow your freelance career.
+                Log in and pick up where you left off. Discover jobs, connect
+                with clients, and ship real projects.
               </p>
 
               <div className="space-y-4 text-sm font-medium">
@@ -158,28 +170,6 @@ export default function Login() {
                   Access your Skillify account
                 </p>
               </div>
-
-              {error && (
-                <div className="mb-6 rounded-xl px-4 py-3 text-sm font-medium animate-slide-in-right alert-error">
-                  <div className="flex items-center gap-2">
-                    <svg
-                      className="h-5 w-5"
-                      style={{ color: "var(--color-error-500)" }}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                      />
-                    </svg>
-                    {error}
-                  </div>
-                </div>
-              )}
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>

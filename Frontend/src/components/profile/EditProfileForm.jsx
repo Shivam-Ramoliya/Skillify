@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { City, Country, State } from "country-state-city";
 import { api } from "../../utils/api";
+import { useToast } from "../../context/ToastContext";
 
 export default function EditProfileForm({
   initialData,
@@ -8,6 +9,7 @@ export default function EditProfileForm({
   onCancel,
   submitLabel = "Save Changes",
 }) {
+  const toast = useToast();
   const [formData, setFormData] = useState({
     bio: initialData?.bio || "",
     location: initialData?.location || "",
@@ -17,8 +19,6 @@ export default function EditProfileForm({
     education: Array.isArray(initialData?.education) ? initialData.education : [],
     experience: Array.isArray(initialData?.experience) ? initialData.experience : [],
     yearsOfExperience: initialData?.yearsOfExperience ?? 0,
-    currentRole: initialData?.currentRole || "",
-    company: initialData?.company || "",
     skills: Array.isArray(initialData?.skills)
       ? initialData.skills.join(", ")
       : initialData?.skills || "",
@@ -28,7 +28,6 @@ export default function EditProfileForm({
     profileVisibility: initialData?.profileVisibility || "private",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [uploadingPicture, setUploadingPicture] = useState(false);
   const [uploadingResume, setUploadingResume] = useState(false);
   const [picturePreview, setPicturePreview] = useState(
@@ -168,7 +167,13 @@ export default function EditProfileForm({
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === "availability" && value === "not available") {
+      toast.warning(
+        "Your profile will show as not available for new opportunities.",
+      );
+    }
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleArrayChange = (field, index, key, value) => {
@@ -194,15 +199,15 @@ export default function EditProfileForm({
     if (!file) return;
 
     setUploadingPicture(true);
-    setError("");
     try {
       const response = await api.uploadProfilePicture(file);
       if (response.success) {
         setFormData({ ...formData, profilePicture: response.profilePicture });
         setPicturePreview(response.profilePicture);
+        toast.success("Profile picture uploaded!");
       }
     } catch (err) {
-      setError(err.message || "Failed to upload profile picture");
+      toast.error(err.message || "Failed to upload profile picture");
     } finally {
       setUploadingPicture(false);
     }
@@ -213,14 +218,14 @@ export default function EditProfileForm({
     if (!file) return;
 
     setUploadingResume(true);
-    setError("");
     try {
       const response = await api.uploadResume(file);
       if (response.success) {
         setFormData({ ...formData, resume: response.resume });
+        toast.success("Resume uploaded!");
       }
     } catch (err) {
-      setError(err.message || "Failed to upload resume");
+      toast.error(err.message || "Failed to upload resume");
     } finally {
       setUploadingResume(false);
     }
@@ -242,14 +247,86 @@ export default function EditProfileForm({
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(downloadUrl);
+      toast.success("Resume downloaded!");
     } catch (err) {
-      setError(err.message || "Failed to download resume");
+      toast.error(err.message || "Failed to download resume");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+
+    if (!formData.bio.trim()) {
+      toast.warning("Please enter your bio");
+      return;
+    }
+
+    if (!formData.location.trim()) {
+      toast.warning("Please select your location");
+      return;
+    }
+
+    if (!formData.skills.trim()) {
+      toast.warning("Please enter at least one skill");
+      return;
+    }
+
+    if (!formData.profilePicture) {
+      toast.warning("Please upload your profile picture");
+      return;
+    }
+
+    if (!formData.resume) {
+      toast.warning("Please upload your resume/portfolio");
+      return;
+    }
+
+    if (!formData.availability) {
+      toast.warning("Please select your availability");
+      return;
+    }
+
+    if (formData.availability === "not available") {
+      toast.warning(
+        "You selected 'Not Available'. Change availability to continue saving your profile.",
+      );
+      return;
+    }
+
+    if (formData.education.length === 0) {
+      toast.warning("Please add at least one education entry");
+      return;
+    }
+
+    for (let index = 0; index < formData.education.length; index += 1) {
+      const edu = formData.education[index];
+      if (!edu.school?.trim()) {
+        toast.warning(`Education #${index + 1}: please enter school/college`);
+        return;
+      }
+      if (!edu.degree?.trim()) {
+        toast.warning(`Education #${index + 1}: please enter degree/standard`);
+        return;
+      }
+      if (!edu.from) {
+        toast.warning(`Education #${index + 1}: please select 'From' date`);
+        return;
+      }
+      if (!edu.to) {
+        toast.warning(`Education #${index + 1}: please select 'To' date`);
+        return;
+      }
+    }
+
+    if (!formData.githubUrl.trim()) {
+      toast.warning("Please enter your GitHub URL");
+      return;
+    }
+
+    if (!formData.linkedinUrl.trim()) {
+      toast.warning("Please enter your LinkedIn URL");
+      return;
+    }
 
     // Date Validation
     const validateDates = (arr) => {
@@ -272,13 +349,33 @@ export default function EditProfileForm({
     };
 
     const eduError = validateDates(formData.education);
-    if (eduError) { setError(`Education: ${eduError}`); return; }
+    if (eduError) { toast.error(`Education: ${eduError}`); return; }
+
+    for (let index = 0; index < formData.experience.length; index += 1) {
+      const exp = formData.experience[index];
+      if (!exp.company?.trim()) {
+        toast.warning(`Experience #${index + 1}: please enter company name`);
+        return;
+      }
+      if (!exp.role?.trim()) {
+        toast.warning(`Experience #${index + 1}: please enter role`);
+        return;
+      }
+      if (!exp.from) {
+        toast.warning(`Experience #${index + 1}: please select 'From' date`);
+        return;
+      }
+      if (!exp.to) {
+        toast.warning(`Experience #${index + 1}: please select 'To' date or mark as Present`);
+        return;
+      }
+    }
 
     const expError = validateDates(formData.experience);
-    if (expError) { setError(`Experience: ${expError}`); return; }
+    if (expError) { toast.error(`Experience: ${expError}`); return; }
 
     if (Number(formData.yearsOfExperience) > 0 && formData.experience.length === 0) {
-      setError("Please add at least one Experience entry, or set your Total Experience to 0.");
+      toast.error("Please add at least one Experience entry, or set your Total Experience to 0.");
       return;
     }
 
@@ -295,10 +392,19 @@ export default function EditProfileForm({
 
       const response = await api.updateProfile(payload);
       if (response.success) {
+        toast.success("Profile updated successfully!");
         onSave(response);
       }
     } catch (err) {
-      setError(err.message || "Failed to update profile");
+      const message = err.message || "Failed to update profile";
+      if (
+        message.includes("open posted jobs") ||
+        message.includes("pending applications")
+      ) {
+        toast.warning(message);
+      } else {
+        toast.error(message);
+      }
     } finally {
       setLoading(false);
     }
@@ -306,12 +412,6 @@ export default function EditProfileForm({
 
   return (
     <>
-      {error && (
-        <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg mb-6">
-          <p className="font-semibold">Error</p>
-          <p className="text-sm">{error}</p>
-        </div>
-      )}
       <form onSubmit={handleSubmit} className="space-y-6">
         <p className="text-sm text-gray-600">
           Fields marked with <span className="text-red-500">*</span> are
@@ -482,7 +582,7 @@ export default function EditProfileForm({
         {/* Resume */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Resume/Portfolio
+            Resume/Portfolio <span className="text-red-500">*</span>
           </label>
           {formData.resume && (
             <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl">
@@ -741,36 +841,6 @@ export default function EditProfileForm({
             >
                <span>+</span> Add Experience
             </button>
-          </div>
-        </div>
-
-        {/* Role and Company (Current Overview) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Current Role
-            </label>
-            <input
-              type="text"
-              name="currentRole"
-              value={formData.currentRole}
-              onChange={handleChange}
-              placeholder="e.g. Software Engineer"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Company
-            </label>
-            <input
-              type="text"
-              name="company"
-              value={formData.company}
-              onChange={handleChange}
-              placeholder="e.g. Skillify Inc."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
           </div>
         </div>
 

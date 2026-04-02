@@ -1,105 +1,109 @@
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
 
 export default function VerifyEmail() {
-  const { verifyEmail, resendVerification } = useAuth();
+  const { verifyEmail, checkVerification, resendVerification } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const defaultEmail = searchParams.get("email") || "";
   const defaultToken =
     searchParams.get("token") || searchParams.get("code") || "";
 
-  const [code, setCode] = useState(() => defaultToken);
   const [email, setEmail] = useState(defaultEmail);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
-  const inputRef = useRef(null);
+  const verificationAttempted = useRef(false);
 
   useEffect(() => {
     setPageTitle("Verify Email | Skillify");
     return () => resetPageTitle();
   }, []);
 
-  // Auto-verify if a signed token comes from the URL
+  // Auto-verify if a signed token comes from the URL (clicked email link)
   useEffect(() => {
-    if (!defaultToken) return;
-
-    let cancelled = false;
+    if (!defaultToken || verificationAttempted.current) return;
+    
+    verificationAttempted.current = true;
 
     const autoVerify = async () => {
       setLoading(true);
-      setError("");
       try {
         const response = await verifyEmail(defaultToken);
-        if (cancelled) return;
-        setMessage(response.message || "Email verified successfully");
+        toast.success(response.message || "Email verified successfully!");
         if (response.user?.profileComplete) {
-          navigate("/dashboard");
+          navigate("/dashboard", { replace: true });
         } else {
-          navigate("/complete-profile");
+          navigate("/complete-profile", { replace: true });
         }
       } catch (err) {
-        if (cancelled) return;
-        setError(err.message || "Verification failed");
-      } finally {
-        if (!cancelled) setLoading(false);
+        // If already verified, treat as success and try to log them in
+        if (err.message?.toLowerCase().includes("already verified")) {
+          toast.info("Email is already verified. Redirecting...");
+          // Try to check verification to get auth token
+          if (defaultEmail) {
+            try {
+              const checkResponse = await checkVerification(defaultEmail);
+              if (checkResponse.user?.profileComplete) {
+                navigate("/dashboard", { replace: true });
+              } else {
+                navigate("/complete-profile", { replace: true });
+              }
+              return;
+            } catch {
+              // If check fails, just redirect to login
+              navigate("/login", { replace: true });
+              return;
+            }
+          }
+          navigate("/login", { replace: true });
+        } else {
+          toast.error(err.message || "Verification failed");
+          setLoading(false);
+        }
       }
     };
 
     autoVerify();
+  }, [defaultToken]); // Only depend on token - runs once
 
-    return () => {
-      cancelled = true;
-    };
-  }, [defaultToken, navigate, verifyEmail]);
-
-  useEffect(() => {
-    if (inputRef.current) inputRef.current.focus();
-  }, []);
-
-  const canVerify = useMemo(() => code.trim().length > 0, [code]);
-
-  const handleCodeChange = (e) => {
-    setCode(e.target.value);
-    setError("");
-  };
-
-  const handleVerify = async (e) => {
-    e.preventDefault();
-    if (!canVerify) return;
+  const handleCheckVerification = async () => {
+    if (!email.trim()) {
+      toast.warning("Please enter your email address");
+      return;
+    }
 
     setLoading(true);
-    setError("");
     try {
-      const response = await verifyEmail(code.trim());
-      setMessage(response.message || "Email verified successfully");
+      const response = await checkVerification(email.trim());
+      toast.success(response.message || "Email verified!");
       if (response.user?.profileComplete) {
         navigate("/dashboard");
       } else {
         navigate("/complete-profile");
       }
     } catch (err) {
-      setError(err.message || "Verification failed");
+      toast.error(err.message || "Email is not verified yet");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleResend = async (e) => {
-    e.preventDefault();
-    if (!email.trim()) return;
+  const handleResend = async () => {
+    if (!email.trim()) {
+      toast.warning("Please enter your email address");
+      return;
+    }
 
     setResendLoading(true);
-    setError("");
     try {
       const response = await resendVerification(email.trim());
-      setMessage(response.message || "Verification email sent");
+      toast.success(response.message || "Verification email sent!");
     } catch (err) {
-      setError(err.message || "Failed to resend verification email");
+      toast.error(err.message || "Failed to resend verification email");
     } finally {
       setResendLoading(false);
     }
@@ -133,60 +137,27 @@ export default function VerifyEmail() {
                 Verify your email
               </h2>
               <p className="mt-3 text-base font-medium text-slate-500">
-                Open the verification link we emailed you or paste the token
-                below.
+                We've sent a verification link to your email. Click it to verify, then come back here.
               </p>
             </div>
 
-            {message && (
-              <div className="bg-emerald-50/80 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl mb-8 text-sm flex items-center gap-3 shadow-sm backdrop-blur-sm">
-                <svg
-                  className="w-5 h-5 text-emerald-500"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="font-semibold">{message}</span>
-              </div>
-            )}
+            {/* Email input */}
+            <div className="mb-6">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="w-full text-center text-lg font-semibold rounded-2xl border border-slate-200 bg-white/80 px-4 py-5 text-slate-900 placeholder:text-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
+              />
+            </div>
 
-            {error && (
-              <div className="bg-red-50/80 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-8 text-sm flex items-center gap-3 shadow-sm backdrop-blur-sm animate-slide-in-right">
-                <svg
-                  className="w-5 h-5 text-red-500"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="font-semibold">{error}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleVerify}>
-              <div className="mb-8">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={code}
-                  onChange={handleCodeChange}
-                  placeholder="Paste verification token"
-                  className="w-full text-center text-lg font-semibold rounded-2xl border border-slate-200 bg-white/80 px-4 py-5 text-slate-900 placeholder:text-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
-                />
-              </div>
-
+            {/* Action buttons */}
+            <div className="space-y-4">
               <button
-                type="submit"
-                disabled={loading || !canVerify}
+                type="button"
+                onClick={handleCheckVerification}
+                disabled={loading || !email.trim()}
                 className="btn-primary w-full py-4 text-lg tracking-wide shadow-xl shadow-blue-500/20"
               >
                 {loading ? (
@@ -210,59 +181,98 @@ export default function VerifyEmail() {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
-                    Verifying...
+                    Checking...
                   </span>
                 ) : (
-                  "Verify Email"
+                  <span className="flex items-center justify-center gap-2">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    I've Verified My Email
+                  </span>
                 )}
               </button>
-            </form>
 
-            <div className="mt-10 pt-8 border-t border-slate-200/60 bg-slate-50/50 -mx-8 sm:-mx-12 px-8 sm:px-12 -mb-8 sm:-mb-12 pb-8 sm:pb-12 text-center rounded-b-[2.5rem]">
-              <h3 className="text-sm font-bold tracking-wide text-slate-700 mb-5 uppercase">
-                Didn't receive the code?
-              </h3>
-              <form
-                onSubmit={handleResend}
-                className="space-y-4 max-w-sm mx-auto"
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resendLoading || !email.trim()}
+                className="btn-secondary w-full py-4 text-lg"
               >
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="input-base bg-white"
-                />
-                <button
-                  type="submit"
-                  disabled={resendLoading || !email.trim()}
-                  className="btn-secondary w-full py-3"
-                >
-                  {resendLoading ? "Sending..." : "Resend Code"}
-                </button>
-              </form>
+                {resendLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg
+                      className="animate-spin h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Sending...
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                      />
+                    </svg>
+                    Resend Verification Link
+                  </span>
+                )}
+              </button>
+            </div>
 
-              <div className="mt-8">
-                <Link
-                  to="/login"
-                  className="inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-500 transition-colors"
+            <div className="mt-10 pt-8 border-t border-slate-200/60 text-center">
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-500 transition-colors"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                    />
-                  </svg>
-                  Back to Login
-                </Link>
-              </div>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                  />
+                </svg>
+                Back to Login
+              </Link>
             </div>
           </div>
         </div>

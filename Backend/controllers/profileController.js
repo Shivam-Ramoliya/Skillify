@@ -15,6 +15,25 @@ const {
   verifyAccountDeletionToken,
 } = require("../utils/tokenGenerator");
 
+const PRIVATE_VISIBILITY_BLOCK_MESSAGE =
+  "You cannot set your profile to private while you have open posted jobs or pending applications. Close/resolve them first.";
+
+const validatePrivateVisibilityEligibility = async (userId) => {
+  const [hasOpenPostedJobs, hasPendingApplications] = await Promise.all([
+    Job.exists({ postedBy: userId, status: "open" }),
+    JobApplication.exists({ applicant: userId, status: "pending" }),
+  ]);
+
+  if (hasOpenPostedJobs || hasPendingApplications) {
+    return {
+      allowed: false,
+      message: PRIVATE_VISIBILITY_BLOCK_MESSAGE,
+    };
+  }
+
+  return { allowed: true };
+};
+
 // @desc    Upload Profile Picture
 // @route   POST /api/profile/upload-picture
 // @access  Private
@@ -153,6 +172,16 @@ exports.updateProfile = async (req, res) => {
         user[field] = req.body[field];
       }
     });
+
+    if (user.profileVisibility === "private") {
+      const eligibility = await validatePrivateVisibilityEligibility(req.user.id);
+      if (!eligibility.allowed) {
+        return res.status(400).json({
+          success: false,
+          message: eligibility.message,
+        });
+      }
+    }
 
     // Check if profile is complete
     const isProfileComplete = Boolean(
@@ -393,6 +422,16 @@ exports.updateProfileVisibility = async (req, res) => {
         success: false,
         message: "Invalid profile visibility option",
       });
+    }
+
+    if (profileVisibility === "private") {
+      const eligibility = await validatePrivateVisibilityEligibility(req.user.id);
+      if (!eligibility.allowed) {
+        return res.status(400).json({
+          success: false,
+          message: eligibility.message,
+        });
+      }
     }
 
     const user = await User.findByIdAndUpdate(

@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
 
 export default function ResetPassword() {
   const { resetPassword } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") || "";
@@ -14,8 +16,6 @@ export default function ResetPassword() {
     password: "",
     confirmPassword: "",
   });
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -35,13 +35,11 @@ export default function ResetPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!token) {
-      setError("Missing reset token. Please request a new reset link.");
+      toast.error("Missing reset token. Please request a new reset link.");
       return;
     }
 
     setLoading(true);
-    setError("");
-    setMessage("");
 
     try {
       const response = await resetPassword({
@@ -50,14 +48,14 @@ export default function ResetPassword() {
         confirmPassword: formData.confirmPassword,
       });
 
-      setMessage(response.message || "Password reset successfully");
+      toast.success(response.message || "Password reset successfully");
       if (response.user?.profileComplete) {
         navigate("/dashboard");
       } else {
         navigate("/complete-profile");
       }
     } catch (err) {
-      setError(err.message || "Failed to reset password");
+      toast.error(err.message || "Failed to reset password");
     } finally {
       setLoading(false);
     }
@@ -94,18 +92,6 @@ export default function ResetPassword() {
           </div>
 
           <div className="p-8 sm:p-10">
-            {message && (
-              <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-                {message}
-              </div>
-            )}
-
-            {error && (
-              <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-                {error}
-              </div>
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label

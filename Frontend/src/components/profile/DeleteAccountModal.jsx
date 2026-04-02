@@ -1,29 +1,29 @@
 ﻿/* eslint-disable react/prop-types, no-negated-condition */
 import { useEffect, useState } from "react";
 import { api } from "../../utils/api";
+import { useToast } from "../../context/ToastContext";
 
 export default function DeleteAccountModal({ isOpen, onClose }) {
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
       setLoading(false);
-      setError("");
       setSent(false);
     }
   }, [isOpen]);
 
   const handleSendLink = async () => {
     setLoading(true);
-    setError("");
 
     try {
       await api.requestAccountDeletion();
       setSent(true);
+      toast.success("Confirmation link sent to your email!");
     } catch (err) {
-      setError(err.message || "Failed to send confirmation link");
+      toast.error(err.message || "Failed to send confirmation link");
     } finally {
       setLoading(false);
     }
@@ -135,12 +135,6 @@ export default function DeleteAccountModal({ isOpen, onClose }) {
             <p className="text-xs text-slate-500 font-medium text-center mb-6">
               We’ll send a secure confirmation link to your email to confirm.
             </p>
-
-            {error && (
-              <p className="text-sm text-red-600 font-medium text-center mb-4">
-                {error}
-              </p>
-            )}
 
             <div className="flex gap-3">
               <button
