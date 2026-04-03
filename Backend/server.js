@@ -29,7 +29,7 @@ app.use("/api/jobs", jobsRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
-  res.status(200).json({ message: "Server is running" });
+  res.send("OK");
 });
 
 // 404 handler
