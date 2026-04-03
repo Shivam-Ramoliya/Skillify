@@ -11,13 +11,18 @@ export default function EditProfileForm({
 }) {
   const toast = useToast();
   const [formData, setFormData] = useState({
+    name: initialData?.name || "",
     bio: initialData?.bio || "",
     location: initialData?.location || "",
     profilePicture: initialData?.profilePicture || "",
     resume: initialData?.resume || "",
     availability: initialData?.availability || "part-time",
-    education: Array.isArray(initialData?.education) ? initialData.education : [],
-    experience: Array.isArray(initialData?.experience) ? initialData.experience : [],
+    education: Array.isArray(initialData?.education)
+      ? initialData.education
+      : [],
+    experience: Array.isArray(initialData?.experience)
+      ? initialData.experience
+      : [],
     yearsOfExperience: initialData?.yearsOfExperience ?? 0,
     skills: Array.isArray(initialData?.skills)
       ? initialData.skills.join(", ")
@@ -183,9 +188,16 @@ export default function EditProfileForm({
   };
 
   const addArrayItem = (field) => {
-    const newItem = field === "education"
-      ? { school: "", degree: "", from: "", to: "" }
-      : { company: "", role: "", from: "", to: "" };
+    const newItem =
+      field === "education"
+        ? {
+            school: "",
+            degree: "",
+            from: "",
+            to: "",
+            isCurrentlyStudying: false,
+          }
+        : { company: "", role: "", from: "", to: "" };
     setFormData({ ...formData, [field]: [...formData[field], newItem] });
   };
 
@@ -256,6 +268,11 @@ export default function EditProfileForm({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!formData.name.trim()) {
+      toast.warning("Please enter your name");
+      return;
+    }
+
     if (!formData.bio.trim()) {
       toast.warning("Please enter your bio");
       return;
@@ -312,8 +329,10 @@ export default function EditProfileForm({
         toast.warning(`Education #${index + 1}: please select 'From' date`);
         return;
       }
-      if (!edu.to) {
-        toast.warning(`Education #${index + 1}: please select 'To' date`);
+      if (!edu.isCurrentlyStudying && !edu.to) {
+        toast.warning(
+          `Education #${index + 1}: please select 'To' date or mark as currently studying`,
+        );
         return;
       }
     }
@@ -329,17 +348,23 @@ export default function EditProfileForm({
     }
 
     // Date Validation
-    const validateDates = (arr) => {
+    const validateDates = (arr, isEducation = false) => {
       for (const item of arr) {
         if (!item.from) return "Please select 'From' date";
-        if (item.to !== "Present" && !item.to) return "Please select 'To' date";
-        
+
+        // Check if ongoing/current status
+        const isOngoing = isEducation
+          ? item.isCurrentlyStudying
+          : item.to === "Present";
+        if (!isOngoing && !item.to)
+          return `Please select 'To' date or mark as ${isEducation ? "currently studying" : "present"}`;
+
         const fromDate = new Date(item.from);
         const today = new Date();
-        
+
         if (fromDate > today) return "Start date cannot be in the future";
-        
-        if (item.to !== "Present") {
+
+        if (!isOngoing) {
           const toDate = new Date(item.to);
           if (toDate > today) return "End date cannot be in the future";
           if (fromDate > toDate) return "Start date must come before End date";
@@ -348,8 +373,11 @@ export default function EditProfileForm({
       return null;
     };
 
-    const eduError = validateDates(formData.education);
-    if (eduError) { toast.error(`Education: ${eduError}`); return; }
+    const eduError = validateDates(formData.education, true);
+    if (eduError) {
+      toast.error(`Education: ${eduError}`);
+      return;
+    }
 
     for (let index = 0; index < formData.experience.length; index += 1) {
       const exp = formData.experience[index];
@@ -366,16 +394,26 @@ export default function EditProfileForm({
         return;
       }
       if (!exp.to) {
-        toast.warning(`Experience #${index + 1}: please select 'To' date or mark as Present`);
+        toast.warning(
+          `Experience #${index + 1}: please select 'To' date or mark as Present`,
+        );
         return;
       }
     }
 
-    const expError = validateDates(formData.experience);
-    if (expError) { toast.error(`Experience: ${expError}`); return; }
+    const expError = validateDates(formData.experience, false);
+    if (expError) {
+      toast.error(`Experience: ${expError}`);
+      return;
+    }
 
-    if (Number(formData.yearsOfExperience) > 0 && formData.experience.length === 0) {
-      toast.error("Please add at least one Experience entry, or set your Total Experience to 0.");
+    if (
+      Number(formData.yearsOfExperience) > 0 &&
+      formData.experience.length === 0
+    ) {
+      toast.error(
+        "Please add at least one Experience entry, or set your Total Experience to 0.",
+      );
       return;
     }
 
@@ -417,6 +455,21 @@ export default function EditProfileForm({
           Fields marked with <span className="text-red-500">*</span> are
           required.
         </p>
+
+        {/* Name */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-3">
+            Name <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Your full name"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
 
         {/* Bio */}
         <div>
@@ -514,7 +567,7 @@ export default function EditProfileForm({
                 <img
                   src={picturePreview}
                   alt="Preview"
-                   className="h-32 w-32 rounded-xl object-cover border-2 border-blue-200 shadow-md"
+                  className="h-32 w-32 rounded-xl object-cover border-2 border-blue-200 shadow-md"
                 />
                 <span className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
                   ✓ Current
@@ -707,7 +760,10 @@ export default function EditProfileForm({
           </label>
           <div className="space-y-4">
             {formData.education.map((edu, index) => (
-              <div key={index} className="p-4 border border-gray-200 rounded-lg relative bg-white shadow-sm">
+              <div
+                key={index}
+                className="p-4 border border-gray-200 rounded-lg relative bg-white shadow-sm"
+              >
                 <button
                   type="button"
                   onClick={() => removeArrayItem("education", index)}
@@ -720,37 +776,86 @@ export default function EditProfileForm({
                   <input
                     type="text"
                     value={edu.school}
-                    onChange={(e) => handleArrayChange("education", index, "school", e.target.value)}
+                    onChange={(e) =>
+                      handleArrayChange(
+                        "education",
+                        index,
+                        "school",
+                        e.target.value,
+                      )
+                    }
                     placeholder="School / College"
                     className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-sm"
                   />
                   <input
                     type="text"
                     value={edu.degree}
-                    onChange={(e) => handleArrayChange("education", index, "degree", e.target.value)}
+                    onChange={(e) =>
+                      handleArrayChange(
+                        "education",
+                        index,
+                        "degree",
+                        e.target.value,
+                      )
+                    }
                     placeholder="Degree / Standard"
                     className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-sm"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">From</label>
+                    <label className="block text-xs text-gray-500 mb-1">
+                      From
+                    </label>
                     <input
                       type="month"
                       max={new Date().toISOString().slice(0, 7)}
                       value={edu.from || ""}
-                      onChange={(e) => handleArrayChange("education", index, "from", e.target.value)}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "education",
+                          index,
+                          "from",
+                          e.target.value,
+                        )
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">To</label>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="block text-xs text-gray-500">To</label>
+                      <label className="flex items-center gap-1 text-xs text-blue-600 font-semibold cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={edu.isCurrentlyStudying || false}
+                          onChange={(e) =>
+                            handleArrayChange(
+                              "education",
+                              index,
+                              "isCurrentlyStudying",
+                              e.target.checked,
+                            )
+                          }
+                          className="rounded text-blue-600 focus:ring-blue-500"
+                        />
+                        Currently Studying
+                      </label>
+                    </div>
                     <input
                       type="month"
                       max={new Date().toISOString().slice(0, 7)}
-                      value={edu.to || ""}
-                      onChange={(e) => handleArrayChange("education", index, "to", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-sm"
+                      value={edu.isCurrentlyStudying ? "" : edu.to || ""}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "education",
+                          index,
+                          "to",
+                          e.target.value,
+                        )
+                      }
+                      disabled={edu.isCurrentlyStudying}
+                      className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-sm disabled:bg-gray-100 disabled:text-gray-400"
                     />
                   </div>
                 </div>
@@ -761,7 +866,7 @@ export default function EditProfileForm({
               onClick={() => addArrayItem("education")}
               className="text-sm font-semibold text-blue-600 border border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-lg px-4 py-2 flex items-center gap-2"
             >
-               <span>+</span> Add Education
+              <span>+</span> Add Education
             </button>
           </div>
         </div>
@@ -769,11 +874,17 @@ export default function EditProfileForm({
         {/* Experience */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Experience {Number(formData.yearsOfExperience) > 0 && <span className="text-red-500">*</span>}
+            Experience{" "}
+            {Number(formData.yearsOfExperience) > 0 && (
+              <span className="text-red-500">*</span>
+            )}
           </label>
           <div className="space-y-4">
             {formData.experience.map((exp, index) => (
-              <div key={index} className="p-4 border border-gray-200 rounded-lg relative bg-white shadow-sm">
+              <div
+                key={index}
+                className="p-4 border border-gray-200 rounded-lg relative bg-white shadow-sm"
+              >
                 <button
                   type="button"
                   onClick={() => removeArrayItem("experience", index)}
@@ -786,26 +897,49 @@ export default function EditProfileForm({
                   <input
                     type="text"
                     value={exp.company}
-                    onChange={(e) => handleArrayChange("experience", index, "company", e.target.value)}
+                    onChange={(e) =>
+                      handleArrayChange(
+                        "experience",
+                        index,
+                        "company",
+                        e.target.value,
+                      )
+                    }
                     placeholder="Company Name"
                     className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-sm"
                   />
                   <input
                     type="text"
                     value={exp.role}
-                    onChange={(e) => handleArrayChange("experience", index, "role", e.target.value)}
+                    onChange={(e) =>
+                      handleArrayChange(
+                        "experience",
+                        index,
+                        "role",
+                        e.target.value,
+                      )
+                    }
                     placeholder="Role"
                     className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-sm"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">From</label>
+                    <label className="block text-xs text-gray-500 mb-1">
+                      From
+                    </label>
                     <input
                       type="month"
                       max={new Date().toISOString().slice(0, 7)}
                       value={exp.from || ""}
-                      onChange={(e) => handleArrayChange("experience", index, "from", e.target.value)}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "experience",
+                          index,
+                          "from",
+                          e.target.value,
+                        )
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-sm"
                     />
                   </div>
@@ -816,7 +950,14 @@ export default function EditProfileForm({
                         <input
                           type="checkbox"
                           checked={exp.to === "Present"}
-                          onChange={(e) => handleArrayChange("experience", index, "to", e.target.checked ? "Present" : "")}
+                          onChange={(e) =>
+                            handleArrayChange(
+                              "experience",
+                              index,
+                              "to",
+                              e.target.checked ? "Present" : "",
+                            )
+                          }
                           className="rounded text-blue-600 focus:ring-blue-500"
                         />
                         Present
@@ -826,7 +967,14 @@ export default function EditProfileForm({
                       type="month"
                       max={new Date().toISOString().slice(0, 7)}
                       value={exp.to === "Present" ? "" : exp.to || ""}
-                      onChange={(e) => handleArrayChange("experience", index, "to", e.target.value)}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "experience",
+                          index,
+                          "to",
+                          e.target.value,
+                        )
+                      }
                       disabled={exp.to === "Present"}
                       className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 text-sm disabled:bg-gray-100 disabled:text-gray-400"
                     />
@@ -839,7 +987,7 @@ export default function EditProfileForm({
               onClick={() => addArrayItem("experience")}
               className="text-sm font-semibold text-blue-600 border border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-lg px-4 py-2 flex items-center gap-2"
             >
-               <span>+</span> Add Experience
+              <span>+</span> Add Experience
             </button>
           </div>
         </div>

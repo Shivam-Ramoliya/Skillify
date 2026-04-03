@@ -150,6 +150,7 @@ exports.updateProfile = async (req, res) => {
 
     // Update fields if provided (allow empty strings/arrays to clear values)
     const updatableFields = [
+      "name",
       "bio",
       "location",
       "profilePicture",
@@ -174,7 +175,9 @@ exports.updateProfile = async (req, res) => {
     });
 
     if (user.profileVisibility === "private") {
-      const eligibility = await validatePrivateVisibilityEligibility(req.user.id);
+      const eligibility = await validatePrivateVisibilityEligibility(
+        req.user.id,
+      );
       if (!eligibility.allowed) {
         return res.status(400).json({
           success: false,
@@ -425,7 +428,9 @@ exports.updateProfileVisibility = async (req, res) => {
     }
 
     if (profileVisibility === "private") {
-      const eligibility = await validatePrivateVisibilityEligibility(req.user.id);
+      const eligibility = await validatePrivateVisibilityEligibility(
+        req.user.id,
+      );
       if (!eligibility.allowed) {
         return res.status(400).json({
           success: false,
