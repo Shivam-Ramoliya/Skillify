@@ -8,7 +8,7 @@ import EditProfileForm from "../components/profile/EditProfileForm";
 import DeleteAccountModal from "../components/profile/DeleteAccountModal";
 import { setPageTitle, resetPageTitle } from "../utils/pageTitle";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
+import {
   AlertCircle,
   MapPin,
   Edit2,
@@ -24,25 +24,25 @@ import {
   Trash2,
   X,
   Mail,
-  Calendar
+  Calendar,
 } from "lucide-react";
 
 const pageVariants = {
   hidden: { opacity: 0, y: 30 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
-    transition: { staggerChildren: 0.1, duration: 0.5, ease: "easeOut" }
-  }
+    transition: { staggerChildren: 0.1, duration: 0.5, ease: "easeOut" },
+  },
 };
 
 const itemVariants = {
   hidden: { opacity: 0, y: 30 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
-    transition: { type: "spring", stiffness: 80, damping: 15 }
-  }
+    transition: { type: "spring", stiffness: 80, damping: 15 },
+  },
 };
 
 const formatDate = (dateStr) => {
@@ -51,6 +51,15 @@ const formatDate = (dateStr) => {
   const parts = dateStr.split("-");
   if (parts.length !== 2) return dateStr;
   return `${parts[1]}/${parts[0]}`;
+};
+
+const formatDateRange = (fromDate, toDate, isCurrently = false) => {
+  const from = formatDate(fromDate);
+  if (isCurrently) {
+    return `${from} - Current`;
+  }
+  const to = formatDate(toDate);
+  return `${from} - ${to}`;
 };
 
 export default function Profile() {
@@ -128,7 +137,7 @@ export default function Profile() {
   };
 
   if (loading) return <LoadingSpinner />;
-  
+
   if (!profile) {
     return (
       <div className="page-wrap relative flex items-center justify-center min-h-[60vh]">
@@ -138,7 +147,10 @@ export default function Profile() {
           </div>
           <p className="text-xl">Unable to load profile.</p>
           {isOwnProfile && (
-            <button onClick={fetchProfile} className="mt-4 btn-primary bg-error-500 hover:bg-error-600 shadow-error-500/30">
+            <button
+              onClick={fetchProfile}
+              className="mt-4 btn-primary bg-error-500 hover:bg-error-600 shadow-error-500/30"
+            >
               Try Again
             </button>
           )}
@@ -150,24 +162,29 @@ export default function Profile() {
   return (
     <div className="relative min-h-screen pb-24">
       {/* Immersive Top Background that bleeds into the header */}
-      <div 
+      <div
         className="absolute top-0 w-full h-[400px] z-0 pointer-events-none"
-        style={{ 
-          background: "linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-accent-700) 100%)",
+        style={{
+          background:
+            "linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-accent-700) 100%)",
           maskImage: "linear-gradient(to bottom, black 50%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to bottom, black 50%, transparent 100%)"
+          WebkitMaskImage:
+            "linear-gradient(to bottom, black 50%, transparent 100%)",
         }}
       >
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
       </div>
 
-      <motion.div 
+      <motion.div
         variants={pageVariants}
         initial="hidden"
         animate="visible"
         className="page-container space-y-8 relative z-10 pt-[100px]"
       >
-        <motion.section variants={itemVariants} className="glass-card shadow-2xl transition-all duration-300 border border-white/40 bg-white/80">
+        <motion.section
+          variants={itemVariants}
+          className="glass-card shadow-2xl transition-all duration-300 border border-white/40 bg-white/80"
+        >
           <div className="px-6 md:px-12 py-12 relative">
             <div className="flex flex-col items-center justify-center text-center relative z-10 w-full">
               {profile.profilePicture ? (
@@ -185,34 +202,38 @@ export default function Profile() {
                   />
                 </motion.div>
               ) : (
-                <motion.div 
+                <motion.div
                   initial={{ scale: 0.8, rotate: -5 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ type: "spring", stiffness: 120 }}
                   className="relative shrink-0 group mb-6"
                 >
                   <div className="absolute inset-0 bg-gradient-to-tr from-primary-500 to-accent-500 rounded-[2.5rem] blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                  <div 
-                    className="flex h-44 w-44 items-center justify-center rounded-[2.5rem] border-8 border-white text-7xl font-black text-white shadow-2xl relative z-10 bg-gradient-to-br from-primary-500 to-accent-600"
-                  >
+                  <div className="flex h-44 w-44 items-center justify-center rounded-[2.5rem] border-8 border-white text-7xl font-black text-white shadow-2xl relative z-10 bg-gradient-to-br from-primary-500 to-accent-600">
                     {profile.name?.charAt(0)?.toUpperCase()}
                   </div>
                 </motion.div>
               )}
 
               <div className="mt-2 w-full max-w-3xl mx-auto flex flex-col items-center">
-                <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-neutral-900" style={{ color: "var(--color-neutral-900)" }}>
+                <h1
+                  className="text-4xl md:text-5xl font-extrabold tracking-tight text-neutral-900"
+                  style={{ color: "var(--color-neutral-900)" }}
+                >
                   {profile.name}
                 </h1>
-                
+
                 {(profile.currentRole || profile.company) && (
-                  <p className="text-xl font-bold mt-3 text-primary-600" style={{ color: "var(--color-primary-600)" }}>
+                  <p
+                    className="text-xl font-bold mt-3 text-primary-600"
+                    style={{ color: "var(--color-primary-600)" }}
+                  >
                     {[profile.currentRole, profile.company]
                       .filter(Boolean)
                       .join(" at ")}
                   </p>
                 )}
-                
+
                 <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
                   {profile.location && (
                     <span className="text-sm font-bold flex items-center gap-1.5 px-4 py-2 rounded-xl bg-neutral-100 text-neutral-600 border border-neutral-200 shadow-sm">
@@ -228,7 +249,13 @@ export default function Profile() {
                   )}
                   <span className="text-sm font-bold flex items-center gap-1.5 px-4 py-2 rounded-xl bg-neutral-100 text-neutral-600 border border-neutral-200 shadow-sm">
                     <Calendar className="w-4 h-4 text-primary-500" />
-                    Joined {new Date(profile.createdAt || Date.now()).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+                    Joined{" "}
+                    {new Date(
+                      profile.createdAt || Date.now(),
+                    ).toLocaleDateString(undefined, {
+                      month: "long",
+                      year: "numeric",
+                    })}
                   </span>
                 </div>
               </div>
@@ -262,8 +289,8 @@ export default function Profile() {
                       </>
                     ) : (
                       <>
-                         <Eye className="w-5 h-5 text-success-500" />
-                         Make Public
+                        <Eye className="w-5 h-5 text-success-500" />
+                        Make Public
                       </>
                     )}
                   </button>
@@ -275,7 +302,7 @@ export default function Profile() {
 
         <AnimatePresence mode="wait">
           {editing && isOwnProfile ? (
-            <motion.section 
+            <motion.section
               key="editing"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -292,40 +319,68 @@ export default function Profile() {
               </div>
             </motion.section>
           ) : (
-            <motion.section 
+            <motion.section
               key="viewing"
               variants={itemVariants}
               className="flex flex-col gap-8"
             >
               <div className="space-y-8">
                 <article className="glass-card p-8 md:p-10 shadow-lg border border-white/50 bg-white/80 hover:bg-white transition-colors duration-300">
-                  <h2 className="text-2xl font-extrabold flex items-center gap-3 border-b-2 pb-5 mb-6" style={{ color: "var(--color-neutral-900)", borderColor: "var(--color-neutral-100)" }}>
+                  <h2
+                    className="text-2xl font-extrabold flex items-center gap-3 border-b-2 pb-5 mb-6"
+                    style={{
+                      color: "var(--color-neutral-900)",
+                      borderColor: "var(--color-neutral-100)",
+                    }}
+                  >
                     <div className="p-3 rounded-2xl shadow-sm bg-primary-50 text-primary-600">
                       <User className="w-6 h-6" />
                     </div>
                     About Me
                   </h2>
                   <p className="text-lg font-medium leading-relaxed whitespace-pre-line text-neutral-600">
-                    {profile.bio || "This user prefers to let their skills speak for themselves."}
+                    {profile.bio ||
+                      "This user prefers to let their skills speak for themselves."}
                   </p>
                 </article>
 
                 {profile.experience && profile.experience.length > 0 && (
                   <article className="glass-card p-8 md:p-10 shadow-lg border border-white/50 bg-white/80 hover:bg-white transition-colors duration-300">
-                    <h2 className="text-2xl font-extrabold flex items-center gap-3 border-b-2 pb-5 mb-6" style={{ color: "var(--color-neutral-900)", borderColor: "var(--color-neutral-100)" }}>
-                       <div className="p-3 rounded-2xl shadow-sm bg-accent-50 text-accent-600">
-                         <Briefcase className="w-6 h-6" />
-                       </div>
+                    <h2
+                      className="text-2xl font-extrabold flex items-center gap-3 border-b-2 pb-5 mb-6"
+                      style={{
+                        color: "var(--color-neutral-900)",
+                        borderColor: "var(--color-neutral-100)",
+                      }}
+                    >
+                      <div className="p-3 rounded-2xl shadow-sm bg-accent-50 text-accent-600">
+                        <Briefcase className="w-6 h-6" />
+                      </div>
                       Experience
                     </h2>
                     <div className="space-y-6">
-                      {Array.isArray(profile.experience) ? profile.experience.map((exp, idx) => (
-                        <div key={idx} className="border-l-2 border-accent-200 pl-4 py-1">
-                          <h3 className="text-xl font-bold text-neutral-800">{exp.role}</h3>
-                          <p className="text-lg font-semibold text-accent-600">{exp.company}</p>
-                          <p className="text-sm font-medium text-neutral-500 mt-1.5">{formatDate(exp.from)} — {formatDate(exp.to)}</p>
-                        </div>
-                      )) : (
+                      {Array.isArray(profile.experience) ? (
+                        profile.experience.map((exp, idx) => (
+                          <div
+                            key={idx}
+                            className="border-l-2 border-accent-200 pl-4 py-1"
+                          >
+                            <h3 className="text-xl font-bold text-neutral-800">
+                              {exp.role}
+                            </h3>
+                            <p className="text-lg font-semibold text-accent-600">
+                              {exp.company}
+                            </p>
+                            <p className="text-sm font-medium text-neutral-500 mt-1.5">
+                              {formatDateRange(
+                                exp.from,
+                                exp.to,
+                                exp.to === "Present",
+                              )}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
                         <p className="whitespace-pre-line text-lg font-medium leading-relaxed text-neutral-600">
                           {profile.experience}
                         </p>
@@ -336,20 +391,41 @@ export default function Profile() {
 
                 {profile.education && profile.education.length > 0 && (
                   <article className="glass-card p-8 md:p-10 shadow-lg border border-white/50 bg-white/80 hover:bg-white transition-colors duration-300">
-                    <h2 className="text-2xl font-extrabold flex items-center gap-3 border-b-2 pb-5 mb-6" style={{ color: "var(--color-neutral-900)", borderColor: "var(--color-neutral-100)" }}>
-                       <div className="p-3 rounded-2xl shadow-sm bg-primary-50 text-primary-600">
-                         <GraduationCap className="w-6 h-6" />
-                       </div>
+                    <h2
+                      className="text-2xl font-extrabold flex items-center gap-3 border-b-2 pb-5 mb-6"
+                      style={{
+                        color: "var(--color-neutral-900)",
+                        borderColor: "var(--color-neutral-100)",
+                      }}
+                    >
+                      <div className="p-3 rounded-2xl shadow-sm bg-primary-50 text-primary-600">
+                        <GraduationCap className="w-6 h-6" />
+                      </div>
                       Education
                     </h2>
                     <div className="space-y-6">
-                      {Array.isArray(profile.education) ? profile.education.map((edu, idx) => (
-                        <div key={idx} className="border-l-2 border-primary-200 pl-4 py-1">
-                          <h3 className="text-xl font-bold text-neutral-800">{edu.degree}</h3>
-                          <p className="text-lg font-semibold text-primary-600">{edu.school}</p>
-                          <p className="text-sm font-medium text-neutral-500 mt-1.5">{formatDate(edu.from)} — {formatDate(edu.to)}</p>
-                        </div>
-                      )) : (
+                      {Array.isArray(profile.education) ? (
+                        profile.education.map((edu, idx) => (
+                          <div
+                            key={idx}
+                            className="border-l-2 border-primary-200 pl-4 py-1"
+                          >
+                            <h3 className="text-xl font-bold text-neutral-800">
+                              {edu.degree}
+                            </h3>
+                            <p className="text-lg font-semibold text-primary-600">
+                              {edu.school}
+                            </p>
+                            <p className="text-sm font-medium text-neutral-500 mt-1.5">
+                              {formatDateRange(
+                                edu.from,
+                                edu.to,
+                                edu.isCurrentlyStudying,
+                              )}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
                         <p className="whitespace-pre-line text-lg font-medium leading-relaxed text-neutral-600">
                           {profile.education}
                         </p>
@@ -357,27 +433,33 @@ export default function Profile() {
                     </div>
                   </article>
                 )}
-
               </div>
 
               {/* 2x2 Grid Section */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* 1. Quick Overview */}
-                <motion.article whileHover={{ y: -2 }} className="glass-card p-8 shadow-lg border border-white/50 bg-white/80 h-full flex flex-col">
+                <motion.article
+                  whileHover={{ y: -2 }}
+                  className="glass-card p-8 shadow-lg border border-white/50 bg-white/80 h-full flex flex-col"
+                >
                   <h2 className="text-xl font-extrabold mb-6 border-b-2 pb-4 text-neutral-900 border-neutral-100 flex items-center gap-2">
                     <Globe className="w-5 h-5 text-primary-500" />
                     Quick Overview
                   </h2>
                   <div className="flex flex-col gap-6 flex-grow justify-center">
                     <div className="flex flex-col gap-2">
-                      <p className="text-xs font-bold uppercase tracking-wider text-neutral-400">Availability</p>
+                      <p className="text-xs font-bold uppercase tracking-wider text-neutral-400">
+                        Availability
+                      </p>
                       <p className="text-base font-bold capitalize inline-flex w-fit px-4 py-2 rounded-xl text-primary-700 bg-primary-50 border border-primary-100 shadow-sm">
                         {profile.availability || "Not specified"}
                       </p>
                     </div>
                     {typeof profile.yearsOfExperience === "number" && (
                       <div className="flex flex-col gap-2">
-                        <p className="text-xs font-bold uppercase tracking-wider text-neutral-400">Total Experience</p>
+                        <p className="text-xs font-bold uppercase tracking-wider text-neutral-400">
+                          Total Experience
+                        </p>
                         <p className="text-base font-bold inline-flex w-fit px-4 py-2 rounded-xl text-accent-700 bg-accent-50 border border-accent-100 shadow-sm">
                           {profile.yearsOfExperience}+ Years
                         </p>
@@ -388,7 +470,10 @@ export default function Profile() {
 
                 {/* 2. Top Skills */}
                 {profile.skills?.length > 0 && (
-                  <motion.article whileHover={{ y: -2 }} className="glass-card p-8 shadow-lg border border-white/50 bg-white/80 h-full flex flex-col">
+                  <motion.article
+                    whileHover={{ y: -2 }}
+                    className="glass-card p-8 shadow-lg border border-white/50 bg-white/80 h-full flex flex-col"
+                  >
                     <h2 className="text-xl font-extrabold mb-6 border-b-2 pb-4 text-neutral-900 border-neutral-100">
                       Top Skills
                     </h2>
@@ -406,14 +491,24 @@ export default function Profile() {
                 )}
 
                 {/* 3. Links & Social */}
-                {(profile.githubUrl || profile.linkedinUrl || profile.portfolioUrl) && (
-                  <motion.article whileHover={{ y: -2 }} className="glass-card p-8 shadow-lg border border-white/50 bg-white/80 h-full flex flex-col">
+                {(profile.githubUrl ||
+                  profile.linkedinUrl ||
+                  profile.portfolioUrl) && (
+                  <motion.article
+                    whileHover={{ y: -2 }}
+                    className="glass-card p-8 shadow-lg border border-white/50 bg-white/80 h-full flex flex-col"
+                  >
                     <h2 className="text-xl font-extrabold mb-6 border-b-2 pb-4 text-neutral-900 border-neutral-100">
                       Links & Social
                     </h2>
                     <div className="flex flex-col gap-3 flex-grow justify-center">
                       {profile.githubUrl && (
-                        <a href={profile.githubUrl} target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-xl border border-neutral-200 bg-white shadow-sm hover:shadow-md hover:border-neutral-300 transition-all font-bold text-sm group">
+                        <a
+                          href={profile.githubUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-4 p-4 rounded-xl border border-neutral-200 bg-white shadow-sm hover:shadow-md hover:border-neutral-300 transition-all font-bold text-sm group"
+                        >
                           <div className="p-2 rounded-lg bg-neutral-100 group-hover:bg-neutral-200 transition-colors">
                             <GitBranch className="w-5 h-5 text-neutral-700 group-hover:text-black" />
                           </div>
@@ -421,7 +516,12 @@ export default function Profile() {
                         </a>
                       )}
                       {profile.linkedinUrl && (
-                        <a href={profile.linkedinUrl} target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-xl border border-neutral-200 bg-white shadow-sm hover:shadow-md hover:border-[#0077b5]/30 transition-all font-bold text-sm group">
+                        <a
+                          href={profile.linkedinUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-4 p-4 rounded-xl border border-neutral-200 bg-white shadow-sm hover:shadow-md hover:border-[#0077b5]/30 transition-all font-bold text-sm group"
+                        >
                           <div className="p-2 rounded-lg bg-neutral-100 group-hover:bg-[#0077b5]/10 transition-colors">
                             <Link2 className="w-5 h-5 text-neutral-700 group-hover:text-[#0077b5]" />
                           </div>
@@ -429,7 +529,12 @@ export default function Profile() {
                         </a>
                       )}
                       {profile.portfolioUrl && (
-                        <a href={profile.portfolioUrl} target="_blank" rel="noreferrer" className="flex items-center gap-4 p-4 rounded-xl border border-neutral-200 bg-white shadow-sm hover:shadow-md hover:border-primary-300 transition-all font-bold text-sm group">
+                        <a
+                          href={profile.portfolioUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-4 p-4 rounded-xl border border-neutral-200 bg-white shadow-sm hover:shadow-md hover:border-primary-300 transition-all font-bold text-sm group"
+                        >
                           <div className="p-2 rounded-lg bg-neutral-100 group-hover:bg-primary-50 transition-colors">
                             <Globe className="w-5 h-5 text-neutral-700 group-hover:text-primary-600" />
                           </div>
@@ -442,12 +547,20 @@ export default function Profile() {
 
                 {/* 4. Resume */}
                 {profile.resume && (
-                  <motion.article whileHover={{ y: -2 }} className="glass-card p-8 shadow-lg border border-white/50 bg-white/80 h-full flex flex-col justify-center">
+                  <motion.article
+                    whileHover={{ y: -2 }}
+                    className="glass-card p-8 shadow-lg border border-white/50 bg-white/80 h-full flex flex-col justify-center"
+                  >
                     <h2 className="text-xl font-extrabold mb-6 border-b-2 pb-4 flex items-center gap-2 text-neutral-900 border-neutral-100">
                       <FileText className="w-5 h-5 text-error-500" />
                       Resume
                     </h2>
-                    <a href={profile.resume} target="_blank" rel="noreferrer" className="block w-full text-center py-4 font-bold rounded-xl transition-all shadow-md hover:-translate-y-1 hover:shadow-lg bg-error-50 text-error-600 border border-error-200 hover:bg-error-100">
+                    <a
+                      href={profile.resume}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block w-full text-center py-4 font-bold rounded-xl transition-all shadow-md hover:-translate-y-1 hover:shadow-lg bg-error-50 text-error-600 border border-error-200 hover:bg-error-100"
+                    >
                       View / Download Resume
                     </a>
                   </motion.article>
@@ -457,7 +570,10 @@ export default function Profile() {
               {/* Danger Zone - full width outside grid */}
               {isOwnProfile && !editing && (
                 <div className="mt-4">
-                  <motion.article whileHover={{ y: -2 }} className="glass-card p-8 shadow-lg border bg-error-50/30 border-error-200 flex flex-col justify-center">
+                  <motion.article
+                    whileHover={{ y: -2 }}
+                    className="glass-card p-8 shadow-lg border bg-error-50/30 border-error-200 flex flex-col justify-center"
+                  >
                     <h2 className="text-xl font-extrabold flex items-center gap-3 border-b-2 pb-5 mb-5 text-error-700 border-error-100">
                       <div className="p-2 rounded-xl bg-error-100 text-error-600 shadow-sm">
                         <Trash2 className="w-5 h-5" />
@@ -465,9 +581,13 @@ export default function Profile() {
                       Danger Zone
                     </h2>
                     <p className="text-sm font-semibold mb-6 leading-relaxed text-error-800/80">
-                      Permanently delete your account and all associated data. This action cannot be undone.
+                      Permanently delete your account and all associated data.
+                      This action cannot be undone.
                     </p>
-                    <button onClick={() => setShowDeleteModal(true)} className="w-full py-3.5 flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg hover:shadow-red-500/30 transition-all">
+                    <button
+                      onClick={() => setShowDeleteModal(true)}
+                      className="w-full py-3.5 flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg hover:shadow-red-500/30 transition-all"
+                    >
                       <Trash2 className="w-4 h-4" />
                       Delete Account
                     </button>
@@ -479,7 +599,10 @@ export default function Profile() {
         </AnimatePresence>
       </motion.div>
 
-      <DeleteAccountModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} />
+      <DeleteAccountModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }

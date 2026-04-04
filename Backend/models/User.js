@@ -88,6 +88,7 @@ const userSchema = new mongoose.Schema(
         degree: { type: String },
         from: { type: String },
         to: { type: String },
+        isCurrentlyStudying: { type: Boolean, default: false },
       },
     ],
     experience: [

@@ -54,7 +54,7 @@ export default function Home() {
   const { user } = useAuth();
 
   useEffect(() => {
-    setPageTitle("Skillify | Freelancer Network");
+    setPageTitle("Home");
     return () => resetPageTitle();
   }, []);
 

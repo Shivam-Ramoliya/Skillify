@@ -2,7 +2,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LogOut, Code2 } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 
 const guestLinks = [
   { to: "/", label: "Home" },
@@ -47,8 +47,12 @@ export default function NavBar() {
       <nav className="page-container relative z-10">
         <div className="flex h-[4.5rem] items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl shadow-md transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 bg-gradient-to-br from-primary-600 to-accent-500">
-              <Code2 className="w-6 h-6 text-white" />
+            <div className="flex h-12 w-12 items-center justify-center overflow-hidden bg-white/70 backdrop-blur-2xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+              <img
+                src="/Skillify.png"
+                alt="Skillify"
+                className="h-full w-full object-contain"
+              />
             </div>
             <div>
               <p className="text-xl font-extrabold tracking-tight transition-colors duration-300 text-neutral-900 group-hover:text-primary-600">
@@ -91,7 +95,11 @@ export default function NavBar() {
             className="rounded-xl p-2.5 md:hidden transition-all text-neutral-600 hover:bg-neutral-100 focus:outline-none"
             aria-label="Toggle menu"
           >
-            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {mobileOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
           </button>
         </div>
 
@@ -128,7 +136,7 @@ export default function NavBar() {
                     </NavLink>
                   </motion.div>
                 ))}
-                
+
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
